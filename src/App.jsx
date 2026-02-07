@@ -32,7 +32,7 @@ export default function App() {
     rafId = requestAnimationFrame(followMouse);
 
     const observerOptions = {
-      threshold: 0.1,
+      threshold: 0.15,
       rootMargin: '0px 0px -50px 0px'
     };
 
@@ -397,27 +397,29 @@ export default function App() {
                   icon: <Sparkles size={36} /> 
                 }
               ].map((service, idx) => (
-                <div 
-                  key={idx} 
-                  onTouchStart={() => setActiveTouch(service.id)}
-                  onTouchEnd={() => setActiveTouch(null)}
-                  className={`mc-container p-8 group reveal relative border-white/10 transition-all duration-300 transform bg-[#c6c6c6]
-                    ${activeTouch === service.id ? 'bg-[#32CD32] -translate-y-2' : 'hover:bg-[#32CD32] hover:-translate-y-2'}`}
-                >
-                  <div className={`mb-6 transition-colors duration-300 text-black
-                    ${activeTouch === service.id ? 'opacity-100' : 'opacity-80 group-hover:opacity-100'}
-                    drop-shadow-[0_0_8px_rgba(0,0,0,0.1)]`}>
-                    {service.icon}
-                  </div>
-                  <h3 className={`text-2xl font-black uppercase mb-4 transition-colors duration-300 leading-tight tracking-wider text-black`}>
-                    {service.t}
-                  </h3>
-                  <p className={`text-lg font-bold leading-snug transition-colors duration-300 text-black/90`}>
-                    {service.d}
-                  </p>
-                  
-                  <div className="md:hidden absolute bottom-4 right-4 text-black/40">
-                    <ArrowUpRight size={16} />
+                <div key={idx} className="reveal">
+                  <div 
+                    onTouchStart={() => setActiveTouch(service.id)}
+                    onTouchEnd={() => setActiveTouch(null)}
+                    onTouchCancel={() => setActiveTouch(null)}
+                    className={`mc-container p-8 h-full bg-[#c6c6c6] group relative border-white/10 transition-all duration-300 transform 
+                      ${activeTouch === service.id ? 'bg-[#32CD32] -translate-y-2' : 'hover:bg-[#32CD32] hover:-translate-y-2'}`}
+                  >
+                    <div className={`mb-6 transition-colors duration-300 text-black
+                      ${activeTouch === service.id ? 'opacity-100' : 'opacity-80 group-hover:opacity-100'}
+                      drop-shadow-[0_0_8px_rgba(0,0,0,0.1)]`}>
+                      {service.icon}
+                    </div>
+                    <h3 className={`text-2xl font-black uppercase mb-4 transition-colors duration-300 leading-tight tracking-wider text-black`}>
+                      {service.t}
+                    </h3>
+                    <p className={`text-lg font-bold leading-snug transition-colors duration-300 text-black/90`}>
+                      {service.d}
+                    </p>
+                    
+                    <div className="md:hidden absolute bottom-4 right-4 text-black/40">
+                      <ArrowUpRight size={16} />
+                    </div>
                   </div>
                 </div>
               ))}
