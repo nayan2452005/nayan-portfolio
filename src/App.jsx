@@ -31,7 +31,6 @@ export default function App() {
     window.addEventListener('mousemove', handleMouseMove);
     rafId = requestAnimationFrame(followMouse);
 
-    // Enhanced Intersection Observer for Mobile
     const observerOptions = {
       threshold: 0.1,
       rootMargin: '0px 0px -50px 0px'
@@ -282,9 +281,9 @@ export default function App() {
                 </div>
               </div>
 
-              <div className="mc-container p-6 bg-[#1a1a1a] border-white/20 reveal">
-                <h3 className="text-white text-xl uppercase mb-6 flex items-center gap-2">
-                  <Activity size={18} className="text-[#32CD32]" /> Character Stats
+              <div className="mc-container p-6 bg-[#c6c6c6] border-black/20 reveal">
+                <h3 className="text-black text-xl font-bold uppercase mb-6 flex items-center gap-2 border-b-2 border-black/20 pb-2">
+                  <Activity size={18} className="text-black" /> Character Stats
                 </h3>
                 <div className="space-y-6">
                   {[
@@ -295,18 +294,20 @@ export default function App() {
                   ].map((stat, i) => (
                     <div key={i} className="space-y-2">
                       <div className="flex justify-between text-sm uppercase">
-                        <span className="text-white font-bold">{stat.label}</span>
-                        <span className="text-[#32CD32] font-bold">{stat.val}/100</span>
+                        <span className="text-black font-black">{stat.label}</span>
+                        <span className="text-black font-black">{stat.val}/100</span>
                       </div>
-                      <div className="h-4 bg-black border border-white/20 p-[2px]">
+                      <div className="h-6 bg-black border-2 border-black p-[2px] relative overflow-hidden">
                         <div 
-                          className="h-full transition-all duration-1000 ease-out"
+                          className="h-full transition-all duration-1000 ease-out flex items-center justify-end pr-2"
                           style={{ 
                             width: `${stat.val}%`, 
                             backgroundColor: stat.color,
-                            boxShadow: `0 0 10px ${stat.color}66`
+                            boxShadow: `inset -4px 0 0 rgba(0,0,0,0.1)`
                           }}
-                        />
+                        >
+                          <span className="text-[10px] font-black text-black/80">{stat.val}%</span>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -400,20 +401,18 @@ export default function App() {
                   key={idx} 
                   onTouchStart={() => setActiveTouch(service.id)}
                   onTouchEnd={() => setActiveTouch(null)}
-                  className={`mc-container p-8 bg-[#222222] group reveal relative border-white/10 transition-all duration-300 transform 
+                  className={`mc-container p-8 group reveal relative border-white/10 transition-all duration-300 transform bg-[#c6c6c6]
                     ${activeTouch === service.id ? 'bg-[#32CD32] -translate-y-2' : 'hover:bg-[#32CD32] hover:-translate-y-2'}`}
                 >
-                  <div className={`mb-6 transition-colors duration-300 
-                    ${activeTouch === service.id ? 'text-black' : 'text-[#32CD32] group-hover:text-black'}
-                    drop-shadow-[0_0_8px_rgba(50,205,50,0.4)]`}>
+                  <div className={`mb-6 transition-colors duration-300 text-black
+                    ${activeTouch === service.id ? 'opacity-100' : 'opacity-80 group-hover:opacity-100'}
+                    drop-shadow-[0_0_8px_rgba(0,0,0,0.1)]`}>
                     {service.icon}
                   </div>
-                  <h3 className={`text-2xl font-black uppercase mb-4 transition-colors duration-300 leading-tight tracking-wider
-                    ${activeTouch === service.id ? 'text-black' : 'text-white group-hover:text-black'}`}>
+                  <h3 className={`text-2xl font-black uppercase mb-4 transition-colors duration-300 leading-tight tracking-wider text-black`}>
                     {service.t}
                   </h3>
-                  <p className={`text-lg font-bold leading-snug transition-colors duration-300
-                    ${activeTouch === service.id ? 'text-black opacity-90' : 'text-[#FFFFFF] group-hover:text-black group-hover:opacity-90'}`}>
+                  <p className={`text-lg font-bold leading-snug transition-colors duration-300 text-black/90`}>
                     {service.d}
                   </p>
                   
