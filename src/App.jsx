@@ -1,9 +1,15 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { ArrowUpRight, Github, Linkedin, Mail, ChevronDown, Menu, X, Code2, Brain, Sparkles, ExternalLink, Activity, ShieldAlert, Cpu, Copy, Check, Users, Landmark } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { 
+  ArrowUpRight, Github, Linkedin, Menu, X, Code2, 
+  Activity, ShieldAlert, Cpu, Users, Target, Mail, Check, Database, Terminal, 
+  Brain, Search, MessageSquare, Lightbulb, Puzzle, Laptop, Sparkles, Wrench
+} from 'lucide-react';
 
 export default function App() {
-  const [activeSection, setActiveSection] = useState('hero');
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [followerPos, setFollowerPos] = useState({ x: 0, y: 0 });
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     document.documentElement.style.scrollBehavior = 'smooth';
@@ -11,18 +17,18 @@ export default function App() {
     const handleMouseMove = (e) => {
       setMousePos({ x: e.clientX, y: e.clientY });
     };
-    window.addEventListener('mousemove', handleMouseMove);
 
-    const link = document.createElement('link');
-    link.href = 'https://fonts.googleapis.com/css2?family=Instrument+Serif:italic@0;1&display=swap';
-    link.rel = 'stylesheet';
-    document.head.appendChild(link);
-
-    // Initialize intersection observer for scroll animations
-    const observerOptions = {
-      threshold: 0.1,
-      rootMargin: '0px 0px -50px 0px'
+    let rafId;
+    const followMouse = () => {
+      setFollowerPos(prev => ({
+        x: prev.x + (mousePos.x - prev.x) * 0.12,
+        y: prev.y + (mousePos.y - prev.y) * 0.12
+      }));
+      rafId = requestAnimationFrame(followMouse);
     };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    rafId = requestAnimationFrame(followMouse);
 
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
@@ -30,498 +36,404 @@ export default function App() {
           entry.target.classList.add('reveal-active');
         }
       });
-    }, observerOptions);
+    }, { threshold: 0.15 });
 
-    const revealElements = document.querySelectorAll('.reveal');
-    revealElements.forEach(el => observer.observe(el));
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
     return () => {
-      document.documentElement.style.scrollBehavior = 'auto';
       window.removeEventListener('mousemove', handleMouseMove);
+      cancelAnimationFrame(rafId);
       observer.disconnect();
     };
-  }, []);
-
-  return (
-    <div className="min-h-screen bg-[#020203] text-zinc-400 selection:bg-cyan-500/20 selection:text-cyan-100 font-sans antialiased overflow-x-hidden cursor-none">
-      <style>{`
-        .reveal {
-          opacity: 0;
-          transform: translateY(30px);
-          transition: all 0.8s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-        .reveal-active {
-          opacity: 1;
-          transform: translateY(0);
-        }
-        .reveal-delay-1 { transition-delay: 0.1s; }
-        .reveal-delay-2 { transition-delay: 0.2s; }
-        .reveal-delay-3 { transition-delay: 0.3s; }
-      `}</style>
-
-      {/* Custom Cursor Tracker */}
-      <div 
-        className="fixed top-0 left-0 w-8 h-8 border border-cyan-500/50 rounded-full pointer-events-none z-[9999] transition-transform duration-150 ease-out hidden md:block"
-        style={{ 
-          transform: `translate(${mousePos.x - 16}px, ${mousePos.y - 16}px)`,
-        }}
-      />
-      <div 
-        className="fixed top-0 left-0 w-1 h-1 bg-cyan-500 rounded-full pointer-events-none z-[9999] hidden md:block"
-        style={{ 
-          transform: `translate(${mousePos.x - 2}px, ${mousePos.y - 2}px)`,
-        }}
-      />
-
-      {/* Muted Background Glows */}
-      <div className="fixed top-0 left-0 w-full h-full pointer-events-none z-0">
-        <div 
-          className="absolute top-[-5%] left-[-5%] w-[40%] h-[40%] bg-cyan-900/10 rounded-full blur-[100px] transition-transform duration-700 ease-out"
-          style={{ transform: `translate(${mousePos.x * 0.02}px, ${mousePos.y * 0.02}px)` }}
-        />
-        <div 
-          className="absolute bottom-[-5%] right-[-5%] w-[40%] h-[40%] bg-purple-900/5 rounded-full blur-[100px] transition-transform duration-700 ease-out"
-          style={{ transform: `translate(${-mousePos.x * 0.01}px, ${-mousePos.y * 0.01}px)` }}
-        />
-      </div>
-
-      <Navbar activeSection={activeSection} />
-      <Hero />
-      <About />
-      <Skills />
-      <Work />
-      <Contact />
-      <Footer />
-    </div>
-  );
-}
-
-/* ---------------- SHARED COMPONENTS ---------------- */
-
-function Section({ id, className = "", children }) {
-  return (
-    <section id={id} className={`py-24 md:py-32 relative z-10 ${className}`}>
-      {children}
-    </section>
-  );
-}
-
-function Container({ children, className = "" }) {
-  return (
-    <div className={`max-w-6xl mx-auto px-6 md:px-12 ${className}`}>
-      {children}
-    </div>
-  );
-}
-
-function SectionHeading({ number, title }) {
-  return (
-    <div className="flex items-center gap-4 mb-12 md:mb-16 group reveal">
-      <span className="font-mono text-xs text-cyan-500/60 font-bold">{number}</span>
-      <h2 className="text-2xl md:text-3xl font-black tracking-tight text-white uppercase italic transition-transform group-hover:translate-x-2 duration-300">
-        {title}
-      </h2>
-      <div className="h-[1px] bg-zinc-800 flex-1 ml-4" />
-    </div>
-  );
-}
-
-/* ---------------- NAVBAR ---------------- */
-
-function Navbar() {
-  const [scrolled, setScrolled] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const navLinks = [
-    { name: 'About', href: '#about' },
-    { name: 'Skills', href: '#skills' },
-    { name: 'Projects', href: '#work' },
-    { name: 'Contact', href: '#contact' },
-  ];
-
-  return (
-    <nav
-      className={`fixed top-0 w-full z-50 transition-all duration-500 ${
-        scrolled ? 'bg-[#020203]/80 backdrop-blur-md py-4' : 'bg-transparent py-8'
-      }`}
-    >
-      <Container className="flex justify-between items-center">
-        <a href="#" className="text-xl font-black tracking-tighter text-white z-50 hover:opacity-70 transition-all hover:scale-105">
-          NC<span className="text-cyan-500">.</span>
-        </a>
-
-        <div className="hidden md:flex gap-10 text-[10px] font-bold uppercase tracking-[0.2em]">
-          {navLinks.map((link) => (
-            <a
-              key={link.name}
-              href={link.href}
-              className="text-zinc-500 hover:text-white transition-all relative group"
-            >
-              {link.name}
-              <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-cyan-500 transition-all duration-300 group-hover:w-full" />
-            </a>
-          ))}
-        </div>
-
-        <button 
-          className="md:hidden text-white z-50"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        >
-          {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
-
-        {mobileMenuOpen && (
-          <div className="fixed inset-0 bg-[#020203] flex flex-col items-center justify-center gap-10 md:hidden animate-in fade-in duration-300">
-             {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-3xl text-white font-black hover:text-cyan-400 uppercase italic tracking-tighter"
-              >
-                {link.name}
-              </a>
-            ))}
-          </div>
-        )}
-      </Container>
-    </nav>
-  );
-}
-
-/* ---------------- HERO ---------------- */
-
-function Hero() {
-  return (
-    <section className="min-h-screen flex items-center pt-20 relative overflow-hidden">
-      <Container className="relative z-10">
-        <div className="max-w-4xl">
-          <div className="flex flex-col gap-4 mb-10 animate-in fade-in slide-in-from-bottom-6 duration-1000">
-             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500 w-fit">
-              <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 shadow-[0_0_8px_rgba(6,182,212,0.8)] animate-pulse" />
-              Student @ Jain University
-            </div>
-            
-            <h2 className="text-xl md:text-2xl font-normal text-white/80 font-['Instrument_Serif'] italic tracking-tight">
-               Nayan Choraria
-            </h2>
-          </div>
-
-          <h1 className="text-5xl md:text-7xl lg:text-[90px] font-black tracking-tighter text-white leading-[0.9] mb-12 uppercase italic animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-150">
-            Decoding <br />
-            <span className="text-transparent transition-all duration-500 hover:text-white/10" style={{ WebkitTextStroke: '1px rgba(255,255,255,0.15)' }}>Complexity</span> <br />
-            <span className="text-cyan-500/80">Defining AI</span>
-          </h1>
-
-          <p className="text-base md:text-lg text-zinc-500 max-w-xl leading-relaxed mb-12 font-medium border-l border-zinc-800 pl-6 transition-colors hover:border-cyan-500/50 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-300">
-            BCA-AI student at Jain University. Bridging the gap between <span className="text-zinc-300">mathematical logic</span> and autonomous systems through a calculative visionary lens.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-5 animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-500">
-            <a 
-              href="#work" 
-              className="group relative inline-flex items-center justify-center h-14 px-10 rounded-full bg-white text-black text-xs font-black uppercase tracking-widest transition-all hover:bg-cyan-400 active:scale-95 duration-300"
-            >
-              View Projects
-            </a>
-            <a 
-              href="#contact" 
-              className="inline-flex items-center justify-center h-14 px-10 rounded-full border border-zinc-800 text-zinc-400 text-xs font-black uppercase tracking-widest hover:border-zinc-600 hover:text-white transition-all duration-300 active:scale-95"
-            >
-              Contact
-            </a>
-          </div>
-        </div>
-      </Container>
-      
-      <div className="absolute bottom-10 left-12 text-zinc-800 hidden md:block animate-bounce">
-        <div className="flex flex-col items-center gap-4">
-            <div className="h-20 w-[1px] bg-gradient-to-b from-transparent to-zinc-800" />
-            <span className="text-[10px] font-bold uppercase tracking-[0.3em] [writing-mode:vertical-rl]">Scroll</span>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ---------------- ABOUT ---------------- */
-
-function About() {
-  return (
-    <Section id="about" className="bg-[#040406]">
-      <Container>
-        <SectionHeading number="01" title="The Architect" />
-        
-        <div className="grid md:grid-cols-2 gap-12 md:gap-24 items-center">
-          <div className="space-y-8 text-lg text-zinc-500 font-medium reveal">
-            <p className="leading-relaxed">
-              <strong className="text-white text-2xl block mb-4 italic uppercase font-black tracking-tighter">Obsessed with logic.</strong>
-              I dissect complex problems to find elegant solutions. My focus is on the intersection of data integrity and model performance.
-            </p>
-            
-            <div className="p-6 rounded-2xl bg-cyan-500/[0.03] border border-cyan-500/10 flex items-start gap-4 transition-all hover:bg-cyan-500/[0.08] hover:border-cyan-500/30 group reveal reveal-delay-1">
-               <div className="p-2 bg-cyan-500/10 rounded-lg text-cyan-500 mt-1 transition-transform group-hover:scale-110">
-                 <Users size={18} />
-               </div>
-               <div>
-                  <h4 className="text-zinc-200 font-bold uppercase text-xs tracking-widest mb-1">Joint Secretary</h4>
-                  <p className="text-sm text-zinc-500 italic">Marwari Yuva Manch</p>
-                  <p className="text-xs text-zinc-600 mt-2 transition-colors group-hover:text-zinc-400">Spearheading social initiatives and organizational strategy with a focus on impact-driven leadership.</p>
-               </div>
-            </div>
-
-            <div className="p-8 rounded-2xl bg-white/[0.02] border border-white/5 italic text-zinc-400 hover:text-zinc-300 transition-colors reveal reveal-delay-2">
-               "I dream in data but execute with calculation. Every big vision requires a surgical strategy to come to life."
-            </div>
-          </div>
-
-          <div className="relative reveal reveal-delay-1">
-            <div className="aspect-square rounded-3xl bg-zinc-900 border border-white/5 p-8 flex items-center justify-center relative overflow-hidden group transition-all duration-700 hover:border-cyan-500/30 hover:scale-[1.02]">
-                <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
-                
-                <div className="grid grid-cols-2 gap-4 relative z-10 w-full">
-                  {[
-                    { label: "Vision", val: "100%", color: "bg-cyan-500" },
-                    { label: "Logic", val: "95%", color: "bg-white/40" },
-                    { label: "Leadership", val: "Joint Sec", color: "bg-white/40" },
-                    { label: "AI", val: "Core", color: "bg-cyan-500/50" }
-                  ].map(stat => (
-                    <div key={stat.label} className="bg-white/5 p-5 rounded-xl border border-white/5 transition-all hover:bg-white/[0.08] hover:-translate-y-1">
-                      <span className="text-[9px] uppercase font-bold text-zinc-600 block mb-1 tracking-widest">{stat.label}</span>
-                      <span className="text-lg font-black text-zinc-200">{stat.val}</span>
-                      <div className="h-0.5 w-full mt-2 bg-zinc-800 rounded-full overflow-hidden">
-                         <div className={`h-full ${stat.color} transition-all duration-1000 w-0 group-hover:w-full`} />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-            </div>
-          </div>
-        </div>
-      </Container>
-    </Section>
-  );
-}
-
-/* ---------------- SKILLS ---------------- */
-
-function Skills() {
-  const [activeTab, setActiveTab] = useState('technical');
-
-  const skills = {
-    technical: [
-      { name: "Python / AI", icon: <Cpu size={24} /> },
-      { name: "Data Analysis", icon: <Activity size={24} /> },
-      { name: "Web Systems", icon: <ExternalLink size={24} /> },
-      { name: "IoT Arch", icon: <Cpu size={24} /> },
-      { name: "Documentation", icon: <Code2 size={24} /> },
-      { name: "Git Workflow", icon: <Github size={24} /> }
-    ],
-    essence: [
-      { name: "Leadership", icon: "👑" },
-      { name: "Vision", icon: "🔭" },
-      { name: "Strategy", icon: "♟️" },
-      { name: "Creative", icon: "💡" },
-      { name: "Speaker", icon: "🎙️" },
-      { name: "Agile", icon: "🌊" }
-    ]
-  };
-
-  return (
-    <Section id="skills">
-      <Container>
-        <SectionHeading number="02" title="The Arsenal" />
-
-        <div className="flex gap-4 mb-12 reveal">
-          {['technical', 'essence'].map(tab => (
-            <button 
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-6 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all active:scale-95 ${
-                activeTab === tab 
-                ? 'bg-white text-black' 
-                : 'border border-zinc-800 text-zinc-600 hover:text-white hover:border-zinc-500'
-              }`}
-            >
-              {tab === 'technical' ? 'Technical' : 'Core DNA'}
-            </button>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {skills[activeTab].map((skill, idx) => (
-            <div 
-              key={skill.name} 
-              className={`group p-8 rounded-2xl bg-white/[0.01] border border-white/5 hover:border-cyan-500/30 hover:bg-white/[0.03] transition-all duration-500 cursor-default reveal reveal-delay-${(idx % 3) + 1}`}
-            >
-              <div className="mb-4 opacity-30 group-hover:opacity-100 group-hover:text-cyan-500 transition-all duration-500 transform group-hover:scale-110">
-                {skill.icon}
-              </div>
-              <h3 className="text-zinc-200 font-bold uppercase italic text-sm tracking-wide">{skill.name}</h3>
-            </div>
-          ))}
-        </div>
-      </Container>
-    </Section>
-  );
-}
-
-/* ---------------- WORK ---------------- */
-
-function Work() {
-  const projects = [
-    {
-      title: "Honeypot Scam Detection",
-      description: "Aggressive AI security layer designed to bait and neutralize malicious actors.",
-      tech: ["Security", "Python", "ML"],
-      icon: <ShieldAlert className="group-hover:text-cyan-500" />
-    },
-    {
-      title: "AQI Monitor Pro",
-      description: "Real-time environmental data visualization engine using IoT sensor data.",
-      tech: ["IoT", "React", "Data"],
-      icon: <Activity className="group-hover:text-cyan-500" />
-    }
-  ];
-
-  return (
-    <Section id="work" className="bg-[#040406]">
-      <Container>
-        <SectionHeading number="03" title="Projects" />
-
-        <div className="grid md:grid-cols-2 gap-6">
-          {projects.map((project, index) => (
-            <div 
-              key={index}
-              className={`group p-8 rounded-3xl bg-[#020203] border border-white/5 hover:border-cyan-500/20 hover:-translate-y-2 transition-all duration-500 overflow-hidden relative reveal reveal-delay-${index + 1}`}
-            >
-                <div className="absolute -right-20 -top-20 w-40 h-40 bg-cyan-500/5 rounded-full blur-3xl group-hover:bg-cyan-500/10 transition-all duration-500" />
-                
-                <div className="flex justify-between items-start mb-10 relative z-10">
-                  <div className="p-3 rounded-xl bg-white/5 text-zinc-500 transition-colors group-hover:bg-cyan-500/10 group-hover:text-cyan-500">
-                    {project.icon}
-                  </div>
-                  <ArrowUpRight className="text-zinc-800 group-hover:text-cyan-500 transition-all group-hover:rotate-45" size={20} />
-                </div>
-                
-                <h3 className="text-2xl font-black text-white uppercase italic mb-3 relative z-10 transition-colors group-hover:text-cyan-50">
-                  {project.title}
-                </h3>
-                
-                <p className="text-zinc-500 text-sm mb-8 leading-relaxed relative z-10">
-                  {project.description}
-                </p>
-
-                <div className="flex flex-wrap gap-3 relative z-10">
-                  {project.tech.map(t => (
-                    <span key={t} className="text-[10px] font-bold uppercase tracking-widest text-zinc-700 group-hover:text-cyan-500/60 transition-colors">
-                      {t}
-                    </span>
-                  ))}
-                </div>
-            </div>
-          ))}
-        </div>
-      </Container>
-    </Section>
-  );
-}
-
-/* ---------------- CONTACT ---------------- */
-
-function Contact() {
-  const [copied, setCopied] = useState(false);
-  const email = "nayanchoraria111@gmail.com";
+  }, [mousePos]);
 
   const copyEmail = () => {
+    const email = "nayanchoraria111@gmail.com";
     const el = document.createElement('textarea');
     el.value = email;
     document.body.appendChild(el);
     el.select();
     document.execCommand('copy');
     document.body.removeChild(el);
-    
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   return (
-    <Section id="contact">
-      <Container>
-        <div className="relative py-20 px-8 rounded-3xl bg-white/[0.01] border border-white/5 text-center overflow-hidden group reveal">
-          <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/0 via-cyan-500/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-          
-          <h2 className="text-4xl md:text-6xl font-black text-white uppercase italic tracking-tighter mb-12 relative z-10">
-            Let's Start <br />
-             <span className="text-zinc-800 group-hover:text-zinc-600 transition-colors duration-700">Something Big.</span>
-          </h2>
-          
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 relative z-10">
-            <button
-              onClick={copyEmail}
-              className={`h-14 px-10 rounded-full font-bold uppercase tracking-widest text-[10px] transition-all active:scale-95 ${
-                copied ? 'bg-green-500 text-white' : 'bg-white text-black hover:bg-cyan-400'
-              }`}
-            >
-              {copied ? 'Copied!' : 'Copy Email Address'}
-            </button>
+    <div className="min-h-screen bg-[#1e1e1e] text-[#AAAAAA] selection:bg-[#32CD32]/40 selection:text-white antialiased overflow-x-hidden text-[14px]"
+         style={{ fontFamily: "'VT323', monospace" }}>
+      
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+        
+        * { cursor: none !important; image-rendering: pixelated; }
+        
+        .mc-container {
+          background: #c6c6c6;
+          border-top: 2px solid #ffffff;
+          border-left: 2px solid #ffffff;
+          border-right: 2px solid #555555;
+          border-bottom: 2px solid #555555;
+          box-shadow: inset -2px -2px 0 #8b8b8b, inset 2px 2px 0 #dbdbdb;
+        }
 
-            <a
-              href="https://www.linkedin.com/in/nayan-choraria-026076266/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="h-14 px-10 rounded-full border border-zinc-800 text-zinc-500 font-bold uppercase tracking-widest text-[10px] hover:text-white hover:border-cyan-500/50 transition-all flex items-center gap-2 active:scale-95"
-            >
-              <Linkedin size={14} />
-              LinkedIn
-            </a>
+        .mc-btn {
+          background: #c6c6c6;
+          border: 2px solid #000;
+          box-shadow: inset -2px -2px 0 #555555, inset 2px 2px 0 #ffffff;
+          padding: 4px 12px;
+          color: #3f3f3f;
+          transition: all 0.1s;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .mc-btn:hover {
+          background: #32CD32;
+          color: white;
+          box-shadow: inset -2px -2px 0 #1a6b1a, inset 2px 2px 0 #a5e0a5;
+        }
+
+        .reveal { 
+          opacity: 0; 
+          transform: translateY(30px); 
+          transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .reveal-active { 
+          opacity: 1; 
+          transform: translateY(0); 
+        }
+
+        .grass-divider {
+          height: 12px;
+          background: #4ca43e;
+          border-bottom: 4px solid #3d8432;
+          width: 100%;
+        }
+        
+        .dirt-texture {
+          background-color: #79553a;
+          background-image: repeating-conic-gradient(#6d4c33 0% 25%, transparent 0% 50%) 50% / 8px 8px;
+        }
+
+        @keyframes xp-glow {
+          0%, 100% { filter: drop-shadow(0 0 2px #7bff00) brightness(1); }
+          50% { filter: drop-shadow(0 0 8px #fffb00) brightness(1.2); }
+        }
+        .xp-orb { animation: xp-glow 1s infinite ease-in-out; }
+
+        @keyframes furnace-glow {
+          0%, 100% { fill: #ff9900; filter: drop-shadow(0 0 2px #ff4400); }
+          50% { fill: #ffcc00; filter: drop-shadow(0 0 5px #ffaa00); }
+        }
+        .burn-active { animation: furnace-glow 1.2s infinite ease-in-out; }
+
+        @media (max-width: 768px) { 
+          * { cursor: auto !important; }
+          .cursor-xp, .crosshair { display: none; }
+        }
+      `}</style>
+
+      {/* XP Orb Cursor Follower */}
+      <div 
+        className="fixed top-0 left-0 w-6 h-6 pointer-events-none z-[9999] hidden md:block cursor-xp"
+        style={{ transform: `translate(${followerPos.x - 12}px, ${followerPos.y - 12}px)` }}
+      >
+        <svg width="24" height="24" viewBox="0 0 8 8" className="xp-orb">
+          <rect x="2" y="0" width="4" height="8" fill="#4ade80" />
+          <rect x="0" y="2" width="8" height="4" fill="#4ade80" />
+          <rect x="2" y="2" width="4" height="4" fill="#fef08a" />
+          <rect x="3" y="3" width="2" height="2" fill="#ffffff" />
+          <rect x="2" y="0" width="4" height="1" fill="#166534" />
+          <rect x="2" y="7" width="4" height="1" fill="#166534" />
+          <rect x="0" y="2" width="1" height="4" fill="#166534" />
+          <rect x="7" y="2" width="1" height="4" fill="#166534" />
+        </svg>
+      </div>
+
+      {/* Crosshair */}
+      <div 
+        className="fixed top-0 left-0 w-6 h-6 pointer-events-none z-[10000] hidden md:block crosshair"
+        style={{ transform: `translate(${mousePos.x - 12}px, ${mousePos.y - 12}px)` }}
+      >
+        <div className="absolute top-1/2 left-0 w-full h-0.5 bg-white opacity-40"></div>
+        <div className="absolute left-1/2 top-0 h-full w-0.5 bg-white opacity-40"></div>
+      </div>
+
+      <nav className="fixed top-0 w-full z-[100] bg-[#1e1e1e]/95 border-b-4 border-black py-3">
+        <div className="max-w-5xl mx-auto px-6 flex justify-between items-center">
+          <a href="#" className="text-2xl font-bold text-white tracking-tighter uppercase">
+            <span className="text-[#32CD32]">NC</span>.
+          </a>
+          <div className="hidden md:flex gap-6 uppercase text-xl">
+            {['Philosophy', 'Arsenal', 'Services', 'Lab', 'Connect'].map(l => (
+              <a key={l} href={`#${l.toLowerCase()}`} className="text-[#AAAAAA] hover:text-[#32CD32] transition-colors tracking-widest">{l}</a>
+            ))}
           </div>
-          
-          <div className="mt-10 text-zinc-800 font-mono text-[10px] uppercase tracking-[0.4em] relative z-10 transition-colors group-hover:text-zinc-700">
-            {email}
+          <button className="md:hidden text-white" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+            {isMenuOpen ? <X /> : <Menu />}
+          </button>
+        </div>
+      </nav>
+
+      <main>
+        {/* Hero */}
+        <section className="min-h-screen flex items-center pt-20 px-6 relative dirt-texture">
+          <div className="max-w-5xl mx-auto w-full relative z-10 bg-[#000000]/75 p-8 border-4 border-black shadow-[16px_16px_0_rgba(0,0,0,0.5)]">
+            <div className="reveal">
+              <div className="flex flex-wrap items-center gap-4 bg-black/40 border-2 border-black px-4 py-3 mb-6 w-fit">
+                <svg width="32" height="32" viewBox="0 0 16 16" fill="none" className="shrink-0 border-2 border-black">
+                  <rect width="16" height="16" fill="#707070"/>
+                  <rect x="0" y="0" width="16" height="1" fill="#8b8b8b"/>
+                  <rect x="0" y="0" width="1" height="16" fill="#8b8b8b"/>
+                  <rect x="3" y="8" width="10" height="6" fill="#404040"/>
+                  <rect x="4" y="9" width="8" height="4" fill="#1a1a1a"/>
+                  <path d="M5 12H11V10H5V12Z" className="burn-active" />
+                  <path d="M7 11H9V9H7V11Z" className="burn-active" style={{ animationDelay: '0.2s' }} />
+                </svg>
+                <div className="flex flex-col">
+                  <span className="text-xl md:text-2xl font-bold text-[#AAAAAA] uppercase tracking-widest mt-1">Student @ Jain University</span>
+                </div>
+              </div>
+              
+              <h2 className="text-3xl text-white tracking-wide mb-2 uppercase opacity-80">Nayan Choraria</h2>
+              <h1 className="text-5xl md:text-8xl font-black tracking-tight text-white leading-none my-6 uppercase">
+                Decoding <br />
+                <span className="text-[#32CD32]">Complexity</span> <br />
+                Defining AI
+              </h1>
+              
+              <div className="flex flex-wrap gap-4 mt-10">
+                <a href="#lab" className="mc-btn text-2xl uppercase px-8 py-3">Enter The Lab</a>
+                
+                <div className="flex items-center gap-3 ml-2">
+                  <a href="https://github.com/nayan2452005" target="_blank" rel="noopener noreferrer" className="mc-btn p-2" title="GitHub">
+                    <Github size={24} />
+                  </a>
+                  <a href="https://www.linkedin.com/in/nayan-choraria-026076266/" target="_blank" rel="noopener noreferrer" className="mc-btn p-2" title="LinkedIn">
+                    <Linkedin size={24} />
+                  </a>
+                  <button onClick={copyEmail} className="mc-btn p-2 relative group" title="Copy Email">
+                    {copied ? <Check size={24} className="text-[#32CD32]" /> : <Mail size={24} />}
+                    {copied && <span className="absolute -top-10 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-2 py-1 border border-[#32CD32]">Copied!</span>}
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </Container>
-    </Section>
-  );
-}
+        </section>
 
-/* ---------------- FOOTER ---------------- */
+        <div className="grass-divider" />
 
-function Footer() {
-  return (
-    <footer className="py-12 border-t border-white/5 bg-[#020203] relative z-10">
-      <Container className="flex flex-col md:flex-row justify-between items-center gap-8">
-        <div className="text-lg font-black text-white italic hover:text-cyan-500 transition-colors cursor-pointer">
-          NC<span className="text-cyan-500">.</span>
-        </div>
+        {/* Philosophy (The Architect) */}
+        <section id="philosophy" className="py-24 bg-[#1e1e1e] px-6">
+          <div className="max-w-5xl mx-auto">
+            <div className="flex items-center gap-4 mb-16 reveal">
+              <div className="w-8 h-8 bg-[#32CD32] border-2 border-black" />
+              <h2 className="text-3xl text-white uppercase tracking-widest">The Architect</h2>
+            </div>
+            <div className="grid lg:grid-cols-2 gap-12 items-start">
+              <div className="space-y-8 reveal">
+                <p className="text-2xl leading-snug text-[#AAAAAA]">
+                  BCA-AI student at Jain University. I treat systems as living organisms—designed with precision and evolved through deployment.
+                </p>
+                <div className="mc-container p-6 bg-[#c6c6c6] text-black">
+                   <h3 className="text-xl font-bold mb-2 uppercase border-b-2 border-black/10 pb-2">Legacy Achievement</h3>
+                   <div className="flex gap-4 items-start">
+                     <Users className="shrink-0 mt-1" size={24} />
+                     <div>
+                       <p className="text-lg font-bold">Joint Secretary @ Marwari Yuva Manch</p>
+                       <p className="text-[#444444] text-base leading-tight">Honed high-stakes public relations and strategic leadership through community-scale governance.</p>
+                     </div>
+                   </div>
+                </div>
+              </div>
 
-        <div className="flex gap-8">
-          {[
-            { icon: <Github size={18} />, href: "https://github.com/nayan2452005" },
-            { icon: <Linkedin size={18} />, href: "https://www.linkedin.com/in/nayan-choraria-026076266/" }
-          ].map((social, i) => (
-            <a 
-              key={i}
-              href={social.href} 
-              target="_blank" 
-              className="text-zinc-800 hover:text-cyan-500 hover:scale-125 transition-all"
-            >
-              {social.icon}
-            </a>
-          ))}
-        </div>
+              {/* Interactive Stats */}
+              <div className="mc-container p-6 bg-[#2a2a2a] border-white/10 reveal">
+                <h3 className="text-white text-xl uppercase mb-6 flex items-center gap-2">
+                  <Activity size={18} className="text-[#32CD32]" /> Character Stats
+                </h3>
+                <div className="space-y-6">
+                  {[
+                    { label: 'Intelligence (AI/ML)', val: 92, color: '#32CD32' },
+                    { label: 'Charisma (PR/Leadership)', val: 88, color: '#4ade80' },
+                    { label: 'Agility (Web Dev)', val: 85, color: '#22c55e' },
+                    { label: 'Stamina (Logic)', val: 95, color: '#16a34a' }
+                  ].map((stat, i) => (
+                    <div key={i} className="space-y-2">
+                      <div className="flex justify-between text-sm uppercase">
+                        <span className="text-white">{stat.label}</span>
+                        <span className="text-[#32CD32]">{stat.val}/100</span>
+                      </div>
+                      <div className="h-4 bg-black border border-white/20 p-[2px]">
+                        <div 
+                          className="h-full transition-all duration-1000 ease-out"
+                          style={{ 
+                            width: `${stat.val}%`, 
+                            backgroundColor: stat.color,
+                            boxShadow: `0 0 10px ${stat.color}44`
+                          }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
 
-        <p className="text-zinc-800 text-[9px] uppercase font-bold tracking-[0.4em]">
-          © 2026 CALCULATIVE VISIONARY
-        </p>
-      </Container>
-    </footer>
+        {/* Arsenal (Skills) */}
+        <section id="arsenal" className="py-24 px-6 bg-[#252525]">
+          <div className="max-w-5xl mx-auto">
+            <h2 className="text-3xl text-white uppercase tracking-widest mb-16 reveal">Skills Arsenal</h2>
+            
+            <div className="grid md:grid-cols-2 gap-12">
+              {/* Technical Skills */}
+              <div className="reveal">
+                <h3 className="text-[#32CD32] text-2xl uppercase mb-8 border-b-2 border-[#32CD32]/20 pb-2 flex items-center gap-2">
+                  <Cpu size={24} /> Technical Arsenal
+                </h3>
+                <div className="grid grid-cols-2 gap-4">
+                  {[
+                    { n: 'Python', i: <Terminal size={18}/> },
+                    { n: 'C Programming', i: <Cpu size={18}/> },
+                    { n: 'Java', i: <Code2 size={18}/> },
+                    { n: 'AI / ML', i: <Brain size={18}/> },
+                    { n: 'React / Web', i: <Activity size={18}/> },
+                    { n: 'SQL / DB', i: <Database size={18}/> },
+                    { n: 'Firebase', i: <ShieldAlert size={18}/> }
+                  ].map((s, idx) => (
+                    <div key={idx} className="mc-container p-4 flex items-center gap-3 group hover:bg-[#32CD32] transition-colors">
+                      <div className="text-black">{s.i}</div>
+                      <span className="text-lg font-bold text-black uppercase tracking-widest">{s.n}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Core DNA */}
+              <div className="reveal">
+                <h3 className="text-[#32CD32] text-2xl uppercase mb-8 border-b-2 border-[#32CD32]/20 pb-2 flex items-center gap-2">
+                  <Users size={24} /> Core DNA
+                </h3>
+                <div className="grid grid-cols-2 gap-4">
+                  {[
+                    { n: 'Logical', i: <Brain size={18}/> },
+                    { n: 'Curious', i: <Search size={18}/> },
+                    { n: 'Problem Solving', i: <Puzzle size={18}/> },
+                    { n: 'Communication', i: <MessageSquare size={18}/> },
+                    { n: 'Strategy', i: <Target size={18}/> },
+                    { n: 'Management', i: <Users size={18}/> },
+                    { n: 'Leadership', i: <Lightbulb size={18}/> }
+                  ].map((s, idx) => (
+                    <div key={idx} className="mc-container p-4 flex items-center gap-3 group hover:bg-white transition-colors">
+                      <div className="text-black">{s.i}</div>
+                      <span className="text-lg font-bold text-black uppercase tracking-widest">{s.n}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Services We Provide */}
+        <section id="services" className="py-24 px-6 bg-[#1a1a1a]">
+          <div className="max-w-5xl mx-auto">
+            <h2 className="text-3xl text-white uppercase tracking-widest mb-16 reveal">Services We Provide</h2>
+            <div className="grid md:grid-cols-3 gap-6">
+              {[
+                { 
+                  t: "Web Development & Design", 
+                  d: "High-performance interfaces with pixel-perfect aesthetics and fluid interactions.", 
+                  icon: <Laptop size={32} /> 
+                },
+                { 
+                  t: "AI / ML Solutions", 
+                  d: "Implementing neural networks and predictive models to solve complex logical hurdles.", 
+                  icon: <Brain size={32} /> 
+                },
+                { 
+                  t: "Custom Solutions", 
+                  d: "Tailored architectural builds designed from the ground up to create something truly unique.", 
+                  icon: <Sparkles size={32} /> 
+                }
+              ].map((service, idx) => (
+                <div key={idx} className="mc-container p-8 bg-[#2a2a2a] group reveal relative border-white/5 hover:bg-[#32CD32] transition-all duration-300">
+                  <div className="text-[#32CD32] group-hover:text-black mb-6 transition-colors">{service.icon}</div>
+                  <h3 className="text-2xl font-bold text-white group-hover:text-black uppercase mb-4 transition-colors leading-tight">
+                    {service.t}
+                  </h3>
+                  <p className="text-[#AAAAAA] group-hover:text-black/80 text-lg leading-snug transition-colors">
+                    {service.d}
+                  </p>
+                </div>
+              ))}
+            </div>
+            
+            <div className="mt-12 p-8 mc-container bg-[#c6c6c6] flex flex-col md:flex-row items-center justify-between gap-6 reveal">
+              <div className="flex items-center gap-4">
+                <Wrench className="text-black" size={32} />
+                <p className="text-black text-xl font-bold uppercase">Ready to build your unique vision?</p>
+              </div>
+              <a href="#connect" className="mc-btn bg-black text-white px-8 py-3 text-xl uppercase hover:bg-[#32CD32]">Initiate Project</a>
+            </div>
+          </div>
+        </section>
+
+        {/* Lab (Projects) */}
+        <section id="lab" className="py-24 bg-[#1e1e1e] px-6">
+          <div className="max-w-5xl mx-auto">
+            <h2 className="text-3xl text-white uppercase tracking-widest mb-16 reveal">The Lab</h2>
+            <div className="grid md:grid-cols-2 gap-8">
+              {[
+                { t: "Scam Detection", d: "Aggressive AI security layer for neutralising automated threats.", icon: <ShieldAlert /> },
+                { t: "AQI Monitor", d: "IoT real-time visualization & telemetry suite.", icon: <Activity /> }
+              ].map((p, idx) => (
+                <div key={idx} className="mc-container p-8 group reveal relative hover:bg-[#d0d0d0] transition-colors">
+                  <div className="text-[#1a6b1a] mb-6">{p.icon}</div>
+                  <h3 className="text-3xl font-bold text-black uppercase mb-2">{p.t}</h3>
+                  <p className="text-[#555555] text-xl mb-6 leading-tight">{p.d}</p>
+                  <ArrowUpRight className="absolute top-8 right-8 text-[#1a6b1a] group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Connect */}
+        <section id="connect" className="py-32 px-6 dirt-texture">
+          <div className="max-w-2xl mx-auto bg-[#000000]/90 p-12 border-4 border-black shadow-[16px_16px_0_#000] reveal text-center">
+            <h2 className="text-5xl text-white uppercase mb-4">Start A Realm</h2>
+            <p className="text-[#AAAAAA] text-xl mb-10 uppercase tracking-widest">Collaborate on the next big update</p>
+            <div className="flex flex-col gap-4">
+              <button onClick={copyEmail} className="mc-btn text-2xl uppercase px-12 py-5 w-full flex items-center justify-center gap-3">
+                {copied ? <Check size={24} /> : <Mail size={24} />}
+                {copied ? "Email Copied!" : "Copy Email Address"}
+              </button>
+              
+              <div className="flex flex-col items-center gap-4 mt-8">
+                <p className="text-[#32CD32] text-xl uppercase tracking-widest font-bold">Follow Us:</p>
+                <div className="flex justify-center gap-8">
+                   <a href="https://github.com/nayan2452005" target="_blank" rel="noopener noreferrer" className="text-white hover:text-[#32CD32] flex items-center gap-2 text-xl uppercase transition-colors">
+                     <Github size={24}/> GitHub
+                   </a>
+                   <a href="https://www.linkedin.com/in/nayan-choraria-026076266/" target="_blank" rel="noopener noreferrer" className="text-white hover:text-[#32CD32] flex items-center gap-2 text-xl uppercase transition-colors">
+                     <Linkedin size={24}/> LinkedIn
+                   </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer className="py-16 bg-black text-center text-[#555555] text-xl">
+        <p className="tracking-[0.3em]">© 2026 NAYAN CHORARIA | BUILD 1.21-PRO</p>
+      </footer>
+    </div>
   );
 }
