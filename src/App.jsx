@@ -10,6 +10,7 @@ export default function App() {
   const [followerPos, setFollowerPos] = useState({ x: 0, y: 0 });
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [activeTouch, setActiveTouch] = useState(null);
 
   useEffect(() => {
     document.documentElement.style.scrollBehavior = 'smooth';
@@ -30,13 +31,19 @@ export default function App() {
     window.addEventListener('mousemove', handleMouseMove);
     rafId = requestAnimationFrame(followMouse);
 
+    // Enhanced Intersection Observer for Mobile
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    };
+
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           entry.target.classList.add('reveal-active');
         }
       });
-    }, { threshold: 0.15 });
+    }, observerOptions);
 
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
@@ -59,14 +66,16 @@ export default function App() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const navLinks = ['Philosophy', 'Arsenal', 'Services', 'Lab', 'Connect'];
+
   return (
-    <div className="min-h-screen bg-[#1e1e1e] text-[#AAAAAA] selection:bg-[#32CD32]/40 selection:text-white antialiased overflow-x-hidden text-[14px]"
+    <div className="min-h-screen bg-[#121212] text-[#CCCCCC] selection:bg-[#32CD32]/40 selection:text-white antialiased overflow-x-hidden text-[14px]"
          style={{ fontFamily: "'VT323', monospace" }}>
       
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
         
-        * { cursor: none !important; image-rendering: pixelated; }
+        * { cursor: none !important; image-rendering: pixelated; -webkit-tap-highlight-color: transparent; }
         
         .mc-container {
           background: #c6c6c6;
@@ -82,14 +91,14 @@ export default function App() {
           border: 2px solid #000;
           box-shadow: inset -2px -2px 0 #555555, inset 2px 2px 0 #ffffff;
           padding: 4px 12px;
-          color: #3f3f3f;
+          color: #111;
           transition: all 0.1s;
           display: inline-flex;
           align-items: center;
           justify-content: center;
         }
 
-        .mc-btn:hover {
+        .mc-btn:hover, .mc-btn:active {
           background: #32CD32;
           color: white;
           box-shadow: inset -2px -2px 0 #1a6b1a, inset 2px 2px 0 #a5e0a5;
@@ -97,8 +106,9 @@ export default function App() {
 
         .reveal { 
           opacity: 0; 
-          transform: translateY(30px); 
-          transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+          transform: translateY(20px); 
+          transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+          will-change: opacity, transform;
         }
         .reveal-active { 
           opacity: 1; 
@@ -132,6 +142,7 @@ export default function App() {
         @media (max-width: 768px) { 
           * { cursor: auto !important; }
           .cursor-xp, .crosshair { display: none; }
+          .reveal { transition-duration: 0.4s; }
         }
       `}</style>
 
@@ -161,28 +172,47 @@ export default function App() {
         <div className="absolute left-1/2 top-0 h-full w-0.5 bg-white opacity-40"></div>
       </div>
 
-      <nav className="fixed top-0 w-full z-[100] bg-[#1e1e1e]/95 border-b-4 border-black py-3">
+      <nav className="fixed top-0 w-full z-[100] bg-[#121212]/95 border-b-4 border-black py-3">
         <div className="max-w-5xl mx-auto px-6 flex justify-between items-center">
           <a href="#" className="text-2xl font-bold text-white tracking-tighter uppercase">
             <span className="text-[#32CD32]">NC</span>.
           </a>
+          
           <div className="hidden md:flex gap-6 uppercase text-xl">
-            {['Philosophy', 'Arsenal', 'Services', 'Lab', 'Connect'].map(l => (
+            {navLinks.map(l => (
               <a key={l} href={`#${l.toLowerCase()}`} className="text-[#AAAAAA] hover:text-[#32CD32] transition-colors tracking-widest">{l}</a>
             ))}
           </div>
-          <button className="md:hidden text-white" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-            {isMenuOpen ? <X /> : <Menu />}
+
+          <button className="md:hidden text-white z-[110] p-2" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+            {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
           </button>
+        </div>
+
+        <div className={`fixed inset-0 bg-[#121212] z-[105] flex flex-col items-center justify-center gap-8 transition-all duration-300 md:hidden ${isMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full pointer-events-none'}`}>
+           {navLinks.map(l => (
+              <a 
+                key={l} 
+                href={`#${l.toLowerCase()}`} 
+                onClick={() => setIsMenuOpen(false)}
+                className="text-3xl text-white uppercase tracking-[0.2em] active:text-[#32CD32]"
+              >
+                {l}
+              </a>
+            ))}
+            <div className="flex gap-6 mt-4">
+               <a href="https://github.com/nayan2452005" target="_blank" className="mc-btn p-3"><Github size={24}/></a>
+               <a href="https://www.linkedin.com/in/nayan-choraria-026076266/" target="_blank" className="mc-btn p-3"><Linkedin size={24}/></a>
+            </div>
         </div>
       </nav>
 
       <main>
         {/* Hero */}
         <section className="min-h-screen flex items-center pt-20 px-6 relative dirt-texture">
-          <div className="max-w-5xl mx-auto w-full relative z-10 bg-[#000000]/75 p-8 border-4 border-black shadow-[16px_16px_0_rgba(0,0,0,0.5)]">
+          <div className="max-w-5xl mx-auto w-full relative z-10 bg-[#000000]/85 p-6 md:p-12 border-4 border-black shadow-[16px_16px_0_rgba(0,0,0,0.6)]">
             <div className="reveal">
-              <div className="flex flex-wrap items-center gap-4 bg-black/40 border-2 border-black px-4 py-3 mb-6 w-fit">
+              <div className="flex flex-wrap items-center gap-4 bg-black/60 border-2 border-black px-4 py-3 mb-6 w-fit">
                 <svg width="32" height="32" viewBox="0 0 16 16" fill="none" className="shrink-0 border-2 border-black">
                   <rect width="16" height="16" fill="#707070"/>
                   <rect x="0" y="0" width="16" height="1" fill="#8b8b8b"/>
@@ -193,28 +223,30 @@ export default function App() {
                   <path d="M7 11H9V9H7V11Z" className="burn-active" style={{ animationDelay: '0.2s' }} />
                 </svg>
                 <div className="flex flex-col">
-                  <span className="text-xl md:text-2xl font-bold text-[#AAAAAA] uppercase tracking-widest mt-1">Student @ Jain University</span>
+                  <span className="text-xl md:text-2xl font-bold text-white bg-[#32CD32] px-2 py-0.5 uppercase tracking-widest whitespace-nowrap">
+                    Student @ Jain University
+                  </span>
                 </div>
               </div>
               
-              <h2 className="text-3xl text-white tracking-wide mb-2 uppercase opacity-80">Nayan Choraria</h2>
-              <h1 className="text-5xl md:text-8xl font-black tracking-tight text-white leading-none my-6 uppercase">
+              <h2 className="text-2xl md:text-3xl text-[#CCCCCC] tracking-wide mb-2 uppercase">Nayan Choraria</h2>
+              <h1 className="text-5xl md:text-8xl font-black tracking-tight text-white leading-[0.9] my-6 uppercase">
                 Decoding <br />
                 <span className="text-[#32CD32]">Complexity</span> <br />
                 Defining AI
               </h1>
               
               <div className="flex flex-wrap gap-4 mt-10">
-                <a href="#lab" className="mc-btn text-2xl uppercase px-8 py-3">Enter The Lab</a>
+                <a href="#lab" className="mc-btn text-2xl uppercase px-8 py-3 w-full md:w-auto">Enter The Lab</a>
                 
-                <div className="flex items-center gap-3 ml-2">
-                  <a href="https://github.com/nayan2452005" target="_blank" rel="noopener noreferrer" className="mc-btn p-2" title="GitHub">
+                <div className="flex items-center gap-3 w-full md:w-auto justify-center md:justify-start">
+                  <a href="https://github.com/nayan2452005" target="_blank" rel="noopener noreferrer" className="mc-btn p-3" title="GitHub">
                     <Github size={24} />
                   </a>
-                  <a href="https://www.linkedin.com/in/nayan-choraria-026076266/" target="_blank" rel="noopener noreferrer" className="mc-btn p-2" title="LinkedIn">
+                  <a href="https://www.linkedin.com/in/nayan-choraria-026076266/" target="_blank" rel="noopener noreferrer" className="mc-btn p-3" title="LinkedIn">
                     <Linkedin size={24} />
                   </a>
-                  <button onClick={copyEmail} className="mc-btn p-2 relative group" title="Copy Email">
+                  <button onClick={copyEmail} className="mc-btn p-3 relative group" title="Copy Email">
                     {copied ? <Check size={24} className="text-[#32CD32]" /> : <Mail size={24} />}
                     {copied && <span className="absolute -top-10 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-2 py-1 border border-[#32CD32]">Copied!</span>}
                   </button>
@@ -226,8 +258,8 @@ export default function App() {
 
         <div className="grass-divider" />
 
-        {/* Philosophy (The Architect) */}
-        <section id="philosophy" className="py-24 bg-[#1e1e1e] px-6">
+        {/* Philosophy */}
+        <section id="philosophy" className="py-24 bg-[#121212] px-6">
           <div className="max-w-5xl mx-auto">
             <div className="flex items-center gap-4 mb-16 reveal">
               <div className="w-8 h-8 bg-[#32CD32] border-2 border-black" />
@@ -235,23 +267,22 @@ export default function App() {
             </div>
             <div className="grid lg:grid-cols-2 gap-12 items-start">
               <div className="space-y-8 reveal">
-                <p className="text-2xl leading-snug text-[#AAAAAA]">
+                <p className="text-2xl leading-snug text-white font-medium">
                   BCA-AI student at Jain University. I treat systems as living organisms—designed with precision and evolved through deployment.
                 </p>
                 <div className="mc-container p-6 bg-[#c6c6c6] text-black">
-                   <h3 className="text-xl font-bold mb-2 uppercase border-b-2 border-black/10 pb-2">Legacy Achievement</h3>
+                   <h3 className="text-xl font-bold mb-3 uppercase border-b-2 border-black/20 pb-2">Legacy Achievement</h3>
                    <div className="flex gap-4 items-start">
                      <Users className="shrink-0 mt-1" size={24} />
                      <div>
-                       <p className="text-lg font-bold">Joint Secretary @ Marwari Yuva Manch</p>
-                       <p className="text-[#444444] text-base leading-tight">Honed high-stakes public relations and strategic leadership through community-scale governance.</p>
+                       <p className="text-lg font-bold uppercase leading-tight">Joint Secretary @ Marwari Yuva Manch</p>
+                       <p className="text-[#333333] text-base leading-tight mt-1">High-stakes public relations and strategic leadership through community governance.</p>
                      </div>
                    </div>
                 </div>
               </div>
 
-              {/* Interactive Stats */}
-              <div className="mc-container p-6 bg-[#2a2a2a] border-white/10 reveal">
+              <div className="mc-container p-6 bg-[#1a1a1a] border-white/20 reveal">
                 <h3 className="text-white text-xl uppercase mb-6 flex items-center gap-2">
                   <Activity size={18} className="text-[#32CD32]" /> Character Stats
                 </h3>
@@ -264,8 +295,8 @@ export default function App() {
                   ].map((stat, i) => (
                     <div key={i} className="space-y-2">
                       <div className="flex justify-between text-sm uppercase">
-                        <span className="text-white">{stat.label}</span>
-                        <span className="text-[#32CD32]">{stat.val}/100</span>
+                        <span className="text-white font-bold">{stat.label}</span>
+                        <span className="text-[#32CD32] font-bold">{stat.val}/100</span>
                       </div>
                       <div className="h-4 bg-black border border-white/20 p-[2px]">
                         <div 
@@ -273,7 +304,7 @@ export default function App() {
                           style={{ 
                             width: `${stat.val}%`, 
                             backgroundColor: stat.color,
-                            boxShadow: `0 0 10px ${stat.color}44`
+                            boxShadow: `0 0 10px ${stat.color}66`
                           }}
                         />
                       </div>
@@ -285,15 +316,13 @@ export default function App() {
           </div>
         </section>
 
-        {/* Arsenal (Skills) */}
-        <section id="arsenal" className="py-24 px-6 bg-[#252525]">
+        {/* Arsenal */}
+        <section id="arsenal" className="py-24 px-6 bg-[#181818]">
           <div className="max-w-5xl mx-auto">
             <h2 className="text-3xl text-white uppercase tracking-widest mb-16 reveal">Skills Arsenal</h2>
-            
             <div className="grid md:grid-cols-2 gap-12">
-              {/* Technical Skills */}
               <div className="reveal">
-                <h3 className="text-[#32CD32] text-2xl uppercase mb-8 border-b-2 border-[#32CD32]/20 pb-2 flex items-center gap-2">
+                <h3 className="text-[#32CD32] text-2xl uppercase mb-8 border-b-2 border-[#32CD32]/40 pb-2 flex items-center gap-2">
                   <Cpu size={24} /> Technical Arsenal
                 </h3>
                 <div className="grid grid-cols-2 gap-4">
@@ -306,17 +335,16 @@ export default function App() {
                     { n: 'SQL / DB', i: <Database size={18}/> },
                     { n: 'Firebase', i: <ShieldAlert size={18}/> }
                   ].map((s, idx) => (
-                    <div key={idx} className="mc-container p-4 flex items-center gap-3 group hover:bg-[#32CD32] transition-colors">
+                    <div key={idx} className="mc-container p-4 flex items-center gap-3 group transition-all duration-200 active:scale-95 active:bg-[#32CD32] hover:bg-[#32CD32]">
                       <div className="text-black">{s.i}</div>
-                      <span className="text-lg font-bold text-black uppercase tracking-widest">{s.n}</span>
+                      <span className="text-lg font-bold text-black uppercase">{s.n}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* Core DNA */}
               <div className="reveal">
-                <h3 className="text-[#32CD32] text-2xl uppercase mb-8 border-b-2 border-[#32CD32]/20 pb-2 flex items-center gap-2">
+                <h3 className="text-[#32CD32] text-2xl uppercase mb-8 border-b-2 border-[#32CD32]/40 pb-2 flex items-center gap-2">
                   <Users size={24} /> Core DNA
                 </h3>
                 <div className="grid grid-cols-2 gap-4">
@@ -329,9 +357,9 @@ export default function App() {
                     { n: 'Management', i: <Users size={18}/> },
                     { n: 'Leadership', i: <Lightbulb size={18}/> }
                   ].map((s, idx) => (
-                    <div key={idx} className="mc-container p-4 flex items-center gap-3 group hover:bg-white transition-colors">
+                    <div key={idx} className="mc-container p-4 flex items-center gap-3 group transition-all duration-200 active:scale-95 active:bg-white hover:bg-white">
                       <div className="text-black">{s.i}</div>
-                      <span className="text-lg font-bold text-black uppercase tracking-widest">{s.n}</span>
+                      <span className="text-lg font-bold text-black uppercase">{s.n}</span>
                     </div>
                   ))}
                 </div>
@@ -341,62 +369,84 @@ export default function App() {
         </section>
 
         {/* Services We Provide */}
-        <section id="services" className="py-24 px-6 bg-[#1a1a1a]">
+        <section id="services" className="py-24 px-6 bg-[#0f0f0f]">
           <div className="max-w-5xl mx-auto">
-            <h2 className="text-3xl text-white uppercase tracking-widest mb-16 reveal">Services We Provide</h2>
+            <div className="flex items-center justify-between mb-16 reveal">
+               <h2 className="text-3xl text-white uppercase tracking-widest">Services We Provide</h2>
+               <div className="hidden md:block h-1 flex-1 bg-[#32CD32]/20 ml-8" />
+            </div>
             <div className="grid md:grid-cols-3 gap-6">
               {[
                 { 
+                  id: 'web',
                   t: "Web Development & Design", 
-                  d: "High-performance interfaces with pixel-perfect aesthetics and fluid interactions.", 
-                  icon: <Laptop size={32} /> 
+                  d: "High-performance interfaces with pixel-perfect aesthetics and fluid interactions. Building responsive ecosystems.", 
+                  icon: <Laptop size={36} /> 
                 },
                 { 
+                  id: 'ai',
                   t: "AI / ML Solutions", 
-                  d: "Implementing neural networks and predictive models to solve complex logical hurdles.", 
-                  icon: <Brain size={32} /> 
+                  d: "Implementing neural networks and predictive models to solve complex logical hurdles and data patterns.", 
+                  icon: <Brain size={36} /> 
                 },
                 { 
+                  id: 'custom',
                   t: "Custom Solutions", 
-                  d: "Tailored architectural builds designed from the ground up to create something truly unique.", 
-                  icon: <Sparkles size={32} /> 
+                  d: "Tailored architectural builds designed from the ground up to create something truly unique for your workflow.", 
+                  icon: <Sparkles size={36} /> 
                 }
               ].map((service, idx) => (
-                <div key={idx} className="mc-container p-8 bg-[#2a2a2a] group reveal relative border-white/5 hover:bg-[#32CD32] transition-all duration-300">
-                  <div className="text-[#32CD32] group-hover:text-black mb-6 transition-colors">{service.icon}</div>
-                  <h3 className="text-2xl font-bold text-white group-hover:text-black uppercase mb-4 transition-colors leading-tight">
+                <div 
+                  key={idx} 
+                  onTouchStart={() => setActiveTouch(service.id)}
+                  onTouchEnd={() => setActiveTouch(null)}
+                  className={`mc-container p-8 bg-[#222222] group reveal relative border-white/10 transition-all duration-300 transform 
+                    ${activeTouch === service.id ? 'bg-[#32CD32] -translate-y-2' : 'hover:bg-[#32CD32] hover:-translate-y-2'}`}
+                >
+                  <div className={`mb-6 transition-colors duration-300 
+                    ${activeTouch === service.id ? 'text-black' : 'text-[#32CD32] group-hover:text-black'}
+                    drop-shadow-[0_0_8px_rgba(50,205,50,0.4)]`}>
+                    {service.icon}
+                  </div>
+                  <h3 className={`text-2xl font-black uppercase mb-4 transition-colors duration-300 leading-tight tracking-wider
+                    ${activeTouch === service.id ? 'text-black' : 'text-white group-hover:text-black'}`}>
                     {service.t}
                   </h3>
-                  <p className="text-[#AAAAAA] group-hover:text-black/80 text-lg leading-snug transition-colors">
+                  <p className={`text-lg font-bold leading-snug transition-colors duration-300
+                    ${activeTouch === service.id ? 'text-black opacity-90' : 'text-[#FFFFFF] group-hover:text-black group-hover:opacity-90'}`}>
                     {service.d}
                   </p>
+                  
+                  <div className="md:hidden absolute bottom-4 right-4 text-black/40">
+                    <ArrowUpRight size={16} />
+                  </div>
                 </div>
               ))}
             </div>
             
-            <div className="mt-12 p-8 mc-container bg-[#c6c6c6] flex flex-col md:flex-row items-center justify-between gap-6 reveal">
-              <div className="flex items-center gap-4">
-                <Wrench className="text-black" size={32} />
-                <p className="text-black text-xl font-bold uppercase">Ready to build your unique vision?</p>
+            <div className="mt-12 p-8 mc-container bg-[#c6c6c6] flex flex-col md:flex-row items-center justify-between gap-8 reveal">
+              <div className="flex items-center gap-5">
+                <Wrench className="text-black shrink-0" size={40} />
+                <p className="text-black text-2xl font-black uppercase tracking-tight leading-none">Ready to build <br/>your unique vision?</p>
               </div>
-              <a href="#connect" className="mc-btn bg-black text-white px-8 py-3 text-xl uppercase hover:bg-[#32CD32]">Initiate Project</a>
+              <a href="#connect" className="mc-btn bg-black text-white px-10 py-4 text-2xl uppercase hover:bg-[#32CD32] hover:text-white transition-all w-full md:w-auto text-center">Initiate Project</a>
             </div>
           </div>
         </section>
 
-        {/* Lab (Projects) */}
-        <section id="lab" className="py-24 bg-[#1e1e1e] px-6">
+        {/* Lab */}
+        <section id="lab" className="py-24 bg-[#121212] px-6">
           <div className="max-w-5xl mx-auto">
             <h2 className="text-3xl text-white uppercase tracking-widest mb-16 reveal">The Lab</h2>
             <div className="grid md:grid-cols-2 gap-8">
               {[
-                { t: "Scam Detection", d: "Aggressive AI security layer for neutralising automated threats.", icon: <ShieldAlert /> },
-                { t: "AQI Monitor", d: "IoT real-time visualization & telemetry suite.", icon: <Activity /> }
+                { t: "Scam Detection", d: "Aggressive AI security layer for neutralising automated threats.", icon: <ShieldAlert size={32}/> },
+                { t: "AQI Monitor", d: "IoT real-time visualization & telemetry suite for environmental data.", icon: <Activity size={32}/> }
               ].map((p, idx) => (
-                <div key={idx} className="mc-container p-8 group reveal relative hover:bg-[#d0d0d0] transition-colors">
+                <div key={idx} className="mc-container p-8 group reveal relative transition-all active:bg-[#d0d0d0] hover:bg-[#d0d0d0]">
                   <div className="text-[#1a6b1a] mb-6">{p.icon}</div>
-                  <h3 className="text-3xl font-bold text-black uppercase mb-2">{p.t}</h3>
-                  <p className="text-[#555555] text-xl mb-6 leading-tight">{p.d}</p>
+                  <h3 className="text-3xl font-black text-black uppercase mb-2">{p.t}</h3>
+                  <p className="text-[#333333] text-xl mb-6 leading-tight font-bold">{p.d}</p>
                   <ArrowUpRight className="absolute top-8 right-8 text-[#1a6b1a] group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                 </div>
               ))}
@@ -406,23 +456,22 @@ export default function App() {
 
         {/* Connect */}
         <section id="connect" className="py-32 px-6 dirt-texture">
-          <div className="max-w-2xl mx-auto bg-[#000000]/90 p-12 border-4 border-black shadow-[16px_16px_0_#000] reveal text-center">
-            <h2 className="text-5xl text-white uppercase mb-4">Start A Realm</h2>
-            <p className="text-[#AAAAAA] text-xl mb-10 uppercase tracking-widest">Collaborate on the next big update</p>
+          <div className="max-w-2xl mx-auto bg-[#000000]/95 p-8 md:p-12 border-4 border-black shadow-[16px_16px_0_#000] reveal text-center">
+            <h2 className="text-5xl text-white uppercase mb-4 leading-none">Start A Realm</h2>
+            <p className="text-[#32CD32] text-xl mb-10 uppercase tracking-widest font-black">Collaborate on the next big update</p>
             <div className="flex flex-col gap-4">
-              <button onClick={copyEmail} className="mc-btn text-2xl uppercase px-12 py-5 w-full flex items-center justify-center gap-3">
-                {copied ? <Check size={24} /> : <Mail size={24} />}
-                {copied ? "Email Copied!" : "Copy Email Address"}
+              <button onClick={copyEmail} className="mc-btn text-2xl uppercase px-12 py-5 w-full flex items-center justify-center gap-3 transition-transform active:scale-95">
+                {copied ? <Check size={28} /> : <Mail size={28} />}
+                {copied ? "Email Copied!" : "Copy My Email"}
               </button>
               
-              <div className="flex flex-col items-center gap-4 mt-8">
-                <p className="text-[#32CD32] text-xl uppercase tracking-widest font-bold">Follow Us:</p>
+              <div className="flex flex-col items-center gap-4 mt-12">
                 <div className="flex justify-center gap-8">
-                   <a href="https://github.com/nayan2452005" target="_blank" rel="noopener noreferrer" className="text-white hover:text-[#32CD32] flex items-center gap-2 text-xl uppercase transition-colors">
-                     <Github size={24}/> GitHub
+                   <a href="https://github.com/nayan2452005" target="_blank" rel="noopener noreferrer" className="text-white hover:text-[#32CD32] flex items-center gap-2 text-2xl uppercase transition-colors">
+                     <Github size={28}/> GitHub
                    </a>
-                   <a href="https://www.linkedin.com/in/nayan-choraria-026076266/" target="_blank" rel="noopener noreferrer" className="text-white hover:text-[#32CD32] flex items-center gap-2 text-xl uppercase transition-colors">
-                     <Linkedin size={24}/> LinkedIn
+                   <a href="https://www.linkedin.com/in/nayan-choraria-026076266/" target="_blank" rel="noopener noreferrer" className="text-white hover:text-[#32CD32] flex items-center gap-2 text-2xl uppercase transition-colors">
+                     <Linkedin size={28}/> LinkedIn
                    </a>
                 </div>
               </div>
@@ -431,8 +480,8 @@ export default function App() {
         </section>
       </main>
 
-      <footer className="py-16 bg-black text-center text-[#555555] text-xl">
-        <p className="tracking-[0.3em]">© 2026 NAYAN CHORARIA | BUILD 1.21-PRO</p>
+      <footer className="py-16 bg-black text-center text-[#555555] text-xl border-t-4 border-[#32CD32]/20">
+        <p className="tracking-[0.3em] font-bold">© 2026 NAYAN CHORARIA | BUILD 1.21-STABLE</p>
       </footer>
     </div>
   );
