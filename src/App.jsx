@@ -68,18 +68,18 @@ export default function App() {
   const navLinks = ['About', 'Expertise', 'Capabilities', 'Projects', 'Connect'];
 
   return (
-    <div className="min-h-screen bg-[#030303] text-[#A3A3A3] selection:bg-[#32CD32]/30 selection:text-white antialiased overflow-x-hidden font-sans">
+    <div className="min-h-screen bg-[#050505] text-[#a1a1aa] selection:bg-white selection:text-black antialiased overflow-x-hidden font-sans">
       
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600&display=swap');
         
         * { 
           cursor: none !important; 
           -webkit-tap-highlight-color: transparent; 
         }
 
-        h1, h2, h3, h4, .font-heading {
-          font-family: 'Space Grotesk', sans-serif;
+        h1, h2, h3, h4, .font-editorial {
+          font-family: 'Playfair Display', serif;
         }
 
         p, a, span, button, .font-body {
@@ -87,31 +87,31 @@ export default function App() {
         }
         
         .grid-bg {
-          background-color: #030303;
+          background-color: #050505;
           background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-          background-size: 32px 32px;
+          background-size: 40px 40px;
         }
 
         .pro-card {
-          background: linear-gradient(145deg, rgba(20,20,20,0.6) 0%, rgba(10,10,10,0.8) 100%);
-          border: 1px solid rgba(255,255,255,0.06);
-          border-radius: 16px;
+          background: rgba(10, 10, 10, 0.4);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 4px; /* Sharper, more architectural corners */
           backdrop-filter: blur(12px);
-          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .pro-card:hover {
-          border-color: rgba(50, 205, 50, 0.3);
+          background: rgba(20, 20, 20, 0.8);
+          border-color: rgba(255, 255, 255, 0.3);
           transform: translateY(-4px);
-          box-shadow: 0 12px 30px -10px rgba(50, 205, 50, 0.1);
         }
 
         .pro-btn {
-          background: rgba(255,255,255,0.03);
-          border: 1px solid rgba(255,255,255,0.1);
-          border-radius: 8px;
+          background: transparent;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          border-radius: 4px;
           color: #fff;
-          transition: all 0.3s ease;
+          transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
           display: inline-flex;
           align-items: center;
           justify-content: center;
@@ -119,98 +119,100 @@ export default function App() {
         }
 
         .pro-btn:hover, .pro-btn:active {
-          background: rgba(50,205,50,0.1);
-          border-color: #32CD32;
-          color: #32CD32;
+          background: #ffffff;
+          border-color: #ffffff;
+          color: #000000;
+        }
+
+        .pro-btn-inverted {
+          background: #ffffff;
+          border: 1px solid #ffffff;
+          border-radius: 4px;
+          color: #000000;
+          transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 600;
+        }
+
+        .pro-btn-inverted:hover {
+          background: #d4d4d8;
+          border-color: #d4d4d8;
         }
 
         .reveal { 
           opacity: 0; 
-          transform: translateY(20px); 
-          transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+          transform: translateY(24px); 
+          transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
           will-change: opacity, transform;
         }
         .reveal-active { 
           opacity: 1; 
           transform: translateY(0); 
         }
-        
-        .text-gradient-green {
-          background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-        }
 
         .glow-line {
           height: 1px;
-          background: linear-gradient(90deg, transparent 0%, rgba(50,205,50,0.4) 50%, transparent 100%);
+          background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.2) 50%, transparent 100%);
           width: 100%;
-          opacity: 0.5;
         }
-
-        @keyframes pulse-ring {
-          0% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(50, 205, 50, 0.4); }
-          70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(50, 205, 50, 0); }
-          100% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(50, 205, 50, 0); }
-        }
-        .core-pulse { animation: pulse-ring 2.5s infinite cubic-bezier(0.4, 0, 0.2, 1); }
 
         @media (max-width: 768px) { 
           * { cursor: auto !important; }
           .cursor-follower, .cursor-dot { display: none; }
-          .reveal { transition-duration: 0.6s; }
+          .reveal { transition-duration: 0.8s; }
           .pro-card:hover { transform: translateY(0); }
         }
       `}</style>
 
-      {/* Sleek Cursor Follower */}
+      {/* Ultra-Minimalist Cursor Follower */}
       <div 
-        className="fixed top-0 left-0 w-8 h-8 pointer-events-none z-[9999] hidden md:flex items-center justify-center cursor-follower"
-        style={{ transform: `translate(${followerPos.x - 16}px, ${followerPos.y - 16}px)` }}
+        className="fixed top-0 left-0 w-10 h-10 pointer-events-none z-[9999] hidden md:flex items-center justify-center cursor-follower"
+        style={{ transform: `translate(${followerPos.x - 20}px, ${followerPos.y - 20}px)` }}
       >
-        <div className="w-full h-full rounded-full border border-[#32CD32]/40 bg-[#32CD32]/5 backdrop-blur-sm transition-transform duration-200 ease-out" />
+        <div className="w-full h-full rounded-full border border-white/30 transition-transform duration-300 ease-out" />
       </div>
 
       <div 
-        className="fixed top-0 left-0 w-1.5 h-1.5 pointer-events-none z-[10000] hidden md:block cursor-dot bg-[#32CD32] rounded-full shadow-[0_0_10px_#32CD32]"
-        style={{ transform: `translate(${mousePos.x - 3}px, ${mousePos.y - 3}px)` }}
+        className="fixed top-0 left-0 w-1 h-1 pointer-events-none z-[10000] hidden md:block cursor-dot bg-white rounded-full"
+        style={{ transform: `translate(${mousePos.x - 2}px, ${mousePos.y - 2}px)` }}
       />
 
-      <nav className="fixed top-0 w-full z-[100] bg-[#030303]/80 backdrop-blur-xl border-b border-white/5 py-4">
+      {/* Navigation */}
+      <nav className="fixed top-0 w-full z-[100] bg-[#050505]/80 backdrop-blur-xl border-b border-white/5 py-5">
         <div className="max-w-6xl mx-auto px-6 flex justify-between items-center">
-          <a href="#" className="text-xl font-heading font-bold text-white tracking-tight flex items-center gap-3 group">
-            <div className="w-8 h-8 rounded bg-[#111] flex items-center justify-center border border-white/10 group-hover:border-[#32CD32]/50 transition-colors">
-              <span className="text-[#32CD32] font-heading">N</span>
-            </div>
-            <span>Choraria.</span>
+          <a href="#" className="text-xl font-editorial font-bold text-white tracking-wide flex items-center gap-3 group">
+            <span className="text-white font-editorial italic text-2xl">N</span>
+            <span className="uppercase tracking-[0.2em] text-xs font-body font-medium mt-1">Choraria.</span>
           </a>
           
-          <div className="hidden md:flex gap-8 text-sm font-medium">
+          <div className="hidden md:flex gap-10 text-xs font-medium">
             {navLinks.map(l => (
-              <a key={l} href={`#${l.toLowerCase()}`} className="text-[#888] hover:text-[#32CD32] transition-colors uppercase tracking-wider text-xs">{l}</a>
+              <a key={l} href={`#${l.toLowerCase()}`} className="text-[#a1a1aa] hover:text-white transition-colors uppercase tracking-[0.15em]">{l}</a>
             ))}
           </div>
 
-          <button className="md:hidden text-white z-[110] p-2 hover:text-[#32CD32] transition-colors" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          <button className="md:hidden text-white z-[110] p-2 hover:text-gray-300 transition-colors" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+            {isMenuOpen ? <X size={24} strokeWidth={1.5} /> : <Menu size={24} strokeWidth={1.5} />}
           </button>
         </div>
 
         {/* Mobile Menu */}
-        <div className={`fixed inset-0 bg-[#030303]/98 backdrop-blur-2xl z-[105] flex flex-col items-center justify-center gap-8 transition-all duration-300 md:hidden ${isMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}`}>
+        <div className={`fixed inset-0 bg-[#050505]/98 backdrop-blur-2xl z-[105] flex flex-col items-center justify-center gap-10 transition-all duration-500 md:hidden ${isMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}`}>
            {navLinks.map(l => (
               <a 
                 key={l} 
                 href={`#${l.toLowerCase()}`} 
                 onClick={() => setIsMenuOpen(false)}
-                className="text-2xl font-heading font-bold text-white uppercase tracking-widest active:text-[#32CD32]"
+                className="text-3xl font-editorial font-bold text-white tracking-wide active:text-gray-400 transition-colors"
               >
                 {l}
               </a>
             ))}
-            <div className="flex gap-4 mt-8">
-               <a href="https://github.com/nayan2452005" target="_blank" rel="noreferrer" className="pro-btn p-3 rounded-full"><Github size={20}/></a>
-               <a href="https://www.linkedin.com/in/nayan-choraria-026076266/" target="_blank" rel="noreferrer" className="pro-btn p-3 rounded-full"><Linkedin size={20}/></a>
+            <div className="flex gap-6 mt-8">
+               <a href="https://github.com/nayan2452005" target="_blank" rel="noreferrer" className="text-white hover:text-gray-400 transition-colors"><Github size={24} strokeWidth={1.5}/></a>
+               <a href="https://www.linkedin.com/in/nayan-choraria-026076266/" target="_blank" rel="noreferrer" className="text-white hover:text-gray-400 transition-colors"><Linkedin size={24} strokeWidth={1.5}/></a>
             </div>
         </div>
       </nav>
@@ -218,43 +220,41 @@ export default function App() {
       <main>
         {/* Hero Section */}
         <section className="min-h-screen flex items-center pt-24 px-6 relative grid-bg overflow-hidden">
-          <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-[#32CD32]/5 rounded-full blur-[150px] pointer-events-none" />
-          
           <div className="max-w-6xl mx-auto w-full relative z-10">
             <div className="reveal">
-              <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm mb-8">
-                <div className="w-2 h-2 rounded-full bg-[#32CD32] core-pulse" />
-                <span className="text-xs font-medium text-white tracking-wide uppercase">
+              <div className="inline-flex items-center gap-4 px-4 py-2 border border-white/10 bg-white/[0.02] backdrop-blur-sm mb-12 rounded-full">
+                <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                <span className="text-[10px] font-medium text-white tracking-[0.2em] uppercase">
                   Student @ Jain University
                 </span>
               </div>
               
-              <h2 className="text-xl md:text-2xl text-[#888] font-medium mb-4 tracking-wide font-heading">Hi, I'm Nayan Choraria.</h2>
-              <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter text-white leading-[1.05] my-4 font-heading">
-                Engineering <br className="hidden md:block"/>
-                <span className="text-gradient-green">Scalable Systems.</span> <br />
+              <h2 className="text-lg md:text-xl text-[#a1a1aa] font-light mb-6 tracking-wide">Nayan Choraria</h2>
+              <h1 className="text-5xl md:text-7xl lg:text-[5.5rem] font-bold text-white leading-[1.1] my-4 font-editorial">
+                Engineering <span className="italic font-light text-gray-400">Scalable Systems.</span>
+                <br />
                 Advancing AI.
               </h1>
               
-              <p className="text-lg md:text-xl text-[#888] max-w-2xl mt-8 leading-relaxed font-light">
+              <p className="text-lg md:text-xl text-[#a1a1aa] max-w-2xl mt-10 leading-relaxed font-light">
                 I specialize in architecting intelligent applications and high-performance interfaces. Bridging the gap between complex machine learning models and intuitive user experiences.
               </p>
               
-              <div className="flex flex-wrap items-center gap-4 mt-12">
-                <a href="#projects" className="pro-btn px-8 py-4 text-sm uppercase tracking-widest w-full md:w-auto gap-2 group">
-                  View My Work <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
+              <div className="flex flex-wrap items-center gap-6 mt-14">
+                <a href="#projects" className="pro-btn-inverted px-10 py-4 text-xs uppercase tracking-[0.15em] w-full md:w-auto gap-3 group">
+                  View My Work <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" strokeWidth={2} />
                 </a>
                 
-                <div className="flex items-center gap-3 w-full md:w-auto justify-center md:justify-start">
-                  <a href="https://github.com/nayan2452005" target="_blank" rel="noopener noreferrer" className="pro-btn p-4 rounded-xl" title="GitHub">
-                    <Github size={20} />
+                <div className="flex items-center gap-4 w-full md:w-auto justify-center md:justify-start">
+                  <a href="https://github.com/nayan2452005" target="_blank" rel="noopener noreferrer" className="pro-btn p-4" title="GitHub">
+                    <Github size={20} strokeWidth={1.5} />
                   </a>
-                  <a href="https://www.linkedin.com/in/nayan-choraria-026076266/" target="_blank" rel="noopener noreferrer" className="pro-btn p-4 rounded-xl" title="LinkedIn">
-                    <Linkedin size={20} />
+                  <a href="https://www.linkedin.com/in/nayan-choraria-026076266/" target="_blank" rel="noopener noreferrer" className="pro-btn p-4" title="LinkedIn">
+                    <Linkedin size={20} strokeWidth={1.5} />
                   </a>
-                  <button onClick={copyEmail} className="pro-btn p-4 rounded-xl relative group" title="Copy Email">
-                    {copied ? <Check size={20} className="text-[#32CD32]" /> : <Mail size={20} />}
-                    {copied && <span className="absolute -top-12 left-1/2 -translate-x-1/2 bg-[#111] text-[#32CD32] text-xs font-medium px-3 py-1.5 rounded-md border border-[#32CD32]/30 shadow-lg whitespace-nowrap">Email Copied!</span>}
+                  <button onClick={copyEmail} className="pro-btn p-4 relative group" title="Copy Email">
+                    {copied ? <Check size={20} className="text-white" strokeWidth={1.5} /> : <Mail size={20} strokeWidth={1.5} />}
+                    {copied && <span className="absolute -top-12 left-1/2 -translate-x-1/2 bg-white text-black text-[10px] uppercase tracking-wider font-bold px-3 py-1.5 rounded shadow-lg whitespace-nowrap">Copied</span>}
                   </button>
                 </div>
               </div>
@@ -267,27 +267,25 @@ export default function App() {
         {/* About / Philosophy */}
         <section id="about" className="py-32 px-6">
           <div className="max-w-6xl mx-auto">
-            <div className="flex items-center gap-4 mb-16 reveal">
-              <h2 className="text-3xl md:text-4xl font-bold text-white tracking-tight font-heading">Background</h2>
-              <div className="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent ml-4" />
+            <div className="flex items-center gap-6 mb-20 reveal">
+              <h2 className="text-3xl md:text-4xl font-editorial font-bold text-white tracking-wide">Background</h2>
+              <div className="h-px flex-1 bg-white/10 ml-4" />
             </div>
             
-            <div className="max-w-3xl space-y-12 reveal">
-              <p className="text-xl md:text-2xl leading-relaxed text-[#A3A3A3] font-light">
-                Currently pursuing a BCA in Artificial Intelligence at Jain University. My technical philosophy is built on treating systems as evolving structures—<strong className="text-white font-medium">designed with precision, rigorously tested, and scaled through real-world deployment.</strong>
+            <div className="max-w-3xl space-y-16 reveal">
+              <p className="text-2xl md:text-3xl leading-relaxed text-[#a1a1aa] font-editorial font-light italic">
+                "Currently pursuing a BCA in Artificial Intelligence at Jain University. My technical philosophy is built on treating systems as evolving structures—<strong className="text-white font-medium not-italic">designed with precision, rigorously tested, and scaled through real-world deployment.</strong>"
               </p>
               
-              <div className="pro-card p-8 group">
-                 <div className="flex items-center gap-3 mb-4">
-                   <div className="p-2 rounded-lg bg-[#32CD32]/10 text-[#32CD32]">
-                     <Target size={20} />
-                   </div>
-                   <h3 className="text-xs font-bold tracking-widest text-[#888] uppercase font-heading">Leadership Initiative</h3>
+              <div className="pro-card p-10 group border-white/10">
+                 <div className="flex items-center gap-4 mb-6">
+                   <Target size={20} className="text-white" strokeWidth={1.5} />
+                   <h3 className="text-[10px] font-bold tracking-[0.2em] text-white uppercase">Leadership Initiative</h3>
                  </div>
                  
                  <div>
-                   <p className="text-xl md:text-2xl font-bold text-white mb-3 font-heading">Joint Secretary @ Marwari Yuva Manch</p>
-                   <p className="text-[#A3A3A3] text-base leading-relaxed">
+                   <p className="text-2xl md:text-3xl font-editorial font-semibold text-white mb-4">Past Joint Secretary @ Marwari Yuva Manch</p>
+                   <p className="text-[#a1a1aa] text-lg leading-relaxed font-light">
                      Fostering community growth, organizing strategic public initiatives, and executing high-level project management through coordinated team governance.
                    </p>
                  </div>
@@ -297,55 +295,56 @@ export default function App() {
         </section>
 
         {/* Expertise */}
-        <section id="expertise" className="py-32 px-6 bg-[#080808] border-y border-white/5 relative">
-          <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#32CD32]/5 rounded-full blur-[100px] pointer-events-none" />
-          
-          <div className="max-w-6xl mx-auto relative z-10">
-            <h2 className="text-3xl md:text-4xl font-bold text-white tracking-tight mb-16 reveal font-heading">Technical Expertise</h2>
+        <section id="expertise" className="py-32 px-6 bg-[#030303] border-y border-white/10">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex items-center gap-6 mb-20 reveal">
+              <h2 className="text-3xl md:text-4xl font-editorial font-bold text-white tracking-wide">Technical Expertise</h2>
+              <div className="h-px flex-1 bg-white/10 ml-4" />
+            </div>
             
-            <div className="grid md:grid-cols-2 gap-16">
+            <div className="grid md:grid-cols-2 gap-20">
               <div className="reveal">
-                <div className="flex items-center gap-3 mb-8">
-                  <Terminal className="text-[#32CD32]" size={24} />
-                  <h3 className="text-xl font-semibold text-white font-heading">Development Stack</h3>
+                <div className="flex items-center gap-4 mb-10 border-b border-white/10 pb-4">
+                  <Terminal className="text-white" size={20} strokeWidth={1.5} />
+                  <h3 className="text-lg font-medium text-white tracking-wide uppercase text-sm">Development Stack</h3>
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4">
                   {[
-                    { n: 'Python', i: <Terminal size={18}/> },
-                    { n: 'C / C++', i: <Cpu size={18}/> },
-                    { n: 'Java', i: <Code2 size={18}/> },
-                    { n: 'Machine Learning', i: <Brain size={18}/> },
-                    { n: 'React Ecosystem', i: <Activity size={18}/> },
-                    { n: 'SQL Databases', i: <Database size={18}/> },
-                    { n: 'Cloud & Firebase', i: <Server size={18}/> }
+                    { n: 'Python', i: <Terminal size={18} strokeWidth={1.5}/> },
+                    { n: 'C / C++', i: <Cpu size={18} strokeWidth={1.5}/> },
+                    { n: 'Java', i: <Code2 size={18} strokeWidth={1.5}/> },
+                    { n: 'Machine Learning', i: <Brain size={18} strokeWidth={1.5}/> },
+                    { n: 'React Ecosystem', i: <Activity size={18} strokeWidth={1.5}/> },
+                    { n: 'SQL Databases', i: <Database size={18} strokeWidth={1.5}/> },
+                    { n: 'Cloud & Firebase', i: <Server size={18} strokeWidth={1.5}/> }
                   ].map((s, idx) => (
-                    <div key={idx} className="pro-card p-4 flex items-center gap-3 hover:bg-white/5 border-white/5">
-                      <div className="text-[#32CD32] bg-[#32CD32]/10 p-2 rounded-md">{s.i}</div>
-                      <span className="text-sm font-medium text-white">{s.n}</span>
+                    <div key={idx} className="pro-card p-5 flex items-center gap-4 border-white/5 hover:border-white/20">
+                      <div className="text-white">{s.i}</div>
+                      <span className="text-sm font-light text-white">{s.n}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
               <div className="reveal">
-                <div className="flex items-center gap-3 mb-8">
-                  <Users className="text-[#32CD32]" size={24} />
-                  <h3 className="text-xl font-semibold text-white font-heading">Core Competencies</h3>
+                <div className="flex items-center gap-4 mb-10 border-b border-white/10 pb-4">
+                  <Users className="text-white" size={20} strokeWidth={1.5} />
+                  <h3 className="text-lg font-medium text-white tracking-wide uppercase text-sm">Core Competencies</h3>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   {[
-                    { n: 'Systems Design', i: <Brain size={18}/> },
-                    { n: 'Technical Research', i: <Search size={18}/> },
-                    { n: 'Problem Solving', i: <Puzzle size={18}/> },
-                    { n: 'Communication', i: <MessageSquare size={18}/> },
-                    { n: 'Project Strategy', i: <Target size={18}/> },
-                    { n: 'Team Management', i: <Users size={18}/> },
-                    { n: 'Leadership', i: <Lightbulb size={18}/> }
+                    { n: 'Systems Design', i: <Brain size={18} strokeWidth={1.5}/> },
+                    { n: 'Technical Research', i: <Search size={18} strokeWidth={1.5}/> },
+                    { n: 'Problem Solving', i: <Puzzle size={18} strokeWidth={1.5}/> },
+                    { n: 'Communication', i: <MessageSquare size={18} strokeWidth={1.5}/> },
+                    { n: 'Project Strategy', i: <Target size={18} strokeWidth={1.5}/> },
+                    { n: 'Team Management', i: <Users size={18} strokeWidth={1.5}/> },
+                    { n: 'Leadership', i: <Lightbulb size={18} strokeWidth={1.5}/> }
                   ].map((s, idx) => (
-                    <div key={idx} className="pro-card p-4 flex items-center gap-3 hover:bg-white/5 border-white/5">
-                      <div className="text-[#888] bg-[#222] p-2 rounded-md">{s.i}</div>
-                      <span className="text-sm font-medium text-white">{s.n}</span>
+                    <div key={idx} className="pro-card p-5 flex items-center gap-4 border-white/5 hover:border-white/20">
+                      <div className="text-[#a1a1aa]">{s.i}</div>
+                      <span className="text-sm font-light text-white">{s.n}</span>
                     </div>
                   ))}
                 </div>
@@ -357,30 +356,30 @@ export default function App() {
         {/* Capabilities (Services) */}
         <section id="capabilities" className="py-32 px-6">
           <div className="max-w-6xl mx-auto">
-            <div className="flex items-center gap-4 mb-16 reveal">
-               <h2 className="text-3xl md:text-4xl font-bold text-white tracking-tight font-heading">Domain Capabilities</h2>
-               <div className="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent ml-4" />
+            <div className="flex items-center gap-6 mb-20 reveal">
+               <h2 className="text-3xl md:text-4xl font-editorial font-bold text-white tracking-wide">Domain Capabilities</h2>
+               <div className="h-px flex-1 bg-white/10 ml-4" />
             </div>
             
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-3 gap-8">
               {[
                 { 
                   id: 'web',
-                  t: "Web & Interface Architecture", 
-                  d: "Building high-performance interfaces with pixel-perfect aesthetics. Specializing in responsive, interactive ecosystems that drive user engagement.", 
-                  icon: <Laptop size={26} /> 
+                  t: "Interface Architecture", 
+                  d: "Building high-performance interfaces with meticulous aesthetics. Specializing in responsive, interactive ecosystems that drive user engagement.", 
+                  icon: <Laptop size={24} strokeWidth={1.5} /> 
                 },
                 { 
                   id: 'ai',
-                  t: "AI & Machine Learning", 
+                  t: "Applied Intelligence", 
                   d: "Implementing predictive models and intelligent algorithms to parse data, automate workflows, and solve complex logic challenges.", 
-                  icon: <Brain size={26} /> 
+                  icon: <Brain size={24} strokeWidth={1.5} /> 
                 },
                 { 
                   id: 'custom',
-                  t: "Custom Systems Engineering", 
+                  t: "Systems Engineering", 
                   d: "Designing tailored backend architectures and integrated solutions from the ground up, built specifically for scalable operational workflows.", 
-                  icon: <Sparkles size={26} /> 
+                  icon: <Sparkles size={24} strokeWidth={1.5} /> 
                 }
               ].map((service, idx) => (
                 <div key={idx} className="reveal">
@@ -388,21 +387,21 @@ export default function App() {
                     onTouchStart={() => setActiveTouch(service.id)}
                     onTouchEnd={() => setActiveTouch(null)}
                     onTouchCancel={() => setActiveTouch(null)}
-                    className={`pro-card p-8 h-full group relative overflow-hidden transition-colors
-                      ${activeTouch === service.id ? 'border-[#32CD32] bg-[#32CD32]/5' : ''}`}
+                    className={`pro-card p-10 h-full group relative overflow-hidden transition-all
+                      ${activeTouch === service.id ? 'border-white bg-white/5' : 'hover:bg-white/[0.02]'}`}
                   >
-                    <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-10 group-hover:scale-110 transition-all duration-500 text-white">
+                    <div className="absolute top-0 right-0 p-8 opacity-[0.02] group-hover:opacity-5 transition-all duration-500 text-white scale-150">
                       {service.icon}
                     </div>
                     
-                    <div className="w-12 h-12 rounded-xl bg-[#111] border border-white/10 flex items-center justify-center text-[#32CD32] mb-6 group-hover:scale-110 group-hover:bg-[#32CD32] group-hover:text-black transition-all duration-300 shadow-lg shadow-black/50">
+                    <div className="w-14 h-14 border border-white/20 flex items-center justify-center text-white mb-8 group-hover:bg-white group-hover:text-black transition-all duration-500 rounded-sm">
                       {service.icon}
                     </div>
                     
-                    <h3 className="text-xl font-bold text-white mb-4 font-heading">
+                    <h3 className="text-2xl font-editorial font-semibold text-white mb-4">
                       {service.t}
                     </h3>
-                    <p className="text-[#888] leading-relaxed text-sm">
+                    <p className="text-[#a1a1aa] leading-relaxed text-sm font-light">
                       {service.d}
                     </p>
                   </div>
@@ -413,57 +412,68 @@ export default function App() {
         </section>
 
         {/* Featured Projects */}
-        <section id="projects" className="py-32 bg-[#080808] border-y border-white/5 px-6 relative">
-          <div className="absolute top-1/2 left-0 w-[500px] h-[500px] bg-[#32CD32]/5 rounded-full blur-[150px] pointer-events-none -translate-y-1/2" />
-          
-          <div className="max-w-6xl mx-auto relative z-10">
-            <h2 className="text-3xl md:text-4xl font-bold text-white tracking-tight mb-16 reveal font-heading">Featured Projects</h2>
-            <div className="grid md:grid-cols-2 gap-8">
+        <section id="projects" className="py-32 bg-[#030303] border-y border-white/10 px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex items-center gap-6 mb-20 reveal">
+              <h2 className="text-3xl md:text-4xl font-editorial font-bold text-white tracking-wide">Featured Projects</h2>
+              <div className="h-px flex-1 bg-white/10 ml-4" />
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-10">
               {[
                 { 
                   t: "Scam Detection Engine", 
                   d: "A machine learning-powered interface designed to analyze and flag fraudulent patterns in real-time, utilizing behavioral heuristics to protect end-users.", 
-                  icon: <ShieldCheck size={24}/>, 
-                  tag: "Machine Learning & UI" 
+                  icon: <ShieldCheck size={24} strokeWidth={1.5}/>, 
+                  tag: "Machine Learning & UI",
+                  link: "https://agentic-honeypot-a41c.onrender.com/docs"
                 },
                 { 
                   t: "AQI Telemetry Suite", 
                   d: "An end-to-end IoT dashboard aggregating real-time air quality metrics. Features responsive data visualization for historical analysis and environmental monitoring.", 
-                  icon: <Activity size={24}/>, 
-                  tag: "IoT & Data Analytics" 
+                  icon: <Activity size={24} strokeWidth={1.5}/>, 
+                  tag: "IoT & Data Analytics",
+                  link: "#"
                 }
               ].map((p, idx) => (
-                <div key={idx} className="pro-card p-8 group reveal relative cursor-pointer">
-                  <div className="flex justify-between items-start mb-6">
-                    <div className="p-3 bg-[#111] border border-white/10 rounded-lg text-[#32CD32] group-hover:bg-[#32CD32]/10 transition-colors">
+                <a 
+                  key={idx} 
+                  href={p.link}
+                  target={p.link !== "#" ? "_blank" : "_self"}
+                  rel={p.link !== "#" ? "noopener noreferrer" : ""}
+                  className="pro-card p-10 group reveal relative cursor-pointer border-white/10 hover:border-white/30 block"
+                >
+                  <div className="flex justify-between items-start mb-8">
+                    <div className="text-white opacity-80 group-hover:opacity-100 transition-opacity">
                       {p.icon}
                     </div>
-                    <span className="text-xs font-semibold px-3 py-1 bg-[#222] text-[#A3A3A3] rounded-full border border-white/10 group-hover:border-[#32CD32]/30 group-hover:text-[#32CD32] transition-colors">
+                    <span className="text-[10px] font-medium tracking-[0.15em] px-3 py-1 text-white uppercase border border-white/20 rounded-full">
                       {p.tag}
                     </span>
                   </div>
                   
-                  <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-[#32CD32] transition-colors font-heading">{p.t}</h3>
-                  <p className="text-[#888] leading-relaxed mb-8 text-sm">{p.d}</p>
+                  <h3 className="text-3xl font-editorial font-semibold text-white mb-4">{p.t}</h3>
+                  <p className="text-[#a1a1aa] leading-relaxed mb-10 text-sm font-light">{p.d}</p>
                   
-                  <div className="flex items-center text-sm font-bold text-white group-hover:text-[#32CD32] transition-colors uppercase tracking-wider">
-                    View Project Specs <ArrowUpRight className="ml-2 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" size={16} />
+                  <div className="flex items-center text-xs font-medium text-white uppercase tracking-[0.15em] group-hover:text-gray-300 transition-colors">
+                    View Project Specs <ArrowUpRight className="ml-3 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" size={16} strokeWidth={2} />
                   </div>
-                </div>
+                </a>
               ))}
             </div>
 
-            <div className="mt-20 pro-card p-10 bg-gradient-to-br from-[#111] to-[#050505] flex flex-col md:flex-row items-center justify-between gap-8 reveal border-[#32CD32]/20">
-              <div className="flex items-start md:items-center gap-6">
-                <div className="p-4 bg-[#32CD32]/10 text-[#32CD32] rounded-2xl hidden sm:block">
-                  <Database size={32} />
+            <div className="mt-24 border border-white/20 p-12 bg-[#080808] flex flex-col md:flex-row items-center justify-between gap-10 reveal rounded-sm relative overflow-hidden">
+              <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at right center, #ffffff 0%, transparent 50%)' }} />
+              <div className="flex items-start md:items-center gap-8 relative z-10">
+                <div className="hidden sm:block text-white opacity-80">
+                  <Database size={40} strokeWidth={1} />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold text-white tracking-tight mb-2 font-heading">Ready to scale your vision?</h3>
-                  <p className="text-[#888]">Let's engineer a bespoke solution tailored to your operational needs.</p>
+                  <h3 className="text-3xl font-editorial font-bold text-white tracking-wide mb-3">Ready to scale your vision?</h3>
+                  <p className="text-[#a1a1aa] font-light">Let's engineer a bespoke solution tailored to your operational needs.</p>
                 </div>
               </div>
-              <a href="#connect" className="px-8 py-4 bg-[#32CD32] text-black hover:bg-[#28a728] rounded-xl font-bold transition-colors w-full md:w-auto text-center font-heading">
+              <a href="#connect" className="pro-btn-inverted px-10 py-5 w-full md:w-auto text-center relative z-10 text-xs tracking-[0.15em] uppercase">
                 Initiate Dialogue
               </a>
             </div>
@@ -471,31 +481,29 @@ export default function App() {
         </section>
 
         {/* Connect */}
-        <section id="connect" className="py-40 px-6 grid-bg relative">
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-[#32CD32]/10 rounded-full blur-[120px] pointer-events-none" />
-          
-          <div className="max-w-3xl mx-auto pro-card p-12 md:p-16 reveal text-center border-[#32CD32]/20 bg-[#050505]/80 relative z-10">
-            <div className="w-16 h-16 mx-auto bg-[#32CD32]/10 text-[#32CD32] flex items-center justify-center rounded-2xl mb-8 border border-[#32CD32]/20 shadow-[0_0_30px_rgba(50,205,50,0.15)]">
-              <Mail size={32} />
+        <section id="connect" className="py-40 px-6 grid-bg">
+          <div className="max-w-3xl mx-auto pro-card p-12 md:p-20 reveal text-center border-white/20 bg-[#050505]/90 rounded-sm">
+            <div className="w-16 h-16 mx-auto flex items-center justify-center border border-white/20 text-white mb-10 rounded-full">
+              <Mail size={24} strokeWidth={1.5} />
             </div>
             
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 tracking-tight font-heading">Let's Connect</h2>
-            <p className="text-[#888] text-lg mb-10 max-w-lg mx-auto">
+            <h2 className="text-4xl md:text-5xl font-editorial font-bold text-white mb-6">Let's Connect</h2>
+            <p className="text-[#a1a1aa] text-lg mb-12 max-w-lg mx-auto font-light leading-relaxed">
               Open to new opportunities, collaborations, and architectural challenges. Feel free to reach out.
             </p>
             
-            <div className="flex flex-col gap-4 max-w-md mx-auto">
-              <button onClick={copyEmail} className="pro-btn px-8 py-5 w-full flex items-center justify-center gap-3 bg-white/5 border-white/10 hover:border-[#32CD32] hover:bg-[#32CD32]/10 group">
-                {copied ? <Check size={22} className="text-[#32CD32]" /> : <Mail size={22} className="group-hover:text-[#32CD32] transition-colors" />}
-                <span className="font-semibold text-lg">{copied ? "nayanchoraria111@gmail.com" : "Copy Email Address"}</span>
+            <div className="flex flex-col gap-5 max-w-md mx-auto">
+              <button onClick={copyEmail} className="pro-btn-inverted px-8 py-5 w-full flex items-center justify-center gap-4 group">
+                {copied ? <Check size={20} className="text-black" strokeWidth={2} /> : <Mail size={20} className="text-black" strokeWidth={2} />}
+                <span className="text-xs uppercase tracking-[0.15em] font-bold">{copied ? "nayanchoraria111@gmail.com" : "Copy Email Address"}</span>
               </button>
               
-              <div className="flex gap-4">
-                 <a href="https://github.com/nayan2452005" target="_blank" rel="noopener noreferrer" className="pro-btn flex-1 py-4 flex items-center justify-center gap-2 bg-white/5 hover:border-[#32CD32]/50">
-                   <Github size={20}/> <span className="font-medium">GitHub</span>
+              <div className="flex gap-5">
+                 <a href="https://github.com/nayan2452005" target="_blank" rel="noopener noreferrer" className="pro-btn flex-1 py-5 flex items-center justify-center gap-3 border-white/20 hover:border-white">
+                   <Github size={18} strokeWidth={1.5}/> <span className="text-xs uppercase tracking-[0.15em] font-medium">GitHub</span>
                  </a>
-                 <a href="https://www.linkedin.com/in/nayan-choraria-026076266/" target="_blank" rel="noopener noreferrer" className="pro-btn flex-1 py-4 flex items-center justify-center gap-2 bg-white/5 hover:border-[#32CD32]/50">
-                   <Linkedin size={20}/> <span className="font-medium">LinkedIn</span>
+                 <a href="https://www.linkedin.com/in/nayan-choraria-026076266/" target="_blank" rel="noopener noreferrer" className="pro-btn flex-1 py-5 flex items-center justify-center gap-3 border-white/20 hover:border-white">
+                   <Linkedin size={18} strokeWidth={1.5}/> <span className="text-xs uppercase tracking-[0.15em] font-medium">LinkedIn</span>
                  </a>
               </div>
             </div>
@@ -503,9 +511,9 @@ export default function App() {
         </section>
       </main>
 
-      <footer className="py-8 bg-[#030303] border-t border-white/5 text-center text-[#555] text-sm flex flex-col items-center justify-center">
-        <p className="tracking-widest font-medium uppercase mb-2">© {new Date().getFullYear()} NAYAN CHORARIA</p>
-        <p className="text-xs text-[#444]">Designed & Engineered with Precision</p>
+      <footer className="py-12 bg-[#000000] border-t border-white/10 text-center flex flex-col items-center justify-center">
+        <p className="tracking-[0.2em] font-medium uppercase text-[10px] text-white mb-3">© {new Date().getFullYear()} Nayan Choraria</p>
+        <p className="text-[10px] text-[#525252] tracking-widest uppercase">Designed & Engineered with Precision</p>
       </footer>
     </div>
   );
