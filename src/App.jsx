@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
-  ArrowUpRight, Github, Linkedin, Menu, X, Code2,
-  Activity, ShieldCheck, Cpu, Target, Mail, Check, Database, Terminal,
-  Brain, Laptop, Sparkles, ChevronRight,
-  Send, Loader2, Command, BarChart3, Globe, Compass, Radio,
-  Layers, Eye, FileText, Minimize2, MessageSquare
+  ArrowUpRight, Github, Linkedin, Menu, X,
+  Cpu, Mail, Check, Terminal,
+  ChevronRight, Loader2, Radio,
+  Layers, FileText, Minimize2, MessageSquare, Globe
 } from 'lucide-react';
 
 // ============================================================================
@@ -14,167 +13,161 @@ const PORTFOLIO_DATA = {
   profile: {
     name: "Nayan Choraria",
     role: "BCA Artificial Intelligence Student",
-    university: "Jain University, Bengaluru, India",
-    location: "Bengaluru, IN // 12.9716° N, 77.5946° E",
+    university: "Jain University, Bengaluru",
+    location: "Bengaluru, India",
     email: "nayanchoraria111@gmail.com",
     github: "https://github.com/nayan2452005",
     linkedin: "https://www.linkedin.com/in/nayan-choraria-026076266/",
-    resumeUrl: "", // Add a path/URL (e.g. "/Nayan_Choraria_Resume.pdf") when available
+    resumeUrl: "", // Optional: Add "/resume.pdf" when ready
     leadership: {
       role: "Past Joint Secretary",
       organization: "Marwari Yuva Manch",
-      summary: "Coordinated community initiatives, structured team operations, and collaborative project execution."
+      summary: "Led community initiatives, coordinated team operations, and managed event execution."
     },
     interests: [
       "Artificial Intelligence & Machine Learning",
       "Full-Stack Web Development",
       "AI-Powered Applications",
       "Data Analysis & Intelligent Systems",
-      "Creative Technology & Interactive Experiences"
+      "Creative Technology & Interactive Web"
     ]
   },
+  // Deployed projects with live links are listed first
   featuredProjects: [
     {
+      id: "sri-balaji-distributors",
+      status: "Live Website",
+      title: "Sri Balaji Distributors Website",
+      category: "Full-Stack Web Development",
+      visualType: "distributor",
+      description:
+        "A modern, responsive business website built for an auto-electrical spare parts wholesale distributor. Features a clean landing experience, brand marquee, and scalable component architecture.",
+      tech: ["React", "TypeScript", "Vite", "Tailwind CSS", "Responsive Design"],
+      github: "https://github.com/nayan2452005",
+      live: "https://sri-balaji-distributors.onrender.com"
+    },
+    {
       id: "honeypot-scam-detection",
-      code: "ARCHIVE // 01",
+      status: "Live API",
       title: "Honeypot Scam Detection",
-      category: "AI & Threat Intelligence",
+      category: "AI & Backend Systems",
       visualType: "honeypot",
       description:
-        "An AI-assisted system for detecting suspicious conversations and extracting scam-related indicators through structured API pipelines and behavioral heuristics.",
-      tech: ["Python", "FastAPI", "AI Heuristics", "Swagger UI", "Postman", "REST API"],
+        "An AI-assisted backend service designed to detect suspicious conversations and extract scam-related indicators using structured FastAPI endpoints and behavioral checks.",
+      tech: ["Python", "FastAPI", "Swagger UI", "Postman", "REST API"],
       github: "https://github.com/nayan2452005",
       live: "https://agentic-honeypot-a41c.onrender.com/docs"
     },
     {
       id: "aqi-monitor-dashboard",
-      code: "ARCHIVE // 02",
+      status: "Hardware & IoT",
       title: "AQI Monitor Dashboard",
-      category: "IoT & Environmental Telemetry",
+      category: "IoT & Embedded Systems",
       visualType: "aqi",
       description:
-        "An IoT-based air quality monitoring system utilizing an MQ135 gas sensor and microcontroller firmware to sample gas levels in real time and trigger threshold alerts.",
-      tech: ["Arduino IDE", "MQ135 Sensor", "C / C++", "Breadboard Circuitry", "Telemetry Alerts"],
+        "An IoT-based air quality monitoring system built with an MQ135 gas sensor and Arduino microcontroller to measure gas levels in real time and trigger threshold buzzer alerts.",
+      tech: ["Arduino IDE", "MQ135 Sensor", "C / C++", "Circuit Design", "Real-Time Alerts"],
       github: "https://github.com/nayan2452005",
       live: ""
     },
     {
-      id: "sri-balaji-distributors",
-      code: "ARCHIVE // 03",
-      title: "Sri Balaji Distributors Website",
-      category: "Full-Stack Commercial Web",
-      visualType: "distributor",
-      description:
-        "A modern, responsive business website engineered for an auto-electrical spare parts wholesale distributor, featuring a modular component architecture and brand showcase.",
-      tech: ["React", "TypeScript", "Vite", "Tailwind CSS", "Component Architecture"],
-      github: "https://github.com/nayan2452005",
-      live: "https://sri-balaji-distributors.onrender.com"
-    },
-    {
       id: "sentiment-analysis-nlp",
-      code: "ARCHIVE // 04",
+      status: "Machine Learning",
       title: "Social Media Sentiment Analysis",
       category: "Machine Learning & NLP",
       visualType: "sentiment",
       description:
-        "A machine learning and natural language processing project focused on contextual sentiment classification, polarity scoring, and sarcasm detection across unstructured social streams.",
-      tech: ["Python", "Machine Learning", "NLP", "Text Classification", "Data Analysis"],
+        "A natural language processing project focused on classifying social media sentiment and detecting sarcasm across unstructured text streams.",
+      tech: ["Python", "Machine Learning", "NLP", "Sentiment Classification", "Data Analysis"],
       github: "https://github.com/nayan2452005",
       live: ""
     }
   ],
   additionalArchive: [
     {
+      id: "live-web-portfolio",
+      status: "Live Website",
+      title: "Personal Developer Portfolio",
+      category: "Frontend Architecture",
+      visualType: "portfolio",
+      description:
+        "Interactive personal portfolio built with React, Vite, and custom 3D canvas rendering, optimized for smooth performance and deployed on Render.",
+      tech: ["React.js", "TypeScript", "Vite", "Tailwind CSS", "Render"],
+      github: "https://github.com/nayan2452005",
+      live: "https://nayan-portfolio-rrb8.onrender.com"
+    },
+    {
       id: "ai-tally-analytics",
-      code: "LOG // 05",
-      title: "AI Tally Business Analytics Software",
-      category: "AI Financial Systems",
+      status: "In Development",
+      title: "AI Tally Business Analytics",
+      category: "AI Financial Application",
       visualType: "tally",
       description:
-        "A Tally-inspired business analytics web application with Appwrite authentication, interactive Recharts KPI dashboards (revenue, profit, GST, debtors), and Groq LLaMA forecasting.",
+        "A Tally-style business analytics web app with Appwrite authentication, interactive Recharts dashboards (revenue, profit, GST, debtors), and Groq LLaMA insights.",
       tech: ["React", "TypeScript", "Vite", "Recharts", "Appwrite", "Groq API"],
       github: "https://github.com/nayan2452005",
       live: ""
     },
     {
       id: "reachinbox-scheduler",
-      code: "LOG // 06",
-      title: "ReachInbox – Email Scheduling Platform",
-      category: "Full-Stack Platform",
+      status: "Full-Stack",
+      title: "ReachInbox – Email Scheduler",
+      category: "Full-Stack Web Platform",
       visualType: "reachinbox",
       description:
-        "A full-stack email scheduling and management system supporting Google OAuth login, sender management, automated job tracking, and PostgreSQL persistence.",
-      tech: ["Next.js", "Node.js", "Express", "PostgreSQL", "Google OAuth", "REST APIs"],
+        "Full-stack email scheduling platform supporting Google OAuth login, sender management, automated job tracking, and PostgreSQL database integration.",
+      tech: ["Next.js", "Node.js", "Express", "PostgreSQL", "Google OAuth", "REST API"],
       github: "https://github.com/nayan2452005",
       live: ""
-    },
-    {
-      id: "live-web-portfolio",
-      code: "LOG // 07",
-      title: "Interactive Spatial Web Portfolio",
-      category: "Creative Technology",
-      visualType: "portfolio",
-      description:
-        "Personal web architecture showcasing interactive 3D gravitational rendering, responsive performance optimization, and automated cloud deployment.",
-      tech: ["React.js", "TypeScript", "Vite", "Tailwind CSS", "Render"],
-      github: "https://github.com/nayan2452005",
-      live: "https://nayan-portfolio-rrb8.onrender.com"
     }
   ],
   skills: [
     {
       id: "ai-ml",
-      code: "SYS-01",
-      category: "AI and Machine Learning",
-      description: "Predictive modeling, NLP pipelines, and LLM-powered application workflows.",
-      items: ["Machine Learning", "Natural Language Processing", "Sentiment & Sarcasm Detection", "Groq API (LLaMA)", "AI-Assisted Heuristics"],
+      category: "AI & Machine Learning",
+      description: "Building intelligent workflows, NLP classification models, and LLM-powered applications.",
+      items: ["Machine Learning", "Natural Language Processing", "Sentiment & Sarcasm Detection", "Groq API (LLaMA)", "AI Application Integration"],
       connections: ["languages", "data-analysis", "backend"]
     },
     {
       id: "languages",
-      code: "SYS-02",
       category: "Programming Languages",
-      description: "Core computational languages across systems, web, and embedded hardware.",
+      description: "Core languages used across web applications, backend APIs, and microcontroller programming.",
       items: ["Python", "TypeScript", "JavaScript (ES6+)", "C / C++", "Java", "SQL"],
       connections: ["ai-ml", "frontend", "backend"]
     },
     {
       id: "frontend",
-      code: "SYS-03",
       category: "Frontend Development",
-      description: "Responsive, component-driven interfaces with smooth motion and clean typography.",
+      description: "Creating responsive, accessible, and clean user interfaces with modern React tooling.",
       items: ["React.js", "Next.js", "Tailwind CSS", "Bootstrap", "Vite", "HTML5 & CSS3"],
       connections: ["languages", "backend", "tools"]
     },
     {
       id: "backend",
-      code: "SYS-04",
       category: "Backend Development",
-      description: "RESTful API architecture, authentication flows, and asynchronous job handling.",
+      description: "Designing REST APIs, authentication flows, and scalable server-side logic.",
       items: ["FastAPI", "Node.js", "Express.js", "RESTful APIs", "Google OAuth 2.0", "Appwrite"],
       connections: ["languages", "databases", "ai-ml"]
     },
     {
       id: "databases",
-      code: "SYS-05",
       category: "Databases",
-      description: "Relational schema design, query optimization, and cloud-backed storage.",
+      description: "Relational schema modeling, data persistence, and cloud database integration.",
       items: ["PostgreSQL", "SQL Databases", "Appwrite Database", "Firebase"],
       connections: ["backend", "data-analysis"]
     },
     {
       id: "data-analysis",
-      code: "SYS-06",
-      category: "Data Analysis",
-      description: "KPI tracking, financial & environmental telemetry visualization, and forecasting.",
-      items: ["Recharts", "KPI & Financial Dashboards", "IoT Sensor Telemetry", "Scenario Forecasting", "Data Visualization"],
+      category: "Data Analysis & Visualization",
+      description: "Turning financial metrics and sensor readings into clear, interactive visual dashboards.",
+      items: ["Recharts", "KPI Dashboards", "IoT Sensor Data", "Forecasting Workflows", "Data Visualization"],
       connections: ["ai-ml", "databases"]
     },
     {
       id: "tools",
-      code: "SYS-07",
       category: "Development Tools",
-      description: "Version control, API validation, hardware prototyping, and cloud deployment.",
+      description: "Everyday workflow tools for version control, API testing, hardware setup, and deployment.",
       items: ["Git & GitHub", "Postman", "Swagger UI / OpenAPI", "Arduino IDE", "Render"],
       connections: ["frontend", "backend"]
     }
@@ -182,7 +175,7 @@ const PORTFOLIO_DATA = {
 };
 
 // ============================================================================
-// 3D GARGANTUA BLACK HOLE & GRAVITATIONAL LENSING CANVAS ENGINE
+// 3D GARGANTUA BLACK HOLE & STARFIELD CANVAS
 // ============================================================================
 function GargantuaCanvas({ scrollProgress, mousePos, reducedMotion }) {
   const canvasRef = useRef(null);
@@ -222,38 +215,35 @@ function GargantuaCanvas({ scrollProgress, mousePos, reducedMotion }) {
     };
     window.addEventListener('resize', handleResize, { passive: true });
 
-    // Generate Multi-Layer Deep Space Starfield
-    const starCount = isMobile ? 110 : 240;
+    const starCount = isMobile ? 95 : 210;
     const stars = Array.from({ length: starCount }, () => ({
       x: Math.random() * 2 - 1,
       y: Math.random() * 2 - 1,
       z: Math.random() * 0.85 + 0.15,
-      size: Math.random() * 1.35 + 0.35,
-      hue: Math.random() > 0.78 ? 'cyan' : Math.random() > 0.55 ? 'amber' : 'white',
+      size: Math.random() * 1.25 + 0.35,
+      hue: Math.random() > 0.8 ? 'cyan' : Math.random() > 0.55 ? 'amber' : 'white',
       twinkleOffset: Math.random() * Math.PI * 2
     }));
 
-    // Generate 3D Accretion Disk Particles
-    const diskCount = isMobile ? 160 : 360;
+    const diskCount = isMobile ? 150 : 340;
     const diskParticles = Array.from({ length: diskCount }, () => {
-      const radiusNorm = Math.pow(Math.random(), 1.45); // Denser near inner photon ring
+      const radiusNorm = Math.pow(Math.random(), 1.45);
       return {
-        r: 1.18 + radiusNorm * 2.45, // In units of Schwarzschild radius
+        r: 1.18 + radiusNorm * 2.45,
         angle: Math.random() * Math.PI * 2,
-        speed: (0.0045 + Math.random() * 0.004) / Math.pow(1 + radiusNorm, 1.15),
-        thickness: (Math.random() - 0.5) * 0.14,
-        alpha: 0.25 + (1 - radiusNorm) * 0.65,
-        size: 0.9 + (1 - radiusNorm) * 2.1,
-        temp: Math.random() // Controls ice-white / electric-cyan / restrained-amber mix
+        speed: (0.004 + Math.random() * 0.0038) / Math.pow(1 + radiusNorm, 1.15),
+        thickness: (Math.random() - 0.5) * 0.13,
+        alpha: 0.22 + (1 - radiusNorm) * 0.62,
+        size: 0.9 + (1 - radiusNorm) * 2.0,
+        temp: Math.random()
       };
     });
 
     let time = 0;
 
     const render = () => {
-      time += reducedMotion ? 0.001 : 0.012;
+      time += reducedMotion ? 0.001 : 0.011;
 
-      // Smooth interpolation for camera & scroll
       const st = stateRef.current;
       st.scroll += (st.targetScroll - st.scroll) * 0.06;
       st.mouseX += (st.targetMouseX - st.mouseX) * 0.05;
@@ -261,10 +251,9 @@ function GargantuaCanvas({ scrollProgress, mousePos, reducedMotion }) {
 
       const s = st.scroll;
 
-      // Background cosmic gradient shifting subtly with scroll depth
       const bgGrad = ctx.createRadialGradient(
         width * (0.5 + st.mouseX * 0.04),
-        height * (0.44 - s * 0.18),
+        height * (0.44 - s * 0.16),
         10,
         width * 0.5,
         height * 0.5,
@@ -276,44 +265,38 @@ function GargantuaCanvas({ scrollProgress, mousePos, reducedMotion }) {
       ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, width, height);
 
-      // Black hole center position & scale linked to scroll + mouse parallax
-      const bhX = width * (isMobile ? 0.5 : 0.64 - s * 0.14) + st.mouseX * 26;
-      const bhY = height * (isMobile ? 0.36 : 0.48 - s * 0.12) + st.mouseY * 18;
-      const baseRadius = Math.min(width, height) * (isMobile ? 0.13 : 0.145);
-      const scaleFactor = 1 + Math.sin(s * Math.PI) * 0.22 - s * 0.12;
-      const rs = baseRadius * scaleFactor; // Event horizon radius
+      const bhX = width * (isMobile ? 0.5 : 0.66 - s * 0.15) + st.mouseX * 24;
+      const bhY = height * (isMobile ? 0.35 : 0.47 - s * 0.12) + st.mouseY * 16;
+      const baseRadius = Math.min(width, height) * (isMobile ? 0.125 : 0.14);
+      const scaleFactor = 1 + Math.sin(s * Math.PI) * 0.18 - s * 0.1;
+      const rs = baseRadius * scaleFactor;
 
-      // Disk tilt angle responds to scroll & cursor Y
-      const diskTilt = 0.23 + s * 0.18 + st.mouseY * 0.04;
-      const diskRoll = -0.19 + s * 0.15 + st.mouseX * 0.03;
+      const diskTilt = 0.23 + s * 0.16 + st.mouseY * 0.035;
+      const diskRoll = -0.18 + s * 0.14 + st.mouseX * 0.025;
       const cosRoll = Math.cos(diskRoll);
       const sinRoll = Math.sin(diskRoll);
 
-      // 1. Render Starfield with Real-Time Gravitational Lensing Deflection
-      const einsteinRadiusSq = rs * rs * (2.6 + Math.sin(s * Math.PI) * 0.8);
+      // 1. Starfield with subtle gravitational lensing near the black hole
+      const einsteinRadiusSq = rs * rs * (2.5 + Math.sin(s * Math.PI) * 0.7);
       for (let i = 0; i < stars.length; i++) {
         const star = stars[i];
-        // Multi-layer vertical parallax on scroll
-        const parallaxY = ((star.y + 1) * 0.5 * height - s * height * (0.65 / star.z)) % height;
+        const parallaxY = ((star.y + 1) * 0.5 * height - s * height * (0.55 / star.z)) % height;
         const rawY = parallaxY < 0 ? parallaxY + height : parallaxY;
-        const rawX = ((star.x + 1) * 0.5 * width - st.mouseX * (18 / star.z) + width) % width;
+        const rawX = ((star.x + 1) * 0.5 * width - st.mouseX * (15 / star.z) + width) % width;
 
-        // Vector from black hole center to star
         const dx = rawX - bhX;
         const dy = rawY - bhY;
         const distSq = dx * dx + dy * dy;
         const dist = Math.sqrt(distSq);
 
-        // Skip stars swallowed inside photon shadow
         if (dist < rs * 1.02) continue;
 
-        // Gravitational deflection pushes star positions outward near the event horizon
         const deflection = einsteinRadiusSq / Math.max(distSq, rs * rs);
-        const lensedX = rawX + dx * deflection * 0.55;
-        const lensedY = rawY + dy * deflection * 0.55;
+        const lensedX = rawX + dx * deflection * 0.5;
+        const lensedY = rawY + dy * deflection * 0.5;
 
-        const twinkle = 0.55 + 0.45 * Math.sin(time * 1.5 + star.twinkleOffset);
-        const alpha = Math.min(1, (0.3 + (1 - star.z) * 0.65) * twinkle);
+        const twinkle = 0.6 + 0.4 * Math.sin(time * 1.4 + star.twinkleOffset);
+        const alpha = Math.min(1, (0.28 + (1 - star.z) * 0.6) * twinkle);
 
         if (star.hue === 'cyan') {
           ctx.fillStyle = `rgba(118, 229, 255, ${alpha})`;
@@ -324,139 +307,127 @@ function GargantuaCanvas({ scrollProgress, mousePos, reducedMotion }) {
         }
 
         ctx.beginPath();
-        ctx.arc(lensedX, lensedY, star.size * (1 + deflection * 0.35), 0, Math.PI * 2);
+        ctx.arc(lensedX, lensedY, star.size * (1 + deflection * 0.3), 0, Math.PI * 2);
         ctx.fill();
       }
 
-      // 2. Volumetric Relativistic Light Rays / Outer Halo Glow
-      const outerGlow = ctx.createRadialGradient(bhX, bhY, rs * 0.85, bhX, bhY, rs * 4.2);
-      outerGlow.addColorStop(0, 'rgba(240, 182, 109, 0.22)');
-      outerGlow.addColorStop(0.32, 'rgba(118, 229, 255, 0.08)');
-      outerGlow.addColorStop(0.65, 'rgba(7, 17, 31, 0.18)');
+      // 2. Ambient Halo Glow
+      const outerGlow = ctx.createRadialGradient(bhX, bhY, rs * 0.85, bhX, bhY, rs * 4.0);
+      outerGlow.addColorStop(0, 'rgba(240, 182, 109, 0.2)');
+      outerGlow.addColorStop(0.35, 'rgba(118, 229, 255, 0.07)');
+      outerGlow.addColorStop(0.65, 'rgba(7, 17, 31, 0.15)');
       outerGlow.addColorStop(1, 'rgba(3, 4, 7, 0)');
       ctx.fillStyle = outerGlow;
       ctx.beginPath();
-      ctx.arc(bhX, bhY, rs * 4.2, 0, Math.PI * 2);
+      ctx.arc(bhX, bhY, rs * 4.0, 0, Math.PI * 2);
       ctx.fill();
 
-      // 3. Gravitational Lensed Upper & Lower Einstein Rings (Behind Disk)
+      // 3. Gravitational Lensed Upper & Lower Rings
       ctx.save();
       ctx.translate(bhX, bhY);
       ctx.rotate(diskRoll);
 
-      // Upper gravitational arch (light from back of disk bent over the top)
-      const upperRingGrad = ctx.createRadialGradient(0, -rs * 0.18, rs * 0.9, 0, 0, rs * 1.95);
+      const upperRingGrad = ctx.createRadialGradient(0, -rs * 0.18, rs * 0.9, 0, 0, rs * 1.9);
       upperRingGrad.addColorStop(0, 'rgba(243, 246, 250, 0)');
-      upperRingGrad.addColorStop(0.5, 'rgba(240, 182, 109, 0.34)');
-      upperRingGrad.addColorStop(0.72, 'rgba(118, 229, 255, 0.16)');
+      upperRingGrad.addColorStop(0.5, 'rgba(240, 182, 109, 0.3)');
+      upperRingGrad.addColorStop(0.72, 'rgba(118, 229, 255, 0.14)');
       upperRingGrad.addColorStop(1, 'rgba(3, 4, 7, 0)');
 
       ctx.strokeStyle = upperRingGrad;
-      ctx.lineWidth = rs * 0.28;
+      ctx.lineWidth = rs * 0.26;
       ctx.beginPath();
-      ctx.ellipse(0, 0, rs * 1.42, rs * 1.18, 0, Math.PI * 1.04, Math.PI * 1.96);
+      ctx.ellipse(0, 0, rs * 1.4, rs * 1.16, 0, Math.PI * 1.04, Math.PI * 1.96);
       ctx.stroke();
 
-      // Lower gravitational arch (secondary lensed image underneath)
-      ctx.lineWidth = rs * 0.18;
+      ctx.lineWidth = rs * 0.16;
       ctx.beginPath();
-      ctx.ellipse(0, 0, rs * 1.36, rs * 1.12, 0, Math.PI * 0.06, Math.PI * 0.94);
+      ctx.ellipse(0, 0, rs * 1.35, rs * 1.1, 0, Math.PI * 0.06, Math.PI * 0.94);
       ctx.stroke();
       ctx.restore();
 
-      // 4. Helper to draw 3D Accretion Disk Particles (Back half first, then Black Hole Shadow, then Front half)
+      // 4. Accretion Disk Particles
       const drawDiskHalf = (isFront) => {
         for (let i = 0; i < diskParticles.length; i++) {
           const p = diskParticles[i];
           if (!reducedMotion) {
-            p.angle = (p.angle + p.speed * (1 + s * 0.55)) % (Math.PI * 2);
+            p.angle = (p.angle + p.speed * (1 + s * 0.45)) % (Math.PI * 2);
           }
           const sinA = Math.sin(p.angle);
-          // sinA > 0 is front half of tilted disk, sinA <= 0 is back half
           if ((isFront && sinA < 0) || (!isFront && sinA >= 0)) continue;
 
           const cosA = Math.cos(p.angle);
           const orbitR = p.r * rs;
 
-          // Local disk coordinates
           const lx = cosA * orbitR;
           let ly = sinA * orbitR * diskTilt + p.thickness * rs;
 
-          // Gravitational lensing warps the back half of the disk upward over the singularity!
           if (!isFront) {
-            const warpFactor = Math.exp(-Math.abs(cosA) * 1.6) * (1.35 / p.r);
-            ly -= warpFactor * rs * 0.95;
+            const warpFactor = Math.exp(-Math.abs(cosA) * 1.6) * (1.3 / p.r);
+            ly -= warpFactor * rs * 0.9;
           }
 
-          // Rotate by diskRoll
           const screenX = bhX + lx * cosRoll - ly * sinRoll;
           const screenY = bhY + lx * sinRoll + ly * cosRoll;
 
-          // Relativistic Doppler Beaming: cosA < 0 (left side) is approaching observer -> brighter & bluer/ice-white
-          // cosA > 0 (right side) is receding -> warmer amber & slightly dimmer
-          const doppler = 1 - cosA * 0.38;
-          const alpha = Math.min(0.95, p.alpha * doppler);
+          const doppler = 1 - cosA * 0.35;
+          const alpha = Math.min(0.92, p.alpha * doppler);
 
           if (cosA < -0.25 && p.temp > 0.45) {
-            ctx.fillStyle = `rgba(118, 229, 255, ${alpha})`; // Electric cyan shift
+            ctx.fillStyle = `rgba(118, 229, 255, ${alpha})`;
           } else if (cosA < 0.1 && p.temp > 0.65) {
-            ctx.fillStyle = `rgba(243, 246, 250, ${alpha})`; // Ice white core
+            ctx.fillStyle = `rgba(243, 246, 250, ${alpha})`;
           } else {
-            ctx.fillStyle = `rgba(240, 182, 109, ${alpha})`; // Restrained amber
+            ctx.fillStyle = `rgba(240, 182, 109, ${alpha})`;
           }
 
-          // Draw elongated orbital streak
           ctx.save();
           ctx.translate(screenX, screenY);
           ctx.rotate(diskRoll + Math.atan2(cosA * diskTilt, -sinA));
           ctx.beginPath();
-          ctx.ellipse(0, 0, p.size * (2.6 + doppler), p.size * 0.52, 0, 0, Math.PI * 2);
+          ctx.ellipse(0, 0, p.size * (2.5 + doppler), p.size * 0.5, 0, 0, Math.PI * 2);
           ctx.fill();
           ctx.restore();
         }
       };
 
-      // Render Back Accretion Disk
       drawDiskHalf(false);
 
-      // 5. Event Horizon Shadow & Innermost Photon Sphere Ring
+      // 5. Event Horizon Shadow
       ctx.save();
       ctx.beginPath();
       ctx.arc(bhX, bhY, rs, 0, Math.PI * 2);
       ctx.fillStyle = '#020305';
-      ctx.shadowColor = 'rgba(240, 182, 109, 0.65)';
-      ctx.shadowBlur = 28;
+      ctx.shadowColor = 'rgba(240, 182, 109, 0.6)';
+      ctx.shadowBlur = 24;
       ctx.fill();
       ctx.restore();
 
-      // Razor-thin relativistic photon ring on the edge of the event horizon
       const photonGrad = ctx.createLinearGradient(bhX - rs, bhY, bhX + rs, bhY);
-      photonGrad.addColorStop(0, 'rgba(118, 229, 255, 0.85)');
-      photonGrad.addColorStop(0.45, 'rgba(243, 246, 250, 0.9)');
-      photonGrad.addColorStop(1, 'rgba(240, 182, 109, 0.55)');
+      photonGrad.addColorStop(0, 'rgba(118, 229, 255, 0.8)');
+      photonGrad.addColorStop(0.45, 'rgba(243, 246, 250, 0.85)');
+      photonGrad.addColorStop(1, 'rgba(240, 182, 109, 0.5)');
       ctx.strokeStyle = photonGrad;
-      ctx.lineWidth = 1.6;
+      ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.arc(bhX, bhY, rs * 1.02, 0, Math.PI * 2);
       ctx.stroke();
 
-      // 6. Equatorial Accretion Disk Continuous Glow Band (Front Crossing)
+      // 6. Front Accretion Band
       ctx.save();
       ctx.translate(bhX, bhY);
       ctx.rotate(diskRoll);
-      const planeGrad = ctx.createLinearGradient(-rs * 3.4, 0, rs * 3.4, 0);
+      const planeGrad = ctx.createLinearGradient(-rs * 3.3, 0, rs * 3.3, 0);
       planeGrad.addColorStop(0, 'rgba(118, 229, 255, 0)');
-      planeGrad.addColorStop(0.22, 'rgba(118, 229, 255, 0.25)');
-      planeGrad.addColorStop(0.42, 'rgba(243, 246, 250, 0.52)');
-      planeGrad.addColorStop(0.68, 'rgba(240, 182, 109, 0.34)');
+      planeGrad.addColorStop(0.22, 'rgba(118, 229, 255, 0.22)');
+      planeGrad.addColorStop(0.42, 'rgba(243, 246, 250, 0.48)');
+      planeGrad.addColorStop(0.68, 'rgba(240, 182, 109, 0.3)');
       planeGrad.addColorStop(1, 'rgba(240, 182, 109, 0)');
       ctx.fillStyle = planeGrad;
       ctx.beginPath();
-      ctx.ellipse(0, rs * 0.08, rs * 3.3, rs * diskTilt * 0.52, 0, 0, Math.PI);
+      ctx.ellipse(0, rs * 0.08, rs * 3.2, rs * diskTilt * 0.5, 0, 0, Math.PI);
       ctx.fill();
       ctx.restore();
 
-      // Render Front Accretion Disk
       drawDiskHalf(true);
 
       if (!reducedMotion) {
@@ -482,58 +453,86 @@ function GargantuaCanvas({ scrollProgress, mousePos, reducedMotion }) {
 }
 
 // ============================================================================
-// BESPOKE ABSTRACT PROJECT VISUALIZERS (NO FAKE SCREENSHOTS)
+// CLEAN PROJECT VISUAL PREVIEWS
 // ============================================================================
 function ProjectVisual({ type }) {
-  if (type === 'honeypot') {
+  if (type === 'distributor') {
     return (
-      <div className="relative w-full h-48 bg-[#07111F]/90 border-b border-white/10 overflow-hidden p-4 flex flex-col justify-between select-none">
-        <div className="flex items-center justify-between text-[10px] font-mono text-[#9AA5B5]">
-          <span className="flex items-center gap-1.5 text-[#76E5FF]">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#76E5FF] animate-ping" />
-            INTERCEPT_STREAM // FASTAPI
-          </span>
-          <span className="px-1.5 py-0.5 bg-[#F0B66D]/15 text-[#F0B66D] border border-[#F0B66D]/30 rounded">
-            INDICATOR_EXTRACTED
+      <div className="relative w-full h-44 bg-[#07111F]/90 border-b border-white/10 overflow-hidden p-4 flex flex-col justify-between select-none">
+        <div className="flex items-center justify-between text-[10px] font-mono">
+          <span className="text-[#F0B66D]">SRI BALAJI DISTRIBUTORS</span>
+          <span className="text-[#76E5FF] flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#76E5FF]" /> LIVE
           </span>
         </div>
 
-        {/* Simulated Conversation Threat Graph */}
-        <svg className="w-full h-20 overflow-visible" viewBox="0 0 320 70">
+        <div className="my-auto space-y-2">
+          <div className="grid grid-cols-3 gap-2">
+            {['Starters & Alternators', 'Wiring & Relays', 'OEM Spare Parts'].map((item, idx) => (
+              <div
+                key={idx}
+                className="bg-[#030407]/85 border border-white/10 p-2.5 rounded-lg flex flex-col justify-between h-14"
+              >
+                <div className="w-4 h-1 bg-[#F0B66D]/80 rounded-full" />
+                <span className="text-[9px] font-medium text-[#F3F6FA] leading-tight">
+                  {item}
+                </span>
+              </div>
+            ))}
+          </div>
+          <div className="bg-[#030407]/70 border border-white/5 px-3 py-1.5 rounded-lg flex items-center justify-between text-[10px] font-mono text-[#9AA5B5]">
+            <span>Wholesale Brand Showcase</span>
+            <span className="text-[#F3F6FA]">Responsive Web</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (type === 'honeypot') {
+    return (
+      <div className="relative w-full h-44 bg-[#07111F]/90 border-b border-white/10 overflow-hidden p-4 flex flex-col justify-between select-none">
+        <div className="flex items-center justify-between text-[10px] font-mono text-[#9AA5B5]">
+          <span className="text-[#76E5FF]">FASTAPI SERVICE</span>
+          <span className="px-2 py-0.5 bg-[#F0B66D]/15 text-[#F0B66D] border border-[#F0B66D]/30 rounded">
+            SCAM INDICATOR FLAGGED
+          </span>
+        </div>
+
+        <svg className="w-full h-16 overflow-visible" viewBox="0 0 320 65">
           <defs>
-            <linearGradient id="threatWave" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#76E5FF" stopOpacity="0.2" />
+            <linearGradient id="threatWaveClean" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#76E5FF" stopOpacity="0.25" />
               <stop offset="55%" stopColor="#76E5FF" stopOpacity="0.85" />
               <stop offset="80%" stopColor="#F0B66D" stopOpacity="1" />
               <stop offset="100%" stopColor="#F0B66D" stopOpacity="0.3" />
             </linearGradient>
           </defs>
           <path
-            d="M 0 48 Q 35 44, 65 46 T 125 38 T 175 45 T 215 14 T 255 24 T 320 36"
+            d="M 0 45 Q 35 42, 65 44 T 125 36 T 175 42 T 215 14 T 255 24 T 320 35"
             fill="none"
-            stroke="url(#threatWave)"
+            stroke="url(#threatWaveClean)"
             strokeWidth="2"
           />
-          <line x1="215" y1="6" x2="215" y2="64" stroke="#F0B66D" strokeWidth="1" strokeDasharray="2 2" />
-          <circle cx="125" cy="38" r="3" fill="#76E5FF" />
-          <circle cx="215" cy="14" r="4.5" fill="#F0B66D" />
-          <text x="222" y="18" fill="#F0B66D" fontSize="8" fontFamily="monospace">
-            PHISHING_URI_DETECTED
+          <circle cx="125" cy="36" r="3" fill="#76E5FF" />
+          <circle cx="215" cy="14" r="4" fill="#F0B66D" />
+          <text x="223" y="17" fill="#F0B66D" fontSize="8" fontFamily="monospace">
+            Suspicious Pattern
           </text>
         </svg>
 
-        <div className="grid grid-cols-3 gap-2 text-[9px] font-mono">
-          <div className="bg-[#030407]/80 border border-white/5 px-2 py-1 rounded">
-            <span className="text-[#9AA5B5] block">PAYLOAD</span>
-            <span className="text-[#F3F6FA]">JSON // VERIFIED</span>
+        <div className="grid grid-cols-3 gap-2 text-[10px] font-mono">
+          <div className="bg-[#030407]/80 border border-white/5 px-2.5 py-1 rounded">
+            <span className="text-[#9AA5B5] block text-[8px]">FORMAT</span>
+            <span className="text-[#F3F6FA]">JSON API</span>
           </div>
-          <div className="bg-[#030407]/80 border border-white/5 px-2 py-1 rounded">
-            <span className="text-[#9AA5B5] block">SCHEMA</span>
-            <span className="text-[#76E5FF]">OPENAPI 3.1</span>
+          <div className="bg-[#030407]/80 border border-white/5 px-2.5 py-1 rounded">
+            <span className="text-[#9AA5B5] block text-[8px]">DOCS</span>
+            <span className="text-[#76E5FF]">Swagger UI</span>
           </div>
-          <div className="bg-[#030407]/80 border border-[#F0B66D]/30 px-2 py-1 rounded">
-            <span className="text-[#9AA5B5] block">STATUS</span>
-            <span className="text-[#F0B66D]">FLAGGED</span>
+          <div className="bg-[#030407]/80 border border-white/5 px-2.5 py-1 rounded">
+            <span className="text-[#9AA5B5] block text-[8px]">TESTING</span>
+            <span className="text-[#F0B66D]">Postman</span>
           </div>
         </div>
       </div>
@@ -542,14 +541,14 @@ function ProjectVisual({ type }) {
 
   if (type === 'aqi') {
     return (
-      <div className="relative w-full h-48 bg-[#07111F]/90 border-b border-white/10 overflow-hidden p-4 flex flex-col justify-between select-none">
+      <div className="relative w-full h-44 bg-[#07111F]/90 border-b border-white/10 overflow-hidden p-4 flex flex-col justify-between select-none">
         <div className="flex items-center justify-between text-[10px] font-mono">
-          <span className="text-[#76E5FF]">SENSOR // MQ-135 ANALOG</span>
-          <span className="text-[#9AA5B5]">PPM TELEMETRY</span>
+          <span className="text-[#76E5FF]">MQ135 GAS SENSOR</span>
+          <span className="text-[#9AA5B5]">REAL-TIME MONITOR</span>
         </div>
 
         <div className="flex items-center justify-center gap-6 my-auto">
-          <div className="relative w-24 h-24 flex items-center justify-center">
+          <div className="relative w-20 h-20 flex items-center justify-center">
             <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
               <circle cx="50" cy="50" r="40" stroke="rgba(243,246,250,0.08)" strokeWidth="6" fill="none" />
               <circle
@@ -562,67 +561,26 @@ function ProjectVisual({ type }) {
                 strokeLinecap="round"
                 fill="none"
               />
-              <circle
-                cx="50"
-                cy="50"
-                r="30"
-                stroke="#F0B66D"
-                strokeWidth="2"
-                strokeDasharray="4 6"
-                fill="none"
-              />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center font-mono">
-              <span className="text-xs font-bold text-[#F3F6FA]">MQ135</span>
+              <span className="text-xs font-bold text-[#F3F6FA]">AQI</span>
               <span className="text-[8px] text-[#76E5FF]">ACTIVE</span>
             </div>
           </div>
 
-          <div className="flex-1 space-y-2 font-mono text-[10px]">
+          <div className="flex-1 space-y-1.5 font-mono text-[10px]">
             <div className="flex justify-between items-center border-b border-white/5 pb-1">
-              <span className="text-[#9AA5B5]">GAS SAMPLING</span>
-              <span className="text-[#76E5FF]">REAL-TIME</span>
+              <span className="text-[#9AA5B5]">Sensor</span>
+              <span className="text-[#76E5FF]">MQ135</span>
             </div>
             <div className="flex justify-between items-center border-b border-white/5 pb-1">
-              <span className="text-[#9AA5B5]">CONTROLLER</span>
-              <span className="text-[#F3F6FA]">ARDUINO C++</span>
+              <span className="text-[#9AA5B5]">Microcontroller</span>
+              <span className="text-[#F3F6FA]">Arduino IDE</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-[#9AA5B5]">BUZZER ALERT</span>
-              <span className="text-[#F0B66D]">THRESHOLD ARMED</span>
+              <span className="text-[#9AA5B5]">Safety Alert</span>
+              <span className="text-[#F0B66D]">Buzzer Threshold</span>
             </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (type === 'distributor') {
-    return (
-      <div className="relative w-full h-48 bg-[#07111F]/90 border-b border-white/10 overflow-hidden p-4 flex flex-col justify-between select-none">
-        <div className="flex items-center justify-between text-[10px] font-mono">
-          <span className="text-[#F0B66D]">COMMERCIAL PORTAL // B2B</span>
-          <span className="text-[#9AA5B5]">AUTO-ELECTRICAL</span>
-        </div>
-
-        {/* Architectural Product Grid & Marquee Preview */}
-        <div className="my-auto space-y-2.5">
-          <div className="grid grid-cols-3 gap-2">
-            {['STARTERS & ALTERNATORS', 'WIRING HARNESS', 'OEM SENSORS'].map((item, idx) => (
-              <div
-                key={idx}
-                className="bg-[#030407]/90 border border-white/10 p-2.5 rounded flex flex-col justify-between h-16"
-              >
-                <div className="w-4 h-1 bg-[#F0B66D]/70 rounded-full" />
-                <span className="text-[8px] font-mono text-[#F3F6FA] tracking-wider leading-tight">
-                  {item}
-                </span>
-              </div>
-            ))}
-          </div>
-          <div className="bg-[#030407]/70 border border-white/5 px-3 py-1.5 rounded flex items-center justify-between text-[9px] font-mono text-[#9AA5B5]">
-            <span>BRAND MARQUEE ENGINE</span>
-            <span className="text-[#76E5FF]">RESPONSIVE UI</span>
           </div>
         </div>
       </div>
@@ -631,44 +589,43 @@ function ProjectVisual({ type }) {
 
   if (type === 'sentiment') {
     return (
-      <div className="relative w-full h-48 bg-[#07111F]/90 border-b border-white/10 overflow-hidden p-4 flex flex-col justify-between select-none">
+      <div className="relative w-full h-44 bg-[#07111F]/90 border-b border-white/10 overflow-hidden p-4 flex flex-col justify-between select-none">
         <div className="flex items-center justify-between text-[10px] font-mono">
-          <span className="text-[#76E5FF]">NLP PIPELINE // TOKENIZER</span>
-          <span className="text-[#F0B66D]">SARCASM_DETECTOR</span>
+          <span className="text-[#76E5FF]">NLP CLASSIFICATION</span>
+          <span className="text-[#F0B66D]">SARCASM DETECTION</span>
         </div>
 
         <div className="my-auto space-y-2 font-mono text-[10px]">
-          <div className="bg-[#030407]/85 border border-white/10 p-2 rounded flex items-center justify-between">
-            <span className="text-[#9AA5B5] truncate pr-2">"Oh great, another outage right on schedule..."</span>
-            <span className="px-1.5 py-0.5 text-[8px] bg-[#F0B66D]/15 text-[#F0B66D] border border-[#F0B66D]/40 rounded shrink-0">
-              SARCASM // IRONIC
+          <div className="bg-[#030407]/85 border border-white/10 p-2 rounded-lg flex items-center justify-between">
+            <span className="text-[#9AA5B5] truncate pr-2">"Oh great, another delay right on schedule..."</span>
+            <span className="px-2 py-0.5 text-[9px] bg-[#F0B66D]/15 text-[#F0B66D] border border-[#F0B66D]/40 rounded shrink-0">
+              Sarcastic
             </span>
           </div>
-          <div className="bg-[#030407]/85 border border-white/10 p-2 rounded flex items-center justify-between">
-            <span className="text-[#9AA5B5] truncate pr-2">"The new update improved response speed."</span>
-            <span className="px-1.5 py-0.5 text-[8px] bg-[#76E5FF]/15 text-[#76E5FF] border border-[#76E5FF]/40 rounded shrink-0">
-              POSITIVE // 0.94
+          <div className="bg-[#030407]/85 border border-white/10 p-2 rounded-lg flex items-center justify-between">
+            <span className="text-[#9AA5B5] truncate pr-2">"The new update improved overall speed."</span>
+            <span className="px-2 py-0.5 text-[9px] bg-[#76E5FF]/15 text-[#76E5FF] border border-[#76E5FF]/40 rounded shrink-0">
+              Positive
             </span>
           </div>
         </div>
 
-        <div className="flex items-center justify-between text-[9px] font-mono text-[#9AA5B5]">
-          <span>VECTOR EMBEDDINGS</span>
-          <span className="text-[#F3F6FA]">CLASSIFICATION MATRIX</span>
+        <div className="flex items-center justify-between text-[10px] font-mono text-[#9AA5B5]">
+          <span>Text Processing</span>
+          <span className="text-[#F3F6FA]">Polarity & Context</span>
         </div>
       </div>
     );
   }
 
-  // Fallback for Archive Projects (Tally / ReachInbox / Portfolio)
   return (
-    <div className="relative w-full h-40 bg-[#07111F]/80 border-b border-white/10 overflow-hidden p-4 flex flex-col justify-between select-none">
+    <div className="relative w-full h-36 bg-[#07111F]/80 border-b border-white/10 overflow-hidden p-4 flex flex-col justify-between select-none">
       <div className="flex items-center justify-between text-[10px] font-mono text-[#9AA5B5]">
-        <span className="text-[#76E5FF]">SYSTEM ARCHITECTURE</span>
-        <span>VERIFIED MODULE</span>
+        <span className="text-[#76E5FF]">WEB APPLICATION</span>
+        <span>FULL-STACK</span>
       </div>
       <div className="my-auto flex items-center gap-3">
-        <div className="flex-1 h-12 bg-[#030407]/80 border border-white/10 rounded p-2 flex items-end gap-1.5">
+        <div className="flex-1 h-12 bg-[#030407]/80 border border-white/10 rounded-lg p-2 flex items-end gap-1.5">
           {[40, 75, 55, 90, 65, 95, 80].map((h, i) => (
             <div
               key={i}
@@ -678,19 +635,16 @@ function ProjectVisual({ type }) {
           ))}
         </div>
       </div>
-      <div className="text-[9px] font-mono text-[#9AA5B5] flex justify-between">
-        <span>TELEMETRY STREAM</span>
-        <span className="text-[#F0B66D]">ACTIVE</span>
-      </div>
     </div>
   );
 }
 
 // ============================================================================
-// 3D TILT INTERACTIVE PROJECT CARD
+// 3D TILT PROJECT CARD
 // ============================================================================
 function ProjectCard({ project }) {
   const cardRef = useRef(null);
+  const isLive = Boolean(project.live);
 
   const handlePointerMove = (e) => {
     const el = cardRef.current;
@@ -701,8 +655,8 @@ function ProjectCard({ project }) {
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
 
-    const rotateX = ((y - centerY) / centerY) * -4.5;
-    const rotateY = ((x - centerX) / centerX) * 4.5;
+    const rotateX = ((y - centerY) / centerY) * -3.5;
+    const rotateY = ((x - centerX) / centerX) * 3.5;
 
     el.style.setProperty('--mouse-x', `${x}px`);
     el.style.setProperty('--mouse-y', `${y}px`);
@@ -726,10 +680,16 @@ function ProjectCard({ project }) {
         <ProjectVisual type={project.visualType} />
 
         <div className="p-6 sm:p-7">
-          <div className="flex items-center justify-between gap-2 text-[11px] font-mono mb-3">
-            <span className="text-[#76E5FF] tracking-widest uppercase">{project.code}</span>
-            <span className="text-[#9AA5B5] px-2.5 py-0.5 rounded-full bg-white/[0.04] border border-white/10">
-              {project.category}
+          <div className="flex items-center justify-between gap-2 text-xs font-mono mb-3">
+            <span className="text-[#9AA5B5]">{project.category}</span>
+            <span
+              className={`px-2.5 py-0.5 rounded-full text-[11px] border ${
+                isLive
+                  ? 'bg-[#76E5FF]/10 text-[#76E5FF] border-[#76E5FF]/30'
+                  : 'bg-white/[0.04] text-[#9AA5B5] border-white/10'
+              }`}
+            >
+              {project.status}
             </span>
           </div>
 
@@ -762,7 +722,7 @@ function ProjectCard({ project }) {
           className="inline-flex items-center gap-2 text-xs font-mono text-[#9AA5B5] hover:text-[#F3F6FA] transition-colors"
         >
           <Github size={14} />
-          <span>Source Code</span>
+          <span>GitHub</span>
         </a>
 
         {project.live ? (
@@ -772,12 +732,13 @@ function ProjectCard({ project }) {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 text-xs font-mono font-semibold text-[#F0B66D] hover:text-[#76E5FF] transition-colors"
           >
-            <span>Launch Live System</span>
+            <Globe size={13} />
+            <span>Live Demo</span>
             <ArrowUpRight size={14} />
           </a>
         ) : (
           <span className="text-[11px] font-mono text-[#9AA5B5]/60">
-            REPOSITORY ARCHIVE
+            Code Repository
           </span>
         )}
       </div>
@@ -810,32 +771,31 @@ export default function App() {
     {
       role: 'ai',
       content:
-        'TARS Mechanical Unit online. Honesty calibrated to 90%. Ask me about Nayan Choraria’s AI projects, engineering stack, or academic background at Jain University.'
+        "Hi! I'm TARS, Nayan's portfolio assistant. Ask me about his live projects, AI & full-stack skills, or his studies at Jain University."
     }
   ]);
   const [isAiLoading, setIsAiLoading] = useState(false);
   const chatEndRef = useRef(null);
 
-  // Contextual TARS status readout linked to active section
   const tarsStatusReadout = useMemo(() => {
     switch (activeSection) {
       case 'home':
-        return 'System ready. Gargantua orbital lock stable.';
+        return 'System ready. Ask me anything.';
       case 'about':
-        return 'Inspecting operator dossier: Jain University // BCA AI.';
+        return 'Viewing background & education.';
       case 'projects':
-        return 'Exploring project archive... Choose a mission to inspect.';
+        return 'Exploring projects. Click a live demo to test.';
       case 'skills':
-        return 'Mapping technical constellation & system dependencies.';
+        return 'Viewing technical skills & tools.';
       case 'contact':
-        return 'Transceiver aligned. Ready to initialize contact.';
+        return 'Ready to connect.';
       default:
         return 'System ready.';
     }
   }, [activeSection]);
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoaded(true), 250);
+    const timer = setTimeout(() => setIsLoaded(true), 200);
     document.documentElement.style.scrollBehavior = 'smooth';
 
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -843,7 +803,6 @@ export default function App() {
     const handleMotionChange = (e) => setReducedMotion(e.matches);
     mediaQuery.addEventListener('change', handleMotionChange);
 
-    // Mouse Parallax Listener
     const handlePointerMove = (e) => {
       const nx = (e.clientX / window.innerWidth - 0.5) * 2;
       const ny = (e.clientY / window.innerHeight - 0.5) * 2;
@@ -851,7 +810,6 @@ export default function App() {
     };
     window.addEventListener('pointermove', handlePointerMove, { passive: true });
 
-    // Scroll Progress & Compact Navigation Listener
     const handleScroll = () => {
       const scrollTop = window.scrollY;
       const docHeight = Math.max(document.documentElement.scrollHeight - window.innerHeight, 1);
@@ -862,7 +820,6 @@ export default function App() {
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
 
-    // Section Reveal & Active Navigation Observer
     const sectionElements = document.querySelectorAll('section[id]');
     const navObserver = new IntersectionObserver(
       (entries) => {
@@ -888,7 +845,6 @@ export default function App() {
     );
     document.querySelectorAll('.reveal-section').forEach((el) => revealObserver.observe(el));
 
-    // Keyboard Shortcuts (Cmd/Ctrl + K for TARS, Esc to close)
     const handleKeyDown = (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
@@ -934,24 +890,24 @@ export default function App() {
     setTimeout(() => setCopied(false), 2200);
   };
 
-  // Local Deterministic Fallback Responder when no API key is configured
   const generateLocalTarsResponse = (query) => {
     const q = query.toLowerCase();
-    if (q.includes('project') || q.includes('work') || q.includes('honeypot') || q.includes('scam') || q.includes('aqi') || q.includes('balaji') || q.includes('sentiment')) {
-      return `Nayan's primary mission archive features 4 core systems: Honeypot Scam Detection (FastAPI threat analysis), AQI Monitor Dashboard (Arduino & MQ135 IoT telemetry), Sri Balaji Distributors Website (live commercial portal), and Social Media Sentiment Analysis (NLP & sarcasm detection).`;
+    if (q.includes('project') || q.includes('work') || q.includes('live') || q.includes('balaji') || q.includes('honeypot') || q.includes('aqi') || q.includes('sentiment')) {
+      return `Nayan's deployed projects include the Sri Balaji Distributors Website (live on Render) and the Honeypot Scam Detection API (FastAPI). He has also built an IoT AQI Monitor Dashboard, a Social Media Sentiment Analysis NLP model, an AI Tally Analytics app, and ReachInbox.`;
     }
     if (q.includes('skill') || q.includes('stack') || q.includes('tech') || q.includes('language')) {
-      return `Technical arsenal verified: Python, TypeScript, JavaScript, C/C++, React, Next.js, FastAPI, Node.js, PostgreSQL, Appwrite, and Machine Learning/NLP workflows.`;
+      return `Nayan works with Python, TypeScript, JavaScript, C/C++, React, Next.js, FastAPI, Node.js, PostgreSQL, Appwrite, and Machine Learning/NLP tools.`;
     }
     if (q.includes('education') || q.includes('university') || q.includes('student') || q.includes('about') || q.includes('who')) {
-      return `Nayan Choraria is a BCA Artificial Intelligence student at Jain University, Bengaluru, focusing on intelligent software systems, full-stack architecture, and applied machine learning.`;
+      return `Nayan Choraria is a BCA Artificial Intelligence student at Jain University in Bengaluru, focusing on AI applications and full-stack software development.`;
     }
     if (q.includes('contact') || q.includes('email') || q.includes('hire') || q.includes('reach')) {
-      return `Direct communication channel is open at ${PORTFOLIO_DATA.profile.email} or via GitHub (@nayan2452005) and LinkedIn.`;
+      return `You can reach Nayan directly at ${PORTFOLIO_DATA.profile.email}, or connect with him on GitHub (@nayan2452005) and LinkedIn.`;
     }
-    return `TARS telemetry confirms Nayan Choraria specializes in AI/ML, full-stack web engineering, and interactive digital systems at Jain University. Ask about his Honeypot Scam Detection, AQI Monitor, Sri Balaji portal, or NLP sentiment analysis projects.`;
+    return `Nayan Choraria is a BCA AI student at Jain University building AI applications and full-stack web systems. Feel free to ask about his Sri Balaji Distributors website, Honeypot Scam Detection API, AQI Monitor, or technical skills!`;
   };
 
+  // Supports Groq API (VITE_GROQ_API_KEY), custom backend proxy (VITE_AI_PROXY_URL), or Gemini fallback
   const handleAiSubmit = async (e) => {
     e.preventDefault();
     if (!aiInput.trim()) return;
@@ -960,50 +916,79 @@ export default function App() {
     setAiInput('');
     setIsAiLoading(true);
 
-    try {
-      const proxyUrl = typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env.VITE_AI_PROXY_URL : '';
-      const envApiKey = typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env.VITE_GEMINI_API_KEY : '';
+    const systemPrompt = `You are TARS, the helpful and witty assistant on Nayan Choraria's personal portfolio website.
+Settings: Honesty ${honesty}%, Humor ${humor}%.
+About Nayan Choraria:
+- Role: BCA Artificial Intelligence Student at Jain University, Bengaluru, India.
+- Leadership: Past Joint Secretary at Marwari Yuva Manch.
+- Featured Projects:
+  1. Sri Balaji Distributors Website (Live: https://sri-balaji-distributors.onrender.com) - Responsive wholesale business portal built with React, TypeScript, Vite, Tailwind.
+  2. Honeypot Scam Detection (Live API Docs: https://agentic-honeypot-a41c.onrender.com/docs) - AI-assisted FastAPI backend for detecting suspicious conversations and extracting scam indicators.
+  3. AQI Monitor Dashboard - IoT air quality system using Arduino IDE, MQ135 gas sensor, C++, and buzzer alerts.
+  4. Social Media Sentiment Analysis - Machine learning/NLP project for sentiment classification and sarcasm detection.
+- Additional Projects: AI Tally Business Analytics (React, Recharts, Appwrite, Groq API) and ReachInbox Email Scheduler (Next.js, Node.js, PostgreSQL, OAuth).
+Keep answers clear, friendly, and concise (2 to 3 sentences max). Do not invent fake experience or metrics.`;
 
-      if (!proxyUrl && !envApiKey) {
-        // Graceful local response when no environment key is present
-        await new Promise((r) => setTimeout(r, 450));
-        setAiMessages((prev) => [
-          ...prev,
-          { role: 'ai', content: generateLocalTarsResponse(userText) }
-        ]);
+    try {
+      const env = (typeof import.meta !== 'undefined' && import.meta.env) ? import.meta.env : {};
+      const groqKey = env.VITE_GROQ_API_KEY || '';
+      const proxyUrl = env.VITE_AI_PROXY_URL || '';
+      const geminiKey = env.VITE_GEMINI_API_KEY || '';
+
+      // 1. Primary: Groq API (LLaMA 3.3 70B)
+      if (groqKey) {
+        const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${groqKey}`
+          },
+          body: JSON.stringify({
+            model: 'llama-3.3-70b-versatile',
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: userText }
+            ],
+            temperature: 0.6,
+            max_tokens: 220
+          })
+        });
+
+        if (!res.ok) throw new Error('Groq API request failed');
+        const data = await res.json();
+        const reply = data.choices?.[0]?.message?.content?.trim() || generateLocalTarsResponse(userText);
+        setAiMessages((prev) => [...prev, { role: 'ai', content: reply }]);
         return;
       }
 
-      const endpoint =
-        proxyUrl ||
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${envApiKey}`;
+      // 2. Secondary: Custom Proxy or Gemini API
+      if (proxyUrl || geminiKey) {
+        const endpoint =
+          proxyUrl ||
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${geminiKey}`;
 
-      const systemPrompt = `You are TARS, the segmented mechanical assistant inspired by Interstellar, representing Nayan Choraria's portfolio.
-Honesty parameter: ${honesty}%, Humor parameter: ${humor}%.
-Profile: Nayan Choraria, BCA Artificial Intelligence Student at Jain University, Bengaluru, India.
-Projects:
-1. Honeypot Scam Detection (AI-assisted system for detecting suspicious conversations and extracting scam indicators; FastAPI, Swagger UI, Postman).
-2. AQI Monitor Dashboard (IoT air quality monitoring with Arduino IDE, MQ135 sensor, C++, threshold alerts).
-3. Sri Balaji Distributors Website (Modern commercial website for an auto-electrical spare parts distributor; live at https://sri-balaji-distributors.onrender.com).
-4. Social Media Sentiment Analysis (Machine learning/NLP project for sentiment classification and sarcasm detection).
-Additional projects: AI Tally Business Analytics (React, Recharts, Appwrite, Groq API) and ReachInbox Email Platform (Next.js, PostgreSQL, OAuth).
-Do not invent fake metrics or awards. Keep responses concise (under 3 sentences) with crisp mechanical precision.`;
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: userText }] }],
+            systemInstruction: { parts: [{ text: systemPrompt }] }
+          })
+        });
 
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: userText }] }],
-          systemInstruction: { parts: [{ text: systemPrompt }] }
-        })
-      });
+        if (!res.ok) throw new Error('API request failed');
+        const data = await res.json();
+        const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || generateLocalTarsResponse(userText);
+        setAiMessages((prev) => [...prev, { role: 'ai', content: reply }]);
+        return;
+      }
 
-      if (!res.ok) throw new Error('API request failed');
-      const data = await res.json();
-      const reply =
-        data.candidates?.[0]?.content?.parts?.[0]?.text ||
-        generateLocalTarsResponse(userText);
-      setAiMessages((prev) => [...prev, { role: 'ai', content: reply }]);
+      // 3. Built-in Local Fallback
+      await new Promise((r) => setTimeout(r, 400));
+      setAiMessages((prev) => [
+        ...prev,
+        { role: 'ai', content: generateLocalTarsResponse(userText) }
+      ]);
     } catch {
       setAiMessages((prev) => [
         ...prev,
@@ -1015,11 +1000,11 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
   };
 
   const navItems = [
-    { id: 'home', label: 'Home', code: '01' },
-    { id: 'about', label: 'About', code: '02' },
-    { id: 'projects', label: 'Projects', code: '03' },
-    { id: 'skills', label: 'Skills', code: '04' },
-    { id: 'contact', label: 'Contact', code: '05' }
+    { id: 'home', label: 'Home' },
+    { id: 'about', label: 'About' },
+    { id: 'projects', label: 'Projects' },
+    { id: 'skills', label: 'Skills' },
+    { id: 'contact', label: 'Contact' }
   ];
 
   const currentSkillObj =
@@ -1035,16 +1020,6 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap');
 
-        :root {
-          --bg-void: #030407;
-          --bg-space: #07111F;
-          --bg-graphite: #11151D;
-          --text-ice: #F3F6FA;
-          --text-silver: #9AA5B5;
-          --accent-cyan: #76E5FF;
-          --accent-amber: #F0B66D;
-        }
-
         body {
           background-color: #030407;
           color: #F3F6FA;
@@ -1059,7 +1034,6 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
           font-family: 'JetBrains Mono', monospace;
         }
 
-        /* Subtle Spatial Card Illumination */
         .spatial-card {
           position: relative;
           will-change: transform;
@@ -1072,7 +1046,7 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
           inset: 0;
           background: radial-gradient(
             520px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-            rgba(118, 229, 255, 0.09),
+            rgba(118, 229, 255, 0.08),
             rgba(240, 182, 109, 0.04) 40%,
             transparent 70%
           );
@@ -1095,12 +1069,11 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
           z-index: 2;
         }
 
-        /* Section Reveal Transitions */
         .reveal-section {
           opacity: 0;
-          transform: translateY(28px);
-          transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1),
-                      transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+          transform: translateY(24px);
+          transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                      transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .reveal-visible {
@@ -1120,43 +1093,34 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
         }
       `}</style>
 
-      {/* 3D Gargantua Black Hole & Relativistic Starfield Canvas */}
+      {/* 3D Gargantua Black Hole & Starfield Background */}
       <GargantuaCanvas
         scrollProgress={scrollProgress}
         mousePos={mousePos}
         reducedMotion={reducedMotion}
       />
 
-      {/* Subtle Orbital Path Lines Connecting Spatial Layers */}
+      {/* Subtle Orbital Lines */}
       <div
         aria-hidden="true"
-        className="fixed inset-0 pointer-events-none z-[1] overflow-hidden opacity-35"
+        className="fixed inset-0 pointer-events-none z-[1] overflow-hidden opacity-25"
       >
         <svg className="w-full h-full" viewBox="0 0 1440 900" preserveAspectRatio="none">
           <ellipse
-            cx="920"
-            cy={420 - scrollProgress * 160}
-            rx={560 + scrollProgress * 120}
-            ry={210 + scrollProgress * 45}
+            cx="940"
+            cy={420 - scrollProgress * 140}
+            rx={560 + scrollProgress * 110}
+            ry={210 + scrollProgress * 40}
             fill="none"
             stroke="rgba(118, 229, 255, 0.12)"
             strokeWidth="1"
             strokeDasharray="6 10"
           />
-          <ellipse
-            cx="920"
-            cy={420 - scrollProgress * 160}
-            rx={740 + scrollProgress * 180}
-            ry={310 + scrollProgress * 70}
-            fill="none"
-            stroke="rgba(240, 182, 109, 0.1)"
-            strokeWidth="1"
-          />
         </svg>
       </div>
 
       {/* ====================================================================
-          4. NAVIGATION — MISSION CONTROL
+          NAVIGATION BAR
       ==================================================================== */}
       <header className="fixed top-0 left-0 right-0 z-50 flex justify-center px-4 pt-4 pointer-events-none">
         <nav
@@ -1165,7 +1129,6 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
             isCompactNav ? 'py-2.5 px-5 shadow-[0_10px_30px_rgba(0,0,0,0.75)]' : 'py-3.5 px-6'
           }`}
         >
-          {/* Brand Identity & TARS 4-Slab Emblem */}
           <a href="#home" className="flex items-center gap-3 group">
             <div className="w-8 h-7 rounded bg-[#11151D] border border-white/15 p-1 flex items-center justify-center gap-0.5 group-hover:border-[#76E5FF]/60 transition-colors">
               <span className="w-1 h-full bg-[#9AA5B5] group-hover:bg-[#76E5FF] transition-colors" />
@@ -1177,13 +1140,12 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
               <span className="font-display font-bold text-sm tracking-tight text-[#F3F6FA] block leading-none">
                 {PORTFOLIO_DATA.profile.name}
               </span>
-              <span className="font-mono text-[9px] text-[#9AA5B5] tracking-widest uppercase block mt-1">
-                MISSION CONTROL // AI
+              <span className="font-mono text-[10px] text-[#9AA5B5] block mt-1">
+                AI & Full-Stack Portfolio
               </span>
             </div>
           </a>
 
-          {/* Desktop Navigation Links */}
           <div className="hidden md:flex items-center gap-1 bg-[#11151D]/70 border border-white/5 rounded-xl p-1">
             {navItems.map((item) => {
               const isActive = activeSection === item.id;
@@ -1191,25 +1153,23 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
                 <a
                   key={item.id}
                   href={`#${item.id}`}
-                  className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${
+                  className={`px-4 py-1.5 rounded-lg text-xs font-medium transition-all ${
                     isActive
                       ? 'bg-[#76E5FF]/15 text-[#76E5FF] border border-[#76E5FF]/30'
                       : 'text-[#9AA5B5] hover:text-[#F3F6FA] hover:bg-white/5 border border-transparent'
                   }`}
                 >
-                  <span className="font-mono text-[10px] opacity-60">{item.code}</span>
-                  <span>{item.label}</span>
+                  {item.label}
                 </a>
               );
             })}
           </div>
 
-          {/* System Status & TARS Trigger */}
           <div className="flex items-center gap-3">
-            <div className="hidden lg:flex items-center gap-2 px-2.5 py-1 rounded-full bg-[#11151D] border border-white/10">
+            <div className="hidden lg:flex items-center gap-2 px-3 py-1 rounded-full bg-[#11151D] border border-white/10">
               <span className="w-1.5 h-1.5 rounded-full bg-[#76E5FF] animate-pulse" />
-              <span className="font-mono text-[10px] text-[#9AA5B5] tracking-wider">
-                SYSTEM STATUS: <strong className="text-[#F3F6FA]">ONLINE</strong>
+              <span className="font-mono text-[10px] text-[#9AA5B5]">
+                Available for Projects
               </span>
             </div>
 
@@ -1222,7 +1182,7 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
               title="Open TARS Assistant (Cmd/Ctrl + K)"
             >
               <Terminal size={13} className="text-[#F0B66D]" />
-              <span>TARS</span>
+              <span>Ask TARS</span>
               <kbd className="text-[9px] text-[#9AA5B5] bg-black/50 px-1.5 py-0.5 rounded border border-white/10">
                 ⌘K
               </kbd>
@@ -1239,23 +1199,17 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
           </div>
         </nav>
 
-        {/* Mobile Menu Drawer */}
         {isMenuOpen && (
           <div className="pointer-events-auto fixed inset-x-4 top-20 rounded-2xl bg-[#07111F]/95 border border-white/15 backdrop-blur-2xl p-6 md:hidden shadow-2xl z-50">
-            <div className="flex items-center justify-between pb-3 mb-4 border-b border-white/10 font-mono text-[10px] text-[#9AA5B5]">
-              <span>NAVIGATION MATRIX</span>
-              <span className="text-[#76E5FF]">SYSTEM STATUS: ONLINE</span>
-            </div>
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2">
               {navItems.map((item) => (
                 <a
                   key={item.id}
                   href={`#${item.id}`}
                   onClick={() => setIsMenuOpen(false)}
-                  className="flex items-center justify-between py-2.5 px-3 rounded-lg hover:bg-white/5 text-base font-display font-medium text-[#F3F6FA]"
+                  className="py-2.5 px-3 rounded-lg hover:bg-white/5 text-base font-display font-medium text-[#F3F6FA]"
                 >
-                  <span>{item.label}</span>
-                  <span className="font-mono text-xs text-[#76E5FF]">{item.code}</span>
+                  {item.label}
                 </a>
               ))}
               <button
@@ -1264,9 +1218,9 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
                   setIsTarsDismissed(false);
                   setIsTarsExpanded(true);
                 }}
-                className="mt-2 w-full py-3 rounded-xl bg-[#F0B66D] text-[#030407] font-mono text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-2"
+                className="mt-3 w-full py-3 rounded-xl bg-[#F0B66D] text-[#030407] font-mono text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-2"
               >
-                <Terminal size={14} /> Initialize TARS Assistant
+                <Terminal size={14} /> Ask TARS Assistant
               </button>
             </div>
           </div>
@@ -1274,22 +1228,22 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
       </header>
 
       {/* ====================================================================
-          MAIN SPATIAL CONTENT
+          MAIN CONTENT
       ==================================================================== */}
       <main className="relative z-10">
         {/* ==================================================================
-            2. HERO SECTION — ENTER THE UNIVERSE
+            HERO SECTION
         ================================================================== */}
         <section
           id="home"
           className="min-h-screen flex flex-col justify-center px-6 pt-28 pb-20 relative"
         >
-          <div className="max-w-6xl mx-auto w-full grid lg:grid-cols-12 gap-12 items-center">
-            <div className="lg:col-span-8 reveal-section reveal-visible">
+          <div className="max-w-6xl mx-auto w-full">
+            <div className="max-w-3xl reveal-section reveal-visible">
               <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-[#11151D]/80 border border-white/10 backdrop-blur-md mb-8">
                 <span className="w-2 h-2 rounded-full bg-[#F0B66D]" />
-                <span className="font-mono text-[11px] text-[#F3F6FA] tracking-wider uppercase">
-                  {PORTFOLIO_DATA.profile.role} // {PORTFOLIO_DATA.profile.university}
+                <span className="font-mono text-xs text-[#F3F6FA]">
+                  {PORTFOLIO_DATA.profile.role} · {PORTFOLIO_DATA.profile.university}
                 </span>
               </div>
 
@@ -1305,7 +1259,6 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
                 intelligent digital experiences.
               </p>
 
-              {/* Primary & Secondary CTAs */}
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
                 <a
                   href="#projects"
@@ -1319,48 +1272,24 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
                   href="#contact"
                   className="px-7 py-4 rounded-xl bg-[#11151D]/80 hover:bg-[#11151D] text-[#F3F6FA] border border-white/15 hover:border-[#F0B66D]/60 font-display font-medium text-sm tracking-wide transition-all flex items-center justify-center gap-2 backdrop-blur-md"
                 >
-                  <Radio size={15} className="text-[#F0B66D]" />
+                  <Mail size={15} className="text-[#F0B66D]" />
                   <span>Initialize Contact</span>
                 </a>
               </div>
 
-              {/* Technical Coordinates Metadata Bar */}
-              <div className="mt-16 pt-6 border-t border-white/10 grid grid-cols-2 sm:grid-cols-3 gap-6 max-w-2xl font-mono text-xs">
+              {/* Clean Quick-Facts Row */}
+              <div className="mt-16 pt-6 border-t border-white/10 grid grid-cols-2 sm:grid-cols-3 gap-6 max-w-xl font-mono text-xs">
                 <div>
-                  <span className="text-[10px] text-[#9AA5B5] block uppercase">COORDINATES</span>
-                  <span className="text-[#F3F6FA] mt-0.5 block">BENGALURU // 12.97° N</span>
+                  <span className="text-[10px] text-[#9AA5B5] block uppercase">LOCATION</span>
+                  <span className="text-[#F3F6FA] mt-0.5 block">Bengaluru, India</span>
                 </div>
                 <div>
                   <span className="text-[10px] text-[#9AA5B5] block uppercase">CORE FOCUS</span>
-                  <span className="text-[#76E5FF] mt-0.5 block">AI / ML & FULL-STACK</span>
+                  <span className="text-[#76E5FF] mt-0.5 block">AI / ML & Full-Stack</span>
                 </div>
                 <div className="col-span-2 sm:col-span-1">
-                  <span className="text-[10px] text-[#9AA5B5] block uppercase">GRAVITATIONAL LENS</span>
-                  <span className="text-[#F0B66D] mt-0.5 block">
-                    {(1 + scrollProgress * 2.4).toFixed(2)} RS // ACTIVE
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Column Orbital Telemetry Readout Framing Gargantua */}
-            <div className="lg:col-span-4 hidden lg:flex flex-col items-end justify-end h-full pointer-events-none">
-              <div className="w-64 p-4 rounded-2xl bg-[#07111F]/65 border border-white/10 backdrop-blur-md font-mono text-[11px] space-y-2.5">
-                <div className="flex items-center justify-between text-[#F0B66D] border-b border-white/10 pb-2">
-                  <span>GARGANTUA // SINGULARITY</span>
-                  <Compass size={13} />
-                </div>
-                <div className="flex justify-between text-[#9AA5B5]">
-                  <span>ACCRETION DOPPLER</span>
-                  <span className="text-[#76E5FF]">RELATIVISTIC</span>
-                </div>
-                <div className="flex justify-between text-[#9AA5B5]">
-                  <span>INCLINATION</span>
-                  <span className="text-[#F3F6FA]">{(13.2 + scrollProgress * 18).toFixed(1)}°</span>
-                </div>
-                <div className="flex justify-between text-[#9AA5B5]">
-                  <span>SCROLL HORIZON</span>
-                  <span className="text-[#F0B66D]">{(scrollProgress * 100).toFixed(0)}%</span>
+                  <span className="text-[10px] text-[#9AA5B5] block uppercase">UNIVERSITY</span>
+                  <span className="text-[#F0B66D] mt-0.5 block">Jain University</span>
                 </div>
               </div>
             </div>
@@ -1368,15 +1297,14 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
         </section>
 
         {/* ==================================================================
-            5. ABOUT SECTION — HUMAN BEHIND THE SYSTEM
+            ABOUT SECTION
         ================================================================== */}
         <section id="about" className="py-28 px-6 relative border-t border-white/10">
           <div className="max-w-6xl mx-auto">
             <div className="grid lg:grid-cols-12 gap-12 items-start reveal-section">
-              {/* Left Column: Oversized Editorial Typography & Orbital Visual */}
               <div className="lg:col-span-6 lg:sticky lg:top-28">
-                <div className="inline-flex items-center gap-2 font-mono text-xs text-[#76E5FF] uppercase tracking-widest mb-4">
-                  <span>02 // HUMAN BEHIND THE SYSTEM</span>
+                <div className="font-mono text-xs text-[#76E5FF] uppercase tracking-widest mb-4">
+                  About Me
                 </div>
 
                 <h2 className="font-display text-3xl sm:text-5xl font-bold text-[#F3F6FA] tracking-tight leading-[1.12] mb-8">
@@ -1384,11 +1312,10 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
                   <span className="text-[#F0B66D]">Intelligence is the Direction.</span>
                 </h2>
 
-                {/* Subtle Orbital Diagram Card */}
                 <div className="p-6 rounded-2xl bg-[#11151D]/70 border border-white/10 backdrop-blur-md">
                   <div className="flex items-center justify-between font-mono text-[11px] text-[#9AA5B5] mb-4">
-                    <span>SYSTEM TRAJECTORY</span>
-                    <span className="text-[#76E5FF]">JAIN UNIVERSITY // BCA AI</span>
+                    <span>CORE DISCIPLINES</span>
+                    <span className="text-[#76E5FF]">BCA AI · JAIN UNIVERSITY</span>
                   </div>
 
                   <svg className="w-full h-32" viewBox="0 0 400 110">
@@ -1418,40 +1345,33 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
                     </text>
                     <circle cx="310" cy="55" r="5" fill="#F0B66D" />
                     <text x="280" y="76" fill="#F3F6FA" fontSize="9" fontFamily="monospace">
-                      FULL-STACK
+                      Full-Stack
                     </text>
                     <circle cx="200" cy="17" r="4" fill="#F3F6FA" />
-                    <text x="168" y="11" fill="#9AA5B5" fontSize="9" fontFamily="monospace">
-                      DATA SYSTEMS
+                    <text x="165" y="11" fill="#9AA5B5" fontSize="9" fontFamily="monospace">
+                      Data Systems
                     </text>
                   </svg>
                 </div>
               </div>
 
-              {/* Right Column: Concise Introduction & Technical Metadata */}
               <div className="lg:col-span-6 space-y-6">
                 <div className="p-7 sm:p-8 rounded-2xl bg-[#11151D]/75 border border-white/10 backdrop-blur-md space-y-5">
                   <p className="text-base sm:text-lg text-[#F3F6FA] leading-relaxed font-medium">
-                    I am Nayan Choraria, a BCA Artificial Intelligence student at Jain University in
-                    Bengaluru, focused on bridging machine learning concepts with reliable,
-                    well-engineered software applications.
+                    I'm Nayan Choraria, a BCA Artificial Intelligence student at Jain University in
+                    Bengaluru, passionate about combining machine learning with practical,
+                    well-crafted software.
                   </p>
                   <p className="text-sm sm:text-base text-[#9AA5B5] leading-relaxed">
-                    My approach to problem-solving starts with understanding the underlying data and
-                    system constraints—whether that means designing FastAPI services for scam
-                    indicator extraction, programming microcontroller firmware for environmental
-                    sensing, or building responsive full-stack web interfaces.
-                  </p>
-                  <p className="text-sm sm:text-base text-[#9AA5B5] leading-relaxed">
-                    I value clarity, structural maintainability, and thoughtful user interfaces that
-                    make complex technology feel intuitive.
+                    Whether I'm building FastAPI services for scam detection, programming sensors
+                    for real-time air quality monitoring, or developing full-stack web applications,
+                    I focus on clean architecture, reliability, and intuitive user experiences.
                   </p>
                 </div>
 
-                {/* Areas of Technical Interest */}
                 <div className="p-7 rounded-2xl bg-[#11151D]/75 border border-white/10 backdrop-blur-md">
-                  <h3 className="font-mono text-xs uppercase tracking-widest text-[#F0B66D] mb-4">
-                    // AREAS OF TECHNICAL INTEREST
+                  <h3 className="font-mono text-xs uppercase tracking-wider text-[#F0B66D] mb-4">
+                    Areas of Interest
                   </h3>
                   <div className="grid sm:grid-cols-2 gap-3">
                     {PORTFOLIO_DATA.profile.interests.map((interest, idx) => (
@@ -1470,11 +1390,10 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
                   </div>
                 </div>
 
-                {/* Academic & Leadership Metadata */}
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div className="p-6 rounded-2xl bg-[#11151D]/75 border border-white/10">
-                    <span className="font-mono text-[10px] text-[#76E5FF] uppercase tracking-widest block mb-1">
-                      ACADEMIC FOUNDATION
+                    <span className="font-mono text-[10px] text-[#76E5FF] uppercase tracking-wider block mb-1">
+                      Education
                     </span>
                     <h4 className="font-display font-bold text-base text-[#F3F6FA]">
                       BCA — Artificial Intelligence
@@ -1485,11 +1404,11 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
                   </div>
 
                   <div className="p-6 rounded-2xl bg-[#11151D]/75 border border-white/10">
-                    <span className="font-mono text-[10px] text-[#F0B66D] uppercase tracking-widest block mb-1">
-                      LEADERSHIP & COMMUNITY
+                    <span className="font-mono text-[10px] text-[#F0B66D] uppercase tracking-wider block mb-1">
+                      Leadership
                     </span>
                     <h4 className="font-display font-bold text-base text-[#F3F6FA]">
-                      {PORTFOLIO_DATA.profile.leadership.role} @{' '}
+                      {PORTFOLIO_DATA.profile.leadership.role} ·{' '}
                       {PORTFOLIO_DATA.profile.leadership.organization}
                     </h4>
                     <p className="text-xs text-[#9AA5B5] mt-1">
@@ -1503,43 +1422,41 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
         </section>
 
         {/* ==================================================================
-            6. PROJECTS SECTION — MISSION ARCHIVE
+            PROJECTS SECTION (DEPLOYED SHOWN FIRST)
         ================================================================== */}
         <section id="projects" className="py-28 px-6 relative border-t border-white/10">
           <div className="max-w-6xl mx-auto">
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-14 gap-6 reveal-section">
               <div>
                 <div className="font-mono text-xs text-[#76E5FF] uppercase tracking-widest mb-3">
-                  03 // MISSION ARCHIVE
+                  Featured Work
                 </div>
                 <h2 className="font-display text-3xl sm:text-5xl font-bold text-[#F3F6FA] tracking-tight">
-                  Selected Engineering Work
+                  Projects
                 </h2>
               </div>
               <p className="text-sm text-[#9AA5B5] max-w-md">
-                Interactive spatial archive spanning AI threat detection, IoT telemetry, commercial
-                web architecture, and natural language processing.
+                Live deployed applications are featured first, followed by hardware IoT and machine
+                learning projects.
               </p>
             </div>
 
-            {/* Primary 4 Showcase Projects */}
             <div className="grid md:grid-cols-2 gap-7 reveal-section">
               {PORTFOLIO_DATA.featuredProjects.map((project) => (
                 <ProjectCard key={project.id} project={project} />
               ))}
             </div>
 
-            {/* Optional Toggle for Additional Existing Portfolio Projects */}
             <div className="mt-12 text-center reveal-section">
               <button
                 onClick={() => setShowExtendedArchive((prev) => !prev)}
-                className="inline-flex items-center gap-2.5 px-6 py-3 rounded-xl bg-[#11151D] hover:bg-[#11151D]/90 border border-white/15 hover:border-[#76E5FF]/50 text-xs font-mono uppercase tracking-wider text-[#F3F6FA] transition-all"
+                className="inline-flex items-center gap-2.5 px-6 py-3 rounded-xl bg-[#11151D] hover:bg-[#11151D]/90 border border-white/15 hover:border-[#76E5FF]/50 text-xs font-mono text-[#F3F6FA] transition-all"
               >
                 <Layers size={14} className="text-[#76E5FF]" />
                 <span>
                   {showExtendedArchive
-                    ? 'Hide Extended Mission Logs'
-                    : `Inspect Extended Mission Logs (+${PORTFOLIO_DATA.additionalArchive.length})`}
+                    ? 'Show Fewer Projects'
+                    : `View More Projects (+${PORTFOLIO_DATA.additionalArchive.length})`}
                 </span>
               </button>
             </div>
@@ -1555,28 +1472,26 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
         </section>
 
         {/* ==================================================================
-            7. SKILLS SECTION — TECHNICAL ARSENAL
+            SKILLS SECTION
         ================================================================== */}
         <section id="skills" className="py-28 px-6 relative border-t border-white/10">
           <div className="max-w-6xl mx-auto">
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-14 gap-6 reveal-section">
               <div>
                 <div className="font-mono text-xs text-[#F0B66D] uppercase tracking-widest mb-3">
-                  04 // TECHNICAL ARSENAL
+                  Technical Skills
                 </div>
                 <h2 className="font-display text-3xl sm:text-5xl font-bold text-[#F3F6FA] tracking-tight">
-                  System Constellation
+                  Skills & Technologies
                 </h2>
               </div>
               <p className="text-sm text-[#9AA5B5] max-w-md">
-                Select or hover any subsystem node to inspect active technologies and cross-domain
-                architectural links.
+                Select any category to view the languages, frameworks, and tools I use to build
+                projects.
               </p>
             </div>
 
-            {/* Interactive System Map Grid */}
             <div className="grid lg:grid-cols-12 gap-8 items-start reveal-section">
-              {/* Left 7-Node Constellation Selector */}
               <div className="lg:col-span-7 grid sm:grid-cols-2 gap-3.5">
                 {PORTFOLIO_DATA.skills.map((skill) => {
                   const isSelected = activeSkillCategory === skill.id;
@@ -1589,23 +1504,23 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
                       onMouseEnter={() => setActiveSkillCategory(skill.id)}
                       className={`text-left p-5 rounded-2xl border transition-all duration-300 backdrop-blur-md ${
                         isSelected
-                          ? 'bg-[#07111F]/95 border-[#76E5FF] shadow-[0_0_25px_rgba(118,229,255,0.15)]'
+                          ? 'bg-[#07111F]/95 border-[#76E5FF] shadow-[0_0_25px_rgba(118,229,255,0.12)]'
                           : isConnected
-                          ? 'bg-[#11151D]/80 border-[#F0B66D]/45'
+                          ? 'bg-[#11151D]/80 border-[#F0B66D]/40'
                           : 'bg-[#11151D]/60 border-white/10 hover:border-white/25'
                       }`}
                     >
                       <div className="flex items-center justify-between font-mono text-[10px] mb-2">
                         <span className={isSelected ? 'text-[#76E5FF]' : 'text-[#9AA5B5]'}>
-                          {skill.code}
+                          {skill.items.length} Skills
                         </span>
                         {isSelected ? (
                           <span className="px-2 py-0.5 rounded bg-[#76E5FF]/15 text-[#76E5FF]">
-                            PRIMARY NODE
+                            Selected
                           </span>
                         ) : isConnected ? (
                           <span className="px-2 py-0.5 rounded bg-[#F0B66D]/15 text-[#F0B66D]">
-                            LINKED NODE
+                            Related
                           </span>
                         ) : null}
                       </div>
@@ -1619,13 +1534,12 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
                 })}
               </div>
 
-              {/* Right Active Node Telemetry Inspector */}
               <div className="lg:col-span-5 lg:sticky lg:top-28">
                 <div className="p-7 rounded-2xl bg-[#07111F]/90 border border-[#76E5FF]/35 backdrop-blur-xl shadow-2xl">
                   <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-5">
                     <div>
-                      <span className="font-mono text-[10px] text-[#76E5FF] uppercase tracking-widest block">
-                        ACTIVE SUBSYSTEM // {currentSkillObj.code}
+                      <span className="font-mono text-[10px] text-[#76E5FF] uppercase tracking-wider block">
+                        Category Details
                       </span>
                       <h3 className="font-display text-2xl font-bold text-[#F3F6FA] mt-1">
                         {currentSkillObj.category}
@@ -1640,7 +1554,7 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
 
                   <div className="mb-6">
                     <span className="font-mono text-[10px] text-[#9AA5B5] uppercase tracking-wider block mb-3">
-                      VERIFIED TECHNOLOGIES & TOOLS
+                      Technologies Used
                     </span>
                     <div className="flex flex-wrap gap-2">
                       {currentSkillObj.items.map((item, idx) => (
@@ -1655,10 +1569,9 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
                     </div>
                   </div>
 
-                  {/* Connected Constellation Nodes */}
                   <div className="pt-4 border-t border-white/10">
                     <span className="font-mono text-[10px] text-[#F0B66D] uppercase tracking-wider block mb-2.5">
-                      INTERCONNECTED DOMAINS
+                      Related Areas
                     </span>
                     <div className="flex flex-wrap gap-2">
                       {currentSkillObj.connections.map((connId) => {
@@ -1683,11 +1596,10 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
         </section>
 
         {/* ==================================================================
-            9. CONTACT SECTION — ESTABLISH CONNECTION
+            CONTACT SECTION
         ================================================================== */}
         <section id="contact" className="py-32 px-6 relative border-t border-white/10">
           <div className="max-w-4xl mx-auto text-center reveal-section">
-            {/* Orbital Transceiver Emblem */}
             <div className="relative w-20 h-20 mx-auto mb-8 flex items-center justify-center">
               <div className="absolute inset-0 rounded-full border border-[#76E5FF]/30 animate-ping opacity-20" />
               <div className="w-16 h-16 rounded-2xl bg-[#11151D] border border-[#F0B66D]/45 flex items-center justify-center text-[#F0B66D] shadow-[0_0_30px_rgba(240,182,109,0.15)]">
@@ -1696,7 +1608,7 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
             </div>
 
             <div className="font-mono text-xs text-[#76E5FF] uppercase tracking-widest mb-3">
-              05 // ESTABLISH CONNECTION
+              Get In Touch
             </div>
 
             <h2 className="font-display text-4xl sm:text-6xl font-bold text-[#F3F6FA] tracking-tight mb-5">
@@ -1708,7 +1620,6 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
               on meaningful projects.
             </p>
 
-            {/* Primary Contact Actions */}
             <div className="grid sm:grid-cols-2 gap-4 max-w-2xl mx-auto mb-6">
               <button
                 onClick={copyEmail}
@@ -1720,7 +1631,7 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
                   <Mail size={18} className="text-[#F0B66D] group-hover:text-[#76E5FF] transition-colors" />
                 )}
                 <span className="font-mono text-xs sm:text-sm font-medium">
-                  {copied ? 'Coordinates Copied to Clipboard' : PORTFOLIO_DATA.profile.email}
+                  {copied ? 'Email Copied!' : PORTFOLIO_DATA.profile.email}
                 </span>
               </button>
 
@@ -1728,12 +1639,11 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
                 href={`mailto:${PORTFOLIO_DATA.profile.email}`}
                 className="p-4 rounded-xl bg-[#F3F6FA] hover:bg-[#76E5FF] text-[#030407] font-display font-semibold text-sm transition-all flex items-center justify-center gap-2"
               >
-                <span>Transmit Direct Email</span>
+                <span>Send an Email</span>
                 <ArrowUpRight size={16} />
               </a>
             </div>
 
-            {/* Social & Optional Resume Links */}
             <div className="flex flex-wrap items-center justify-center gap-4 max-w-2xl mx-auto">
               <a
                 href={PORTFOLIO_DATA.profile.github}
@@ -1742,7 +1652,7 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
                 className="px-6 py-3.5 rounded-xl bg-[#11151D]/75 border border-white/10 hover:border-[#76E5FF]/50 text-xs font-mono text-[#F3F6FA] flex items-center gap-2.5 transition-all"
               >
                 <Github size={16} className="text-[#76E5FF]" />
-                <span>GitHub // nayan2452005</span>
+                <span>GitHub</span>
                 <ArrowUpRight size={13} className="opacity-60" />
               </a>
 
@@ -1753,7 +1663,7 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
                 className="px-6 py-3.5 rounded-xl bg-[#11151D]/75 border border-white/10 hover:border-[#F0B66D]/50 text-xs font-mono text-[#F3F6FA] flex items-center gap-2.5 transition-all"
               >
                 <Linkedin size={16} className="text-[#F0B66D]" />
-                <span>LinkedIn // Nayan Choraria</span>
+                <span>LinkedIn</span>
                 <ArrowUpRight size={13} className="opacity-60" />
               </a>
 
@@ -1765,7 +1675,7 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
                   className="px-6 py-3.5 rounded-xl bg-[#11151D]/75 border border-white/10 hover:border-[#F3F6FA]/50 text-xs font-mono text-[#F3F6FA] flex items-center gap-2.5 transition-all"
                 >
                   <FileText size={16} className="text-[#F3F6FA]" />
-                  <span>Download Resume</span>
+                  <span>Resume</span>
                 </a>
               )}
             </div>
@@ -1774,18 +1684,16 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
       </main>
 
       {/* ====================================================================
-          8. TARS-INSPIRED INTERACTIVE MECHANICAL ASSISTANT
+          TARS INTERACTIVE ASSISTANT
       ==================================================================== */}
       {!isTarsDismissed && (
         <div className="fixed bottom-5 right-5 z-50 flex flex-col items-end">
-          {/* Compact Docked TARS Monolith Readout */}
           {!isTarsExpanded && (
             <div className="flex items-center gap-3 p-2.5 pl-3.5 rounded-2xl bg-[#11151D]/95 border border-white/15 shadow-[0_15px_40px_rgba(0,0,0,0.85)] backdrop-blur-xl max-w-xs sm:max-w-sm">
-              {/* Segmented 4-Slab Mechanical Form */}
               <button
                 onClick={() => setIsTarsExpanded(true)}
                 className="flex items-center gap-3 text-left group"
-                title="Expand TARS Interface"
+                title="Open TARS Assistant"
               >
                 <div className="w-7 h-9 bg-[#030407] border border-white/15 p-1 grid grid-cols-4 gap-0.5 items-center shrink-0">
                   <span className="h-full bg-[#9AA5B5] group-hover:bg-[#76E5FF] transition-transform duration-300 group-hover:-translate-y-0.5" />
@@ -1796,7 +1704,7 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
 
                 <div className="pr-1">
                   <div className="flex items-center gap-2 font-mono text-[10px] text-[#F0B66D] uppercase tracking-wider">
-                    <span>TARS UNIT // READY</span>
+                    <span>TARS Assistant</span>
                     <span className="w-1.5 h-1.5 rounded-full bg-[#76E5FF] animate-pulse" />
                   </div>
                   <p className="font-mono text-[11px] text-[#F3F6FA] line-clamp-1 mt-0.5">
@@ -1817,7 +1725,7 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
                 onClick={() => setIsTarsDismissed(true)}
                 className="p-1.5 rounded-lg text-[#9AA5B5] hover:text-[#F3F6FA] transition-colors"
                 aria-label="Dismiss TARS Assistant"
-                title="Dismiss TARS"
+                title="Hide TARS"
               >
                 <X size={14} />
               </button>
@@ -1826,12 +1734,11 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
         </div>
       )}
 
-      {/* Expanded TARS Mechanical Modal Interface */}
       {isTarsExpanded && (
         <div
           role="dialog"
           aria-modal="true"
-          aria-label="TARS Interactive Assistant"
+          aria-label="TARS Assistant"
           className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-4 bg-black/75 backdrop-blur-md"
         >
           <div
@@ -1841,7 +1748,6 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
           />
 
           <div className="relative z-10 w-full max-w-xl rounded-2xl bg-[#07111F] border border-[#76E5FF]/35 shadow-[0_25px_70px_rgba(0,0,0,0.9)] overflow-hidden flex flex-col">
-            {/* Mechanical Header */}
             <div className="px-5 py-3.5 bg-[#11151D] border-b border-white/10 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-6 h-6 bg-[#030407] border border-white/15 p-0.5 grid grid-cols-4 gap-0.5">
@@ -1851,11 +1757,11 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
                   <span className="bg-[#F0B66D]" />
                 </div>
                 <div>
-                  <span className="font-mono text-xs font-semibold text-[#F3F6FA] tracking-wider uppercase block">
-                    TARS // SEGMENTED TELEMETRY ASSISTANT
+                  <span className="font-mono text-xs font-semibold text-[#F3F6FA] block">
+                    TARS Portfolio Assistant
                   </span>
                   <span className="font-mono text-[10px] text-[#76E5FF] block">
-                    {tarsStatusReadout}
+                    Powered by Groq LLaMA
                   </span>
                 </div>
               </div>
@@ -1869,7 +1775,6 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
               </button>
             </div>
 
-            {/* Honesty & Humor Calibration Sliders */}
             <div className="px-5 py-2.5 bg-[#030407]/80 border-b border-white/10 grid grid-cols-2 gap-4 font-mono text-[10px]">
               <label className="flex items-center gap-2 text-[#9AA5B5]">
                 <span>HONESTY:</span>
@@ -1898,12 +1803,11 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
               </label>
             </div>
 
-            {/* Quick Prompt Suggestions */}
             <div className="px-5 py-2 bg-[#07111F] border-b border-white/5 flex flex-wrap gap-1.5">
               {[
-                'Summarize Nayan’s 4 core projects',
-                'What is his AI/ML stack?',
-                'Tell me about Jain University BCA AI'
+                'Tell me about Nayan’s live projects',
+                'What is his tech stack?',
+                'How can I contact Nayan?'
               ].map((promptText, i) => (
                 <button
                   key={i}
@@ -1916,8 +1820,7 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
               ))}
             </div>
 
-            {/* Message Log */}
-            <div className="p-5 max-h-[45vh] overflow-y-auto space-y-3.5 font-mono text-xs">
+            <div className="p-5 max-h-[45vh] overflow-y-auto space-y-3.5 text-xs">
               {aiMessages.map((msg, idx) => (
                 <div
                   key={idx}
@@ -1927,8 +1830,8 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
                       : 'bg-[#030407]/85 border-[#76E5FF]/25 mr-6 text-[#F3F6FA]'
                   }`}
                 >
-                  <div className="text-[9px] uppercase tracking-widest mb-1 text-[#9AA5B5]">
-                    {msg.role === 'user' ? 'OPERATOR // QUERY' : 'TARS // RESPONSE'}
+                  <div className="font-mono text-[9px] uppercase tracking-wider mb-1 text-[#9AA5B5]">
+                    {msg.role === 'user' ? 'You' : 'TARS'}
                   </div>
                   <p className="leading-relaxed font-sans text-xs sm:text-sm">{msg.content}</p>
                 </div>
@@ -1936,13 +1839,12 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
               {isAiLoading && (
                 <div className="p-3.5 rounded-xl bg-[#030407]/80 border border-[#F0B66D]/30 mr-6 flex items-center gap-2.5 text-xs font-mono text-[#F0B66D]">
                   <Loader2 size={14} className="animate-spin" />
-                  <span>ANALYZING ARCHIVE TELEMETRY...</span>
+                  <span>Thinking...</span>
                 </div>
               )}
               <div ref={chatEndRef} />
             </div>
 
-            {/* Input Form */}
             <form
               onSubmit={handleAiSubmit}
               className="p-3 bg-[#030407] border-t border-white/10 flex items-center gap-2"
@@ -1951,14 +1853,14 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
                 type="text"
                 value={aiInput}
                 onChange={(e) => setAiInput(e.target.value)}
-                placeholder="Ask TARS about projects, skills, or contact coordinates..."
-                className="flex-1 bg-[#11151D] border border-white/10 focus:border-[#76E5FF] rounded-xl px-3.5 py-2.5 text-xs text-[#F3F6FA] placeholder:text-[#9AA5B5]/60 focus:outline-none font-mono"
+                placeholder="Ask about projects, skills, or experience..."
+                className="flex-1 bg-[#11151D] border border-white/10 focus:border-[#76E5FF] rounded-xl px-3.5 py-2.5 text-xs text-[#F3F6FA] placeholder:text-[#9AA5B5]/60 focus:outline-none"
                 autoFocus
               />
               <button
                 type="submit"
                 disabled={isAiLoading || !aiInput.trim()}
-                className="px-4 py-2.5 rounded-xl bg-[#76E5FF] text-[#030407] font-mono text-xs font-semibold uppercase tracking-wider hover:bg-[#F3F6FA] disabled:opacity-40 transition-colors"
+                className="px-4 py-2.5 rounded-xl bg-[#76E5FF] text-[#030407] font-mono text-xs font-semibold hover:bg-[#F3F6FA] disabled:opacity-40 transition-colors"
               >
                 Send
               </button>
@@ -1977,7 +1879,7 @@ Do not invent fake metrics or awards. Keep responses concise (under 3 sentences)
             <span>© {new Date().getFullYear()} {PORTFOLIO_DATA.profile.name}</span>
           </div>
           <div>
-            <span>BCA ARTIFICIAL INTELLIGENCE // JAIN UNIVERSITY, BENGALURU</span>
+            <span>BCA Artificial Intelligence · Jain University, Bengaluru</span>
           </div>
         </div>
       </footer>
