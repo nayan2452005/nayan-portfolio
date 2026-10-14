@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 
 // ============================================================================
-// EDITABLE PORTFOLIO CONFIGURATION
+// EDITABLE PORTFOLIO CONFIGURATIO
 // ============================================================================
 const PORTFOLIO_DATA = {
   profile: {
