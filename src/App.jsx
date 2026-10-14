@@ -6,6 +6,11 @@ import {
   Server, Send, Loader2, Command, BarChart3, Globe
 } from 'lucide-react';
 
+type ChatMessage = {
+  role: 'ai' | 'user';
+  content: string;
+};
+
 export default function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -14,7 +19,7 @@ export default function App() {
   // Gemini AI State
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [aiInput, setAiInput] = useState('');
-  const [aiMessages, setAiMessages] = useState([
+  const [aiMessages, setAiMessages] = useState<ChatMessage[]>([
     { role: 'ai', content: "System Architect AI initialized. Ask me about Nayan's projects, technical stack, or architecture background." }
   ]);
   const [isAiLoading, setIsAiLoading] = useState(false);
@@ -28,8 +33,8 @@ export default function App() {
 
   useEffect(() => {
     // Elegant Preloader
-    setTimeout(() => setIsLoaded(true), 800);
-
+    const preloaderTimer = window.setTimeout(() => setIsLoaded(true), 800);
+    const previousScrollBehavior = document.documentElement.style.scrollBehavior;
     document.documentElement.style.scrollBehavior = 'smooth';
     
     const isDesktop = window.matchMedia("(pointer: fine)").matches;
@@ -81,6 +86,8 @@ export default function App() {
     window.addEventListener('keydown', handleKeyDown);
 
     return () => {
+      window.clearTimeout(preloaderTimer);
+      document.documentElement.style.scrollBehavior = previousScrollBehavior;
       if (isDesktop) {
         window.removeEventListener('mousemove', handleMouseMove);
         cancelAnimationFrame(rafId);
@@ -129,8 +136,15 @@ export default function App() {
     setIsAiLoading(true);
 
     try {
-      const apiKey = ""; // API key populated by runtime environment
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY as string | undefined;
+      if (!apiKey) {
+        setAiMessages(prev => [
+          ...prev,
+          { role: 'ai', content: 'AI is not configured yet. Add VITE_GEMINI_API_KEY to your local environment, or connect this feature to a secure backend endpoint.' },
+        ]);
+        return;
+      }
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
       const systemPrompt = `You are the 'System Architect AI', a highly sophisticated and professional AI representing Nayan Choraria. Nayan is a BCA AI student at Jain University, a past Joint Secretary at Marwari Yuva Manch, and an engineer proficient in React, TypeScript, Python, FastAPI, Next.js, PostgreSQL, and Machine Learning.
 His completed projects include:
 1. AI Tally Business Analytics Platform (React, TS, Vite, Recharts, Appwrite, Groq API/LLaMA)
