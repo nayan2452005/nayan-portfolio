@@ -200,7 +200,7 @@ Answer queries about his capabilities, projects, and fitness for roles. Use a po
       icon: <Globe size={20} />,
       tag: "Commercial Web Application",
       tech: ["React", "TypeScript", "Vite", "Tailwind CSS"],
-      link: "#"
+      link: "https://sri-balaji-distributors.onrender.com/"
     },
     {
       title: "Agentic Scam Detection Service",
