@@ -6,11 +6,6 @@ import {
   Server, Send, Loader2, Command, BarChart3, Globe
 } from 'lucide-react';
 
-type ChatMessage = {
-  role: 'ai' | 'user';
-  content: string;
-};
-
 export default function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -19,28 +14,28 @@ export default function App() {
   // Gemini AI State
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [aiInput, setAiInput] = useState('');
-  const [aiMessages, setAiMessages] = useState<ChatMessage[]>([
+  const [aiMessages, setAiMessages] = useState([
     { role: 'ai', content: "System Architect AI initialized. Ask me about Nayan's projects, technical stack, or architecture background." }
   ]);
   const [isAiLoading, setIsAiLoading] = useState(false);
-  const chatEndRef = useRef<HTMLDivElement>(null);
+  const chatEndRef = useRef(null);
 
   // DOM Refs for optimized cursor & spotlight
-  const cursorDotRef = useRef<HTMLDivElement>(null);
-  const cursorFollowerRef = useRef<HTMLDivElement>(null);
+  const cursorDotRef = useRef(null);
+  const cursorFollowerRef = useRef(null);
   const mouse = useRef({ x: 0, y: 0 });
   const follower = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
-    // Elegant Preloader
-    const preloaderTimer = window.setTimeout(() => setIsLoaded(true), 800);
-    const previousScrollBehavior = document.documentElement.style.scrollBehavior;
+    // Preloader
+    setTimeout(() => setIsLoaded(true), 800);
+
     document.documentElement.style.scrollBehavior = 'smooth';
     
     const isDesktop = window.matchMedia("(pointer: fine)").matches;
-    let rafId: number;
+    let rafId;
 
-    const handleMouseMove = (e: MouseEvent) => {
+    const handleMouseMove = (e) => {
       mouse.current = { x: e.clientX, y: e.clientY };
       if (cursorDotRef.current) {
         cursorDotRef.current.style.transform = `translate(${e.clientX - 3}px, ${e.clientY - 3}px)`;
@@ -77,7 +72,7 @@ export default function App() {
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
     // Command + K listener for AI
-    const handleKeyDown = (e: KeyboardEvent) => {
+    const handleKeyDown = (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
         setIsAiModalOpen(prev => !prev);
@@ -86,8 +81,6 @@ export default function App() {
     window.addEventListener('keydown', handleKeyDown);
 
     return () => {
-      window.clearTimeout(preloaderTimer);
-      document.documentElement.style.scrollBehavior = previousScrollBehavior;
       if (isDesktop) {
         window.removeEventListener('mousemove', handleMouseMove);
         cancelAnimationFrame(rafId);
@@ -98,7 +91,7 @@ export default function App() {
   }, []);
 
   // Spotlight Effect Logic for Cards
-  const handleCardMouseMove = (e: React.MouseEvent<HTMLElement>) => {
+  const handleCardMouseMove = (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
@@ -126,7 +119,7 @@ export default function App() {
   };
 
   // Gemini API Integration
-  const handleAiSubmit = async (e: React.FormEvent) => {
+  const handleAiSubmit = async (e) => {
     e.preventDefault();
     if (!aiInput.trim()) return;
 
@@ -136,16 +129,9 @@ export default function App() {
     setIsAiLoading(true);
 
     try {
-      const apiKey = import.meta.env.VITE_GEMINI_API_KEY as string | undefined;
-      if (!apiKey) {
-        setAiMessages(prev => [
-          ...prev,
-          { role: 'ai', content: 'AI is not configured yet. Add VITE_GEMINI_API_KEY to your local environment, or connect this feature to a secure backend endpoint.' },
-        ]);
-        return;
-      }
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
-      const systemPrompt = `You are the 'System Architect AI', a highly sophisticated and professional AI representing Nayan Choraria. Nayan is a BCA AI student at Jain University, a past Joint Secretary at Marwari Yuva Manch, and an engineer proficient in React, TypeScript, Python, FastAPI, Next.js, PostgreSQL, and Machine Learning.
+      const apiKey = ""; // API key populated by environment
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+      const systemPrompt = `You are the 'System Architect AI', representing Nayan Choraria. Nayan is a BCA AI student at Jain University, a past Joint Secretary at Marwari Yuva Manch, and an engineer proficient in React, TypeScript, Python, FastAPI, Next.js, PostgreSQL, and Machine Learning.
 His completed projects include:
 1. AI Tally Business Analytics Platform (React, TS, Vite, Recharts, Appwrite, Groq API/LLaMA)
 2. ReachInbox Email Scheduling & Management Platform (Next.js, Node.js, Express, PostgreSQL, Google OAuth)
@@ -153,14 +139,14 @@ His completed projects include:
 4. Agentic Scam Detection Service (FastAPI, Swagger UI, Postman, Python)
 5. Live Developer Portfolio (React, Vite, TypeScript, Render)
 6. Real-Time Embedded AQI Monitor (Arduino IDE, MQ135 sensor, C++).
-Answer queries about his capabilities, projects, and fitness for roles. Use a polite, precise, and technical tone reminiscent of top-tier software documentation. Keep responses under 3 sentences.`;
+Answer queries about his capabilities, projects, and fitness for roles. Use a polite, precise, and technical tone. Keep responses under 3 sentences.`;
 
       const payload = {
         contents: [{ parts: [{ text: userText }] }],
         systemInstruction: { parts: [{ text: systemPrompt }] }
       };
 
-      const attemptFetch = async (retries = 5, delay = 1000): Promise<string> => {
+      const attemptFetch = async (retries = 5, delay = 1000) => {
         try {
           const res = await fetch(url, {
             method: "POST",
@@ -257,7 +243,6 @@ Answer queries about his capabilities, projects, and fitness for roles. Use a po
           font-family: 'Inter', sans-serif;
         }
 
-        /* Fluid Mesh Gradients */
         .ambient-mesh {
           position: fixed;
           top: 0; left: 0; width: 100vw; height: 100vh;
@@ -277,7 +262,6 @@ Answer queries about his capabilities, projects, and fitness for roles. Use a po
           -webkit-mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
         }
 
-        /* Premium Spotlight Cards */
         .pro-card {
           position: relative;
           background: rgba(10, 10, 10, 0.6);
@@ -318,7 +302,6 @@ Answer queries about his capabilities, projects, and fitness for roles. Use a po
           z-index: 2;
         }
 
-        /* Buttons */
         .btn-primary {
           background: #ffffff;
           color: #000000;
@@ -345,7 +328,6 @@ Answer queries about his capabilities, projects, and fitness for roles. Use a po
           border-color: rgba(255, 255, 255, 0.2);
         }
 
-        /* Text Gradients */
         .text-gradient {
           background: linear-gradient(180deg, #FFFFFF 0%, #A1A1AA 100%);
           -webkit-background-clip: text;
@@ -358,7 +340,6 @@ Answer queries about his capabilities, projects, and fitness for roles. Use a po
           -webkit-text-fill-color: transparent;
         }
 
-        /* Reveal Animations */
         .reveal { 
           opacity: 0; 
           transform: translateY(20px); 
@@ -370,7 +351,6 @@ Answer queries about his capabilities, projects, and fitness for roles. Use a po
           transform: translateY(0); 
         }
 
-        /* AI Scrollbar */
         .chat-scroll::-webkit-scrollbar { width: 6px; }
         .chat-scroll::-webkit-scrollbar-track { background: transparent; }
         .chat-scroll::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
@@ -462,7 +442,6 @@ Answer queries about his capabilities, projects, and fitness for roles. Use a po
         
         <div className={`relative w-[90%] max-w-2xl bg-[#0a0a0a]/95 backdrop-blur-xl border border-white/10 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.7)] rounded-2xl flex flex-col overflow-hidden transition-transform duration-300 ${isAiModalOpen ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'}`}>
           
-          {/* Header */}
           <div className="flex items-center gap-3 px-4 py-3 border-b border-white/5 bg-white/[0.02]">
             <Search size={16} className="text-[#888]" />
             <span className="text-xs font-medium text-[#888] tracking-wide uppercase">Architect AI Interface</span>
@@ -471,7 +450,6 @@ Answer queries about his capabilities, projects, and fitness for roles. Use a po
             </div>
           </div>
           
-          {/* Chat Body */}
           <div className="flex-1 max-h-[50vh] overflow-y-auto p-6 flex flex-col gap-6 chat-scroll">
             {aiMessages.map((msg, idx) => (
               <div key={idx} className={`flex gap-4 max-w-[90%] ${msg.role === 'user' ? 'ml-auto flex-row-reverse' : ''}`}>
@@ -496,7 +474,6 @@ Answer queries about his capabilities, projects, and fitness for roles. Use a po
             <div ref={chatEndRef} />
           </div>
 
-          {/* Input Area */}
           <form onSubmit={handleAiSubmit} className="p-2 border-t border-white/5 bg-[#050505]">
             <div className="relative flex items-center bg-white/[0.03] border border-white/5 rounded-xl px-4 py-2 focus-within:border-white/20 focus-within:bg-white/[0.05] transition-colors">
               <input 
