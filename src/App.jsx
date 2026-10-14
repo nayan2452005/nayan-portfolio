@@ -122,6 +122,298 @@ export default function App() {
   const handleAiSubmit = async (e) => {
     e.preventDefault();
     if (!aiInput.trim()) return;
+<<<<<<< Updated upstream
+
+    const userText = aiInput.trim();
+    setAiMessages(prev => [...prev, { role: 'user', content: userText }]);
+    setAiInput('');
+    setIsAiLoading(true);
+
+    try {
+      const apiKey = ""; // API key populated by environment
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+      const systemPrompt = `You are the 'System Architect AI', representing Nayan Choraria. Nayan is a BCA AI student at Jain University, a past Joint Secretary at Marwari Yuva Manch, and an engineer proficient in React, TypeScript, Python, FastAPI, Next.js, PostgreSQL, and Machine Learning.
+His completed projects include:
+1. AI Tally Business Analytics Platform (React, TS, Vite, Recharts, Appwrite, Groq API/LLaMA)
+2. ReachInbox Email Scheduling & Management Platform (Next.js, Node.js, Express, PostgreSQL, Google OAuth)
+3. Sri Balaji Distributors Corporate Portal (React, TypeScript, Vite, responsive wholesale catalog)
+4. Agentic Scam Detection Service (FastAPI, Swagger UI, Postman, Python)
+5. Live Developer Portfolio (React, Vite, TypeScript, Render)
+6. Real-Time Embedded AQI Monitor (Arduino IDE, MQ135 sensor, C++).
+Answer queries about his capabilities, projects, and fitness for roles. Use a polite, precise, and technical tone. Keep responses under 3 sentences.`;
+
+      const payload = {
+        contents: [{ parts: [{ text: userText }] }],
+        systemInstruction: { parts: [{ text: systemPrompt }] }
+      };
+
+      const attemptFetch = async (retries = 5, delay = 1000) => {
+        try {
+          const res = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+          if (!res.ok) throw new Error("API Error");
+          const data = await res.json();
+          return data.candidates?.[0]?.content?.parts?.[0]?.text || "Error computing response.";
+        } catch (err) {
+          if (retries === 0) throw err;
+          await new Promise(r => setTimeout(r, delay));
+          return attemptFetch(retries - 1, delay * 2);
+        }
+      };
+
+      const responseText = await attemptFetch();
+      setAiMessages(prev => [...prev, { role: 'ai', content: responseText }]);
+    } catch {
+      setAiMessages(prev => [...prev, { role: 'ai', content: "Network error. Please attempt query again." }]);
+    } finally {
+      setIsAiLoading(false);
+    }
+  };
+
+  const navLinks = ['About', 'Expertise', 'Capabilities', 'Projects', 'Connect'];
+
+  const projects = [
+    {
+      title: "AI Tally Business Analytics Platform",
+      timeline: "03/2026 – Present",
+      description: "A financial intelligence and analytics web application featuring role-based authentication, real-time KPI tracking (revenue, profit, GST, debtor aging), and Groq API LLaMA-powered predictive scenario forecasting.",
+      icon: <BarChart3 size={20} />,
+      tag: "AI & Financial Analytics",
+      tech: ["React", "TypeScript", "Vite", "Recharts", "Appwrite", "Groq API"],
+      link: "#"
+    },
+    {
+      title: "ReachInbox – Email Automation Platform",
+      timeline: "02/2026 – 03/2026",
+      description: "Full-stack email scheduling and outbound management engine. Built with Google OAuth 2.0 authentication, PostgreSQL relational schema modeling, asynchronous background job queues, and robust REST APIs.",
+      icon: <Send size={20} />,
+      tag: "Full-Stack Automation",
+      tech: ["Next.js", "Node.js", "Express", "PostgreSQL", "Google OAuth", "REST APIs"],
+      link: "#"
+    },
+    {
+      title: "Sri Balaji Distributors Corporate Portal",
+      timeline: "Commercial Production",
+      description: "High-performance responsive web portal built for a wholesale enterprise. Designed with a modular architecture featuring animated brand marquee reels, interactive catalog showcases, and optimized Core Web Vitals.",
+      icon: <Globe size={20} />,
+      tag: "Commercial Web Application",
+      tech: ["React", "TypeScript", "Vite", "Tailwind CSS"],
+      link: "https://sri-balaji-distributors.onrender.com"
+    },
+    {
+      title: "Agentic Scam Detection Service",
+      timeline: "01/2026 – 02/2026",
+      description: "High-throughput asynchronous backend service engineered to parse, validate, and identify fraudulent transaction patterns and threats in real-time payloads. Fully documented with OpenAPI specifications.",
+      icon: <ShieldCheck size={20} />,
+      tag: "Backend & Threat Analysis",
+      tech: ["FastAPI", "Python", "Swagger UI", "Postman", "REST APIs"],
+      link: "https://agentic-honeypot-a41c.onrender.com/docs"
+    },
+    {
+      title: "Live Developer Portfolio",
+      timeline: "Production Release",
+      description: "Personal architectural showcase optimized for minimal bundle footprints, fluid micro-interactions, responsive lazy-loaded components, and automated continuous deployment workflows.",
+      icon: <Laptop size={20} />,
+      tag: "Frontend Architecture",
+      tech: ["React.js", "TypeScript", "Vite", "Bootstrap", "Render"],
+      link: "https://nayan-portfolio-rrb8.onrender.com"
+    },
+    {
+      title: "Real-Time Embedded AQI Monitor",
+      timeline: "06/2025 – 07/2025",
+      description: "Hardware telemetry device utilizing an MQ135 sensor to sample environmental gas concentrations in real time, calculating air quality indices and triggering acoustic alerts for threshold-based safety warnings.",
+      icon: <Activity size={20} />,
+      tag: "IoT & Embedded Systems",
+      tech: ["Arduino IDE", "MQ135 Gas Sensor", "C++", "Circuit Design"],
+      link: "#"
+    }
+  ];
+
+  return (
+    <div className={`min-h-screen bg-[#050505] text-[#888888] selection:bg-white/20 selection:text-white antialiased overflow-x-hidden font-sans transition-opacity duration-1000 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
+      
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        * { 
+          cursor: none !important; 
+          -webkit-tap-highlight-color: transparent; 
+          font-family: 'Inter', sans-serif;
+        }
+
+        .ambient-mesh {
+          position: fixed;
+          top: 0; left: 0; width: 100vw; height: 100vh;
+          z-index: 0;
+          pointer-events: none;
+          background: 
+            radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.08), transparent 25%),
+            radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.08), transparent 25%);
+          filter: blur(80px);
+        }
+
+        .grid-bg {
+          background-size: 30px 30px;
+          background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                            linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+          mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
+          -webkit-mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
+        }
+
+        .pro-card {
+          position: relative;
+          background: rgba(10, 10, 10, 0.6);
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          border-radius: 16px;
+          backdrop-filter: blur(20px);
+          overflow: hidden;
+          transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s;
+          box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
+        }
+
+        .pro-card::before {
+          content: "";
+          position: absolute;
+          top: var(--mouse-y, 0);
+          left: var(--mouse-x, 0);
+          width: 600px;
+          height: 600px;
+          background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 50%);
+          transform: translate(-50%, -50%);
+          opacity: 0;
+          transition: opacity 0.5s ease;
+          pointer-events: none;
+          z-index: 1;
+        }
+
+        .pro-card:hover {
+          border-color: rgba(255, 255, 255, 0.15);
+          transform: translateY(-4px);
+        }
+
+        .pro-card:hover::before {
+          opacity: 1;
+        }
+
+        .pro-card > * {
+          position: relative;
+          z-index: 2;
+        }
+
+        .btn-primary {
+          background: #ffffff;
+          color: #000000;
+          border-radius: 8px;
+          font-weight: 500;
+          transition: all 0.3s ease;
+          box-shadow: 0 0 0 1px rgba(255,255,255,0.1), 0 4px 14px 0 rgba(255,255,255,0.15);
+        }
+        .btn-primary:hover {
+          background: #f0f0f0;
+          transform: translateY(-1px);
+          box-shadow: 0 0 0 1px rgba(255,255,255,0.2), 0 6px 20px 0 rgba(255,255,255,0.2);
+        }
+
+        .btn-secondary {
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 8px;
+          color: #fff;
+          transition: all 0.3s ease;
+        }
+        .btn-secondary:hover {
+          background: rgba(255, 255, 255, 0.08);
+          border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .text-gradient {
+          background: linear-gradient(180deg, #FFFFFF 0%, #A1A1AA 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+        }
+
+        .text-gradient-blue {
+          background: linear-gradient(135deg, #60A5FA 0%, #3B82F6 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+        }
+
+        .reveal { 
+          opacity: 0; 
+          transform: translateY(20px); 
+          transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+          will-change: opacity, transform;
+        }
+        .reveal-active { 
+          opacity: 1; 
+          transform: translateY(0); 
+        }
+
+        .chat-scroll::-webkit-scrollbar { width: 6px; }
+        .chat-scroll::-webkit-scrollbar-track { background: transparent; }
+        .chat-scroll::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+        .chat-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
+
+        @media (max-width: 768px) { 
+          * { cursor: auto !important; }
+          .cursor-follower, .cursor-dot { display: none; }
+          .reveal { transition-duration: 0.6s; }
+          .pro-card:hover { transform: translateY(0); }
+        }
+      `}</style>
+
+      {/* Background Elements */}
+      <div className="ambient-mesh" />
+      <div className="fixed inset-0 grid-bg pointer-events-none z-0 opacity-40" />
+
+      {/* Minimalist Cursor */}
+      <div 
+        ref={cursorFollowerRef}
+        className="fixed top-0 left-0 w-8 h-8 pointer-events-none z-[9999] hidden md:flex items-center justify-center will-change-transform"
+      >
+        <div className="w-full h-full rounded-full border border-white/20 bg-white/5 backdrop-blur-sm transition-transform duration-300 ease-out" />
+      </div>
+      <div 
+        ref={cursorDotRef}
+        className="fixed top-0 left-0 w-1.5 h-1.5 pointer-events-none z-[10000] hidden md:block bg-white rounded-full will-change-transform shadow-[0_0_10px_rgba(255,255,255,0.8)]"
+      />
+
+      {/* Navigation */}
+      <nav className="fixed top-0 w-full z-[100] bg-[#050505]/60 backdrop-blur-xl border-b border-white/5 py-4">
+        <div className="max-w-6xl mx-auto px-6 flex justify-between items-center">
+          <a href="#" className="flex items-center gap-3 group">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-white/10 to-white/5 border border-white/10 flex items-center justify-center group-hover:border-white/30 transition-colors shadow-inner">
+              <span className="text-white font-bold text-sm">N</span>
+            </div>
+            <span className="font-semibold text-white tracking-tight">Nayan Choraria</span>
+          </a>
+          
+          <div className="hidden md:flex items-center gap-1 p-1 bg-white/[0.03] border border-white/5 rounded-full">
+            {navLinks.map(l => (
+              <a key={l} href={`#${l.toLowerCase()}`} className="text-sm font-medium text-[#888] hover:text-white hover:bg-white/10 px-4 py-1.5 rounded-full transition-all">
+                {l}
+              </a>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={() => setIsAiModalOpen(true)}
+              className="hidden sm:flex items-center gap-2 bg-white/5 border border-white/10 text-white px-3 py-1.5 rounded-lg hover:bg-white/10 transition-all text-sm font-medium group"
+            >
+              <Sparkles size={14} className="text-blue-400 group-hover:text-blue-300 transition-colors" />
+              <span>Ask AI</span>
+              <kbd className="hidden lg:inline-flex items-center gap-1 bg-white/10 px-1.5 py-0.5 rounded text-[10px] text-white/60 ml-2 border border-white/10">
+                <Command size={10} /> K
+              </kbd>
+            </button>
+            <button className="md:hidden text-white/80 hover:text-white transition-colors" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+=======
 
     const userText = aiInput.trim();
     setAiMessages(prev => [...prev, { role: 'user', content: userText }]);
@@ -472,6 +764,7 @@ Answer queries about his capabilities, projects, and fitness for roles. Use a po
               </div>
             )}
             <div ref={chatEndRef} />
+>>>>>>> Stashed changes
           </div>
 
           <form onSubmit={handleAiSubmit} className="p-2 border-t border-white/5 bg-[#050505]">
@@ -495,6 +788,90 @@ Answer queries about his capabilities, projects, and fitness for roles. Use a po
             </div>
           </form>
         </div>
+<<<<<<< Updated upstream
+
+        {/* Mobile Menu */}
+        <div className={`fixed inset-0 top-[64px] bg-[#050505]/98 backdrop-blur-2xl z-[105] flex flex-col p-6 gap-6 transition-all duration-300 md:hidden border-t border-white/10 ${isMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}`}>
+           {navLinks.map(l => (
+              <a 
+                key={l} 
+                href={`#${l.toLowerCase()}`} 
+                onClick={() => setIsMenuOpen(false)}
+                className="text-2xl font-bold text-white tracking-tight active:text-blue-400 transition-colors"
+              >
+                {l}
+              </a>
+            ))}
+            <button 
+              onClick={() => { setIsMenuOpen(false); setIsAiModalOpen(true); }}
+              className="mt-4 flex items-center justify-center gap-2 font-medium text-sm bg-blue-600 text-white px-6 py-4 rounded-xl shadow-[0_0_20px_rgba(37,99,235,0.3)]"
+            >
+              <Sparkles size={16} /> Query Architect AI
+            </button>
+        </div>
+      </nav>
+
+      {/* Command Palette AI Modal */}
+      <div className={`fixed inset-0 z-[9000] flex items-start justify-center pt-[15vh] transition-all duration-300 ${isAiModalOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsAiModalOpen(false)} />
+        
+        <div className={`relative w-[90%] max-w-2xl bg-[#0a0a0a]/95 backdrop-blur-xl border border-white/10 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.7)] rounded-2xl flex flex-col overflow-hidden transition-transform duration-300 ${isAiModalOpen ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'}`}>
+          
+          <div className="flex items-center gap-3 px-4 py-3 border-b border-white/5 bg-white/[0.02]">
+            <Search size={16} className="text-[#888]" />
+            <span className="text-xs font-medium text-[#888] tracking-wide uppercase">Architect AI Interface</span>
+            <div className="ml-auto flex gap-1.5">
+              <kbd className="bg-white/10 px-1.5 py-0.5 rounded text-[10px] text-white/60 border border-white/5">ESC</kbd>
+            </div>
+          </div>
+          
+          <div className="flex-1 max-h-[50vh] overflow-y-auto p-6 flex flex-col gap-6 chat-scroll">
+            {aiMessages.map((msg, idx) => (
+              <div key={idx} className={`flex gap-4 max-w-[90%] ${msg.role === 'user' ? 'ml-auto flex-row-reverse' : ''}`}>
+                <div className={`w-8 h-8 rounded-full shrink-0 flex items-center justify-center border ${msg.role === 'user' ? 'bg-white/10 border-white/20' : 'bg-blue-500/10 border-blue-500/20 text-blue-400'}`}>
+                  {msg.role === 'user' ? <Users size={14} /> : <Sparkles size={14} />}
+                </div>
+                <div className={`pt-1.5 text-sm leading-relaxed ${msg.role === 'user' ? 'text-white/90 text-right' : 'text-[#a1a1aa]'}`}>
+                  {msg.content}
+                </div>
+              </div>
+            ))}
+            {isAiLoading && (
+              <div className="flex gap-4 max-w-[90%]">
+                 <div className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center border bg-blue-500/10 border-blue-500/20 text-blue-400">
+                  <Loader2 size={14} className="animate-spin" />
+                </div>
+                <div className="pt-1.5 text-sm text-[#a1a1aa] animate-pulse">
+                  Processing query...
+                </div>
+              </div>
+            )}
+            <div ref={chatEndRef} />
+          </div>
+
+          <form onSubmit={handleAiSubmit} className="p-2 border-t border-white/5 bg-[#050505]">
+            <div className="relative flex items-center bg-white/[0.03] border border-white/5 rounded-xl px-4 py-2 focus-within:border-white/20 focus-within:bg-white/[0.05] transition-colors">
+              <input 
+                type="text" 
+                value={aiInput}
+                onChange={(e) => setAiInput(e.target.value)}
+                placeholder="Ask about my projects, stack, or architecture experience..."
+                className="flex-1 bg-transparent border-none text-sm text-white focus:outline-none focus:ring-0 placeholder:text-[#666] py-2"
+                disabled={isAiLoading}
+                autoFocus
+              />
+              <button 
+                type="submit"
+                disabled={isAiLoading || !aiInput.trim()}
+                className="ml-2 bg-white text-black p-2 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <ArrowUpRight size={16} />
+              </button>
+            </div>
+          </form>
+        </div>
+=======
+>>>>>>> Stashed changes
       </div>
 
       <main className="relative z-10 pt-20">
@@ -816,4 +1193,8 @@ Answer queries about his capabilities, projects, and fitness for roles. Use a po
       </footer>
     </div>
   );
+<<<<<<< Updated upstream
 }
+=======
+}
+>>>>>>> Stashed changes
