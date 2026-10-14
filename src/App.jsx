@@ -1,9 +1,5 @@
-Here is the updated `src/App.jsx` with the **custom mouse pointer animation restored** (including magnetic hover expansion on interactive elements and card spotlight tracking) and a **sleek, monochromatic obsidian, warm champagne gold, and brushed platinum palette**—removing all flashy blue and cyan tones.
-
-### Complete `src/App.jsx`
-
-```jsx
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import * as THREE from 'three';
 import {
   ArrowUpRight, Github, Linkedin, Menu, X,
   Cpu, Mail, Check, Terminal,
@@ -180,464 +176,249 @@ const PORTFOLIO_DATA = {
 };
 
 // ============================================================================
-// 3D GARGANTUA BLACK HOLE & STARFIELD CANVAS (WARM CHAMPAGNE & OBSIDIAN)
+// THREE.JS VOXEL WORLD (MINECRAFT-INSPIRED BIOMES)
 // ============================================================================
-function GargantuaCanvas({ scrollProgress, mousePos, reducedMotion }) {
-  const canvasRef = useRef(null);
-  const stateRef = useRef({
-    scroll: 0,
-    targetScroll: 0,
-    mouseX: 0,
-    mouseY: 0,
-    targetMouseX: 0,
-    targetMouseY: 0
-  });
+function VoxelWorldCanvas({ scrollProgress, mousePos, reducedMotion }) {
+  const mountRef = useRef(null);
+  const stateRef = useRef({ scroll: 0, targetScroll: 0, mouseX: 0, mouseY: 0, targetMouseX: 0, targetMouseY: 0 });
 
-  useEffect(() => {
-    stateRef.current.targetScroll = scrollProgress;
-  }, [scrollProgress]);
-
+  useEffect(() => { stateRef.current.targetScroll = scrollProgress; }, [scrollProgress]);
   useEffect(() => {
     stateRef.current.targetMouseX = mousePos.x;
     stateRef.current.targetMouseY = mousePos.y;
   }, [mousePos]);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d', { alpha: false });
-    if (!ctx) return;
+    const mount = mountRef.current;
+    if (!mount) return;
+    const mobile = window.innerWidth < 700;
+    const scene = new THREE.Scene();
+    const initialSky = new THREE.Color('#18372C');
+    scene.background = initialSky;
+    scene.fog = new THREE.Fog(initialSky, 24, 64);
 
-    let animationFrameId;
-    let width = (canvas.width = window.innerWidth);
-    let height = (canvas.height = window.innerHeight);
-    const isMobile = width < 768;
+    const camera = new THREE.PerspectiveCamera(48, window.innerWidth / window.innerHeight, 0.1, 140);
+    camera.position.set(0, 7.2, 22);
+    camera.lookAt(0, -0.6, -6);
 
-    const handleResize = () => {
-      if (!canvas) return;
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
+    let renderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ antialias: !mobile, powerPreference: 'low-power' });
+    } catch (error) {
+      // Preserve the portfolio when WebGL is unavailable or blocked by the browser.
+      mount.classList.add('voxel-webgl-fallback');
+      return () => mount.classList.remove('voxel-webgl-fallback');
+    }
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, mobile ? 1 : 1.5));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.08;
+    renderer.domElement.className = 'fixed inset-0 w-full h-full pointer-events-none z-0';
+    renderer.domElement.setAttribute('aria-hidden', 'true');
+    mount.appendChild(renderer.domElement);
+
+    scene.add(new THREE.HemisphereLight(0xDDEED1, 0x263729, 2.0));
+    const sunLight = new THREE.DirectionalLight(0xFFF1C8, 3.0);
+    sunLight.position.set(-8, 16, 9);
+    scene.add(sunLight);
+    const fillLight = new THREE.PointLight(0x65A844, 8, 38, 2);
+    fillLight.position.set(4, 5, 1);
+    scene.add(fillLight);
+
+    const box = new THREE.BoxGeometry(1, 1, 1);
+    const mats = {
+      grass: new THREE.MeshStandardMaterial({ color: '#5FAE49', roughness: 1 }),
+      dirt: new THREE.MeshStandardMaterial({ color: '#765333', roughness: 1 }),
+      stone: new THREE.MeshStandardMaterial({ color: '#747B70', roughness: 1 }),
+      wood: new THREE.MeshStandardMaterial({ color: '#75502F', roughness: 1 }),
+      leaf: new THREE.MeshStandardMaterial({ color: '#43863C', roughness: 1 }),
+      leafLight: new THREE.MeshStandardMaterial({ color: '#62A94B', roughness: 1 }),
+      cloud: new THREE.MeshStandardMaterial({ color: '#E4EDDB', roughness: 1, transparent: true, opacity: 0.76 }),
+      sun: new THREE.MeshStandardMaterial({ color: '#F0C75E', emissive: '#83662A', emissiveIntensity: 0.5, roughness: 0.55 }),
+      star: new THREE.MeshBasicMaterial({ color: '#E8E1FF', transparent: true, opacity: 0.7 })
     };
-    window.addEventListener('resize', handleResize, { passive: true });
+    const dummy = new THREE.Object3D();
+    const instanced = (material, count) => {
+      const mesh = new THREE.InstancedMesh(box, material, Math.max(1, count));
+      mesh.instanceMatrix.setUsage(THREE.StaticDrawUsage);
+      mesh.frustumCulled = false;
+      scene.add(mesh);
+      return mesh;
+    };
 
-    const starCount = isMobile ? 90 : 200;
-    const stars = Array.from({ length: starCount }, () => ({
-      x: Math.random() * 2 - 1,
-      y: Math.random() * 2 - 1,
-      z: Math.random() * 0.85 + 0.15,
-      size: Math.random() * 1.15 + 0.3,
-      tone: Math.random() > 0.65 ? 'champagne' : 'ivory',
-      twinkleOffset: Math.random() * Math.PI * 2
-    }));
-
-    const diskCount = isMobile ? 150 : 340;
-    const diskParticles = Array.from({ length: diskCount }, () => {
-      const radiusNorm = Math.pow(Math.random(), 1.5);
-      return {
-        r: 1.16 + radiusNorm * 2.4,
-        angle: Math.random() * Math.PI * 2,
-        speed: (0.0038 + Math.random() * 0.0035) / Math.pow(1 + radiusNorm, 1.15),
-        thickness: (Math.random() - 0.5) * 0.12,
-        alpha: 0.2 + (1 - radiusNorm) * 0.6,
-        size: 0.85 + (1 - radiusNorm) * 1.9,
-        temp: Math.random()
-      };
+    // Hundreds of terrain cubes are instanced for a real 3D voxel landscape with low draw-call overhead.
+    const cols = [];
+    for (let z = -15; z <= 9; z++) {
+      for (let x = -16; x <= 16; x++) {
+        const height = Math.round(-0.15 + Math.sin(x * 0.31) * 0.72 + Math.sin(z * 0.28 + x * 0.13) * 0.52 + Math.max(0, Math.abs(x) - 8) * 0.11);
+        cols.push({ x, y: height, z });
+      }
+    }
+    const grassBlocks = instanced(mats.grass, cols.length);
+    const dirtBlocks = instanced(mats.dirt, cols.length * 2);
+    const stoneBlocks = instanced(mats.stone, cols.length * 2);
+    cols.forEach(({ x, y, z }, i) => {
+      dummy.position.set(x, y, z); dummy.scale.set(1, 1, 1); dummy.updateMatrix(); grassBlocks.setMatrixAt(i, dummy.matrix);
+      for (let layer = 1; layer <= 2; layer++) {
+        dummy.position.set(x, y - layer, z); dummy.updateMatrix(); dirtBlocks.setMatrixAt(i * 2 + layer - 1, dummy.matrix);
+      }
+      for (let layer = 3; layer <= 4; layer++) {
+        dummy.position.set(x, y - layer, z); dummy.updateMatrix(); stoneBlocks.setMatrixAt(i * 2 + layer - 3, dummy.matrix);
+      }
     });
+    [grassBlocks, dirtBlocks, stoneBlocks].forEach(mesh => { mesh.instanceMatrix.needsUpdate = true; });
 
-    let time = 0;
-
-    const render = () => {
-      time += reducedMotion ? 0.001 : 0.01;
-
-      const st = stateRef.current;
-      st.scroll += (st.targetScroll - st.scroll) * 0.06;
-      st.mouseX += (st.targetMouseX - st.mouseX) * 0.05;
-      st.mouseY += (st.targetMouseY - st.mouseY) * 0.05;
-
-      const s = st.scroll;
-
-      // Pure obsidian & warm charcoal background gradient
-      const bgGrad = ctx.createRadialGradient(
-        width * (0.55 + st.mouseX * 0.03),
-        height * (0.45 - s * 0.15),
-        10,
-        width * 0.5,
-        height * 0.5,
-        Math.max(width, height) * 0.95
-      );
-      bgGrad.addColorStop(0, '#0C0B0E');
-      bgGrad.addColorStop(0.5, '#060608');
-      bgGrad.addColorStop(1, '#030304');
-      ctx.fillStyle = bgGrad;
-      ctx.fillRect(0, 0, width, height);
-
-      const bhX = width * (isMobile ? 0.5 : 0.67 - s * 0.14) + st.mouseX * 22;
-      const bhY = height * (isMobile ? 0.35 : 0.47 - s * 0.11) + st.mouseY * 15;
-      const baseRadius = Math.min(width, height) * (isMobile ? 0.12 : 0.138);
-      const scaleFactor = 1 + Math.sin(s * Math.PI) * 0.16 - s * 0.08;
-      const rs = baseRadius * scaleFactor;
-
-      const diskTilt = 0.22 + s * 0.15 + st.mouseY * 0.03;
-      const diskRoll = -0.17 + s * 0.13 + st.mouseX * 0.025;
-      const cosRoll = Math.cos(diskRoll);
-      const sinRoll = Math.sin(diskRoll);
-
-      // 1. Starfield with gravitational lensing
-      const einsteinRadiusSq = rs * rs * (2.4 + Math.sin(s * Math.PI) * 0.6);
-      for (let i = 0; i < stars.length; i++) {
-        const star = stars[i];
-        const parallaxY = ((star.y + 1) * 0.5 * height - s * height * (0.5 / star.z)) % height;
-        const rawY = parallaxY < 0 ? parallaxY + height : parallaxY;
-        const rawX = ((star.x + 1) * 0.5 * width - st.mouseX * (14 / star.z) + width) % width;
-
-        const dx = rawX - bhX;
-        const dy = rawY - bhY;
-        const distSq = dx * dx + dy * dy;
-        const dist = Math.sqrt(distSq);
-
-        if (dist < rs * 1.02) continue;
-
-        const deflection = einsteinRadiusSq / Math.max(distSq, rs * rs);
-        const lensedX = rawX + dx * deflection * 0.48;
-        const lensedY = rawY + dy * deflection * 0.48;
-
-        const twinkle = 0.65 + 0.35 * Math.sin(time * 1.3 + star.twinkleOffset);
-        const alpha = Math.min(0.85, (0.22 + (1 - star.z) * 0.55) * twinkle);
-
-        if (star.tone === 'champagne') {
-          ctx.fillStyle = `rgba(214, 179, 106, ${alpha})`;
-        } else {
-          ctx.fillStyle = `rgba(244, 244, 246, ${alpha})`;
+    // Stepped voxel mountains form a distant horizon.
+    const mountains = [];
+    const makeMountain = (cx, cz, width, height) => {
+      for (let row = 0; row < height; row++) {
+        const rowWidth = Math.max(1, width - row * 2);
+        for (let ix = 0; ix < rowWidth; ix++) {
+          mountains.push({ x: cx - rowWidth / 2 + ix, y: row - 0.25, z: cz, grass: row === height - 1 });
         }
-
-        ctx.beginPath();
-        ctx.arc(lensedX, lensedY, star.size * (1 + deflection * 0.25), 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      // 2. Warm Champagne & Ivory Volumetric Halo
-      const outerGlow = ctx.createRadialGradient(bhX, bhY, rs * 0.85, bhX, bhY, rs * 4.0);
-      outerGlow.addColorStop(0, 'rgba(214, 179, 106, 0.18)');
-      outerGlow.addColorStop(0.35, 'rgba(244, 244, 246, 0.05)');
-      outerGlow.addColorStop(0.7, 'rgba(18, 16, 14, 0.12)');
-      outerGlow.addColorStop(1, 'rgba(3, 3, 4, 0)');
-      ctx.fillStyle = outerGlow;
-      ctx.beginPath();
-      ctx.arc(bhX, bhY, rs * 4.0, 0, Math.PI * 2);
-      ctx.fill();
-
-      // 3. Gravitational Lensed Upper & Lower Photon Rings
-      ctx.save();
-      ctx.translate(bhX, bhY);
-      ctx.rotate(diskRoll);
-
-      const upperRingGrad = ctx.createRadialGradient(0, -rs * 0.18, rs * 0.9, 0, 0, rs * 1.9);
-      upperRingGrad.addColorStop(0, 'rgba(255, 255, 255, 0)');
-      upperRingGrad.addColorStop(0.5, 'rgba(214, 179, 106, 0.28)');
-      upperRingGrad.addColorStop(0.74, 'rgba(244, 244, 246, 0.12)');
-      upperRingGrad.addColorStop(1, 'rgba(3, 3, 4, 0)');
-
-      ctx.strokeStyle = upperRingGrad;
-      ctx.lineWidth = rs * 0.24;
-      ctx.beginPath();
-      ctx.ellipse(0, 0, rs * 1.4, rs * 1.15, 0, Math.PI * 1.04, Math.PI * 1.96);
-      ctx.stroke();
-
-      ctx.lineWidth = rs * 0.15;
-      ctx.beginPath();
-      ctx.ellipse(0, 0, rs * 1.35, rs * 1.08, 0, Math.PI * 0.06, Math.PI * 0.94);
-      ctx.stroke();
-      ctx.restore();
-
-      // 4. Accretion Disk Particles (Ivory White, Champagne Gold, Warm Bronze)
-      const drawDiskHalf = (isFront) => {
-        for (let i = 0; i < diskParticles.length; i++) {
-          const p = diskParticles[i];
-          if (!reducedMotion) {
-            p.angle = (p.angle + p.speed * (1 + s * 0.4)) % (Math.PI * 2);
-          }
-          const sinA = Math.sin(p.angle);
-          if ((isFront && sinA < 0) || (!isFront && sinA >= 0)) continue;
-
-          const cosA = Math.cos(p.angle);
-          const orbitR = p.r * rs;
-
-          const lx = cosA * orbitR;
-          let ly = sinA * orbitR * diskTilt + p.thickness * rs;
-
-          if (!isFront) {
-            const warpFactor = Math.exp(-Math.abs(cosA) * 1.6) * (1.3 / p.r);
-            ly -= warpFactor * rs * 0.88;
-          }
-
-          const screenX = bhX + lx * cosRoll - ly * sinRoll;
-          const screenY = bhY + lx * sinRoll + ly * cosRoll;
-
-          const doppler = 1 - cosA * 0.34;
-          const alpha = Math.min(0.9, p.alpha * doppler);
-
-          if (cosA < -0.2 && p.temp > 0.45) {
-            ctx.fillStyle = `rgba(250, 248, 245, ${alpha})`; // Warm alabaster white
-          } else if (p.temp > 0.35) {
-            ctx.fillStyle = `rgba(214, 179, 106, ${alpha})`; // Champagne gold
-          } else {
-            ctx.fillStyle = `rgba(168, 132, 74, ${alpha * 0.85})`; // Muted warm bronze
-          }
-
-          ctx.save();
-          ctx.translate(screenX, screenY);
-          ctx.rotate(diskRoll + Math.atan2(cosA * diskTilt, -sinA));
-          ctx.beginPath();
-          ctx.ellipse(0, 0, p.size * (2.4 + doppler), p.size * 0.48, 0, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.restore();
-        }
-      };
-
-      drawDiskHalf(false);
-
-      // 5. Event Horizon Shadow
-      ctx.save();
-      ctx.beginPath();
-      ctx.arc(bhX, bhY, rs, 0, Math.PI * 2);
-      ctx.fillStyle = '#020203';
-      ctx.shadowColor = 'rgba(214, 179, 106, 0.55)';
-      ctx.shadowBlur = 24;
-      ctx.fill();
-      ctx.restore();
-
-      const photonGrad = ctx.createLinearGradient(bhX - rs, bhY, bhX + rs, bhY);
-      photonGrad.addColorStop(0, 'rgba(250, 248, 245, 0.85)');
-      photonGrad.addColorStop(0.5, 'rgba(214, 179, 106, 0.75)');
-      photonGrad.addColorStop(1, 'rgba(168, 132, 74, 0.4)');
-      ctx.strokeStyle = photonGrad;
-      ctx.lineWidth = 1.4;
-      ctx.beginPath();
-      ctx.arc(bhX, bhY, rs * 1.018, 0, Math.PI * 2);
-      ctx.stroke();
-
-      // 6. Front Accretion Band
-      ctx.save();
-      ctx.translate(bhX, bhY);
-      ctx.rotate(diskRoll);
-      const planeGrad = ctx.createLinearGradient(-rs * 3.3, 0, rs * 3.3, 0);
-      planeGrad.addColorStop(0, 'rgba(214, 179, 106, 0)');
-      planeGrad.addColorStop(0.22, 'rgba(250, 248, 245, 0.22)');
-      planeGrad.addColorStop(0.45, 'rgba(250, 248, 245, 0.44)');
-      planeGrad.addColorStop(0.7, 'rgba(214, 179, 106, 0.28)');
-      planeGrad.addColorStop(1, 'rgba(214, 179, 106, 0)');
-      ctx.fillStyle = planeGrad;
-      ctx.beginPath();
-      ctx.ellipse(0, rs * 0.08, rs * 3.2, rs * diskTilt * 0.48, 0, 0, Math.PI);
-      ctx.fill();
-      ctx.restore();
-
-      drawDiskHalf(true);
-
-      if (!reducedMotion) {
-        animationFrameId = requestAnimationFrame(render);
       }
     };
+    makeMountain(-13, -18, 14, 7); makeMountain(-3, -21, 18, 9); makeMountain(10, -19, 15, 8); makeMountain(19, -21, 12, 6);
+    const mountainGrass = instanced(mats.grass, mountains.filter(m => m.grass).length);
+    const mountainStone = instanced(mats.stone, mountains.filter(m => !m.grass).length);
+    let miGrass = 0; let miStone = 0;
+    mountains.forEach(m => {
+      dummy.position.set(m.x, m.y, m.z); dummy.updateMatrix();
+      if (m.grass) mountainGrass.setMatrixAt(miGrass++, dummy.matrix); else mountainStone.setMatrixAt(miStone++, dummy.matrix);
+    });
+    mountainGrass.instanceMatrix.needsUpdate = true; mountainStone.instanceMatrix.needsUpdate = true;
 
-    render();
+    const treeGroups = [];
+    const addTree = (x, z, scale) => {
+      const group = new THREE.Group();
+      group.position.set(x, Math.round(-0.15 + Math.sin(x * 0.31) * 0.72 + Math.sin(z * 0.28 + x * 0.13) * 0.52) + 0.5, z);
+      group.scale.setScalar(scale);
+      const cube = (mat, px, py, pz, sx = 1, sy = 1, sz = 1) => {
+        const mesh = new THREE.Mesh(box, mat); mesh.position.set(px, py, pz); mesh.scale.set(sx, sy, sz); group.add(mesh);
+      };
+      cube(mats.wood, 0, 1, 0, 0.8, 2.4, 0.8);
+      cube(mats.leaf, 0, 2.8, 0, 2.7, 1.6, 2.5);
+      cube(mats.leafLight, -0.75, 3.65, 0.2, 1.6, 1.35, 1.7);
+      cube(mats.leaf, 0.75, 3.55, -0.25, 1.65, 1.45, 1.6);
+      cube(mats.leafLight, 0, 4.25, 0, 1.7, 1.05, 1.7);
+      scene.add(group); treeGroups.push(group);
+    };
+    (mobile ? [-12, -7, 7, 12] : [-14, -10, -6, 5, 9, 13]).forEach((x, i) => addTree(x, -5 + (i % 3) * 3, 0.8 + (i % 3) * 0.12));
 
+    const cloudGroups = [];
+    const makeCloud = (x, y, z, scale) => {
+      const group = new THREE.Group();
+      [[0,0,0],[1,0,0],[-1,0,0],[2,0,0],[0,0.55,0],[1,0.55,0],[-1,0.55,0]].forEach(([bx,by,bz]) => {
+        const cube = new THREE.Mesh(box, mats.cloud);
+        cube.position.set(bx * 0.86, by * 0.86, bz); cube.scale.set(1.08, 0.7, 0.85); group.add(cube);
+      });
+      group.position.set(x,y,z); group.scale.setScalar(scale); scene.add(group); cloudGroups.push(group);
+    };
+    makeCloud(-10, 7, -10, 1.1); makeCloud(2, 8, -14, 0.9); makeCloud(12, 6.5, -8, 1.0);
+    const sunCube = new THREE.Mesh(box, mats.sun); sunCube.position.set(9, 8.5, -18); sunCube.scale.set(2.4, 2.4, 2.4); scene.add(sunCube);
+
+    const stars = [];
+    for (let i = 0; i < (mobile ? 22 : 46); i++) {
+      const star = new THREE.Mesh(box, mats.star);
+      star.position.set(((i * 17.31) % 36) - 18, 4 + ((i * 7.97) % 10), -13 - ((i * 3.17) % 12));
+      star.scale.setScalar(i % 7 === 0 ? 0.16 : 0.075); star.visible = false; scene.add(star); stars.push(star);
+    }
+
+    const stopData = [
+      { at: 0, sky: '#18372C', grass: '#5FAE49', dirt: '#765333', stone: '#747B70', light: '#FFF1C8' },
+      { at: 0.36, sky: '#171F1D', grass: '#596B4E', dirt: '#514838', stone: '#606760', light: '#C7D4BC' },
+      { at: 0.65, sky: '#3A211B', grass: '#9A4A2A', dirt: '#582E22', stone: '#4B3931', light: '#FF8A48' },
+      { at: 0.84, sky: '#28203F', grass: '#786296', dirt: '#40334E', stone: '#625675', light: '#B9A4FA' },
+      { at: 1, sky: '#1C1B31', grass: '#6F5D8D', dirt: '#352D47', stone: '#514664', light: '#B9A4FA' }
+    ].map(d => ({ ...d, sky: new THREE.Color(d.sky), grass: new THREE.Color(d.grass), dirt: new THREE.Color(d.dirt), stone: new THREE.Color(d.stone), light: new THREE.Color(d.light) }));
+    const mixed = new THREE.Color();
+    let frameId = 0; let time = 0; let disposed = false;
+    const resize = () => {
+      const w = window.innerWidth; const h = window.innerHeight;
+      camera.aspect = w / Math.max(h, 1); camera.updateProjectionMatrix();
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, w < 700 ? 1 : 1.5)); renderer.setSize(w, h);
+    };
+    const render = () => {
+      if (disposed) return;
+      const st = stateRef.current;
+      st.scroll += (st.targetScroll - st.scroll) * 0.065;
+      st.mouseX += (st.targetMouseX - st.mouseX) * 0.06;
+      st.mouseY += (st.targetMouseY - st.mouseY) * 0.06;
+      const progress = THREE.MathUtils.clamp(st.scroll, 0, 1);
+      if (!reducedMotion) time += 0.008;
+      let lo = stopData[0]; let hi = stopData[stopData.length - 1];
+      for (let i = 0; i < stopData.length - 1; i++) {
+        if (progress >= stopData[i].at && progress <= stopData[i + 1].at) { lo = stopData[i]; hi = stopData[i + 1]; break; }
+      }
+      const t = THREE.MathUtils.clamp((progress - lo.at) / Math.max(0.001, hi.at - lo.at), 0, 1);
+      const tint = (target, a, b) => target.lerpColors(a, b, t);
+      tint(mixed, lo.sky, hi.sky); scene.background.copy(mixed); scene.fog.color.copy(mixed); scene.fog.far = 58 - progress * 7;
+      tint(mats.grass.color, lo.grass, hi.grass); tint(mats.dirt.color, lo.dirt, hi.dirt); tint(mats.stone.color, lo.stone, hi.stone); tint(sunLight.color, lo.light, hi.light);
+      fillLight.color.copy(mixed).lerp(new THREE.Color('#65A844'), 0.16); fillLight.intensity = 8 - progress * 2.2;
+      cloudGroups.forEach((cloud, i) => { if (!reducedMotion) cloud.position.x += 0.003 * (i % 2 ? -1 : 1); if (cloud.position.x > 24) cloud.position.x = -24; if (cloud.position.x < -24) cloud.position.x = 24; cloud.visible = progress < 0.55; });
+      treeGroups.forEach((tree, i) => { tree.visible = progress < 0.47; if (!reducedMotion) tree.rotation.z = Math.sin(time * 0.5 + i) * 0.012; });
+      sunCube.visible = progress < 0.62;
+      stars.forEach((star, i) => { star.visible = progress > 0.22; if (!reducedMotion) mats.star.opacity = 0.42 + Math.sin(time * 1.5 + i) * 0.18; });
+      camera.position.x += (st.mouseX * 1.15 - camera.position.x) * 0.03;
+      camera.position.y += (6.8 + st.mouseY * -0.48 + progress * 0.5 - camera.position.y) * 0.025;
+      camera.position.z += (22 - progress * 5.5 - camera.position.z) * 0.025;
+      camera.lookAt(st.mouseX * 0.45, -0.8 + progress * 0.5, -6 + progress * 7.5);
+      renderer.render(scene, camera);
+      frameId = requestAnimationFrame(render);
+    };
+    window.addEventListener('resize', resize, { passive: true }); render();
     return () => {
-      window.removeEventListener('resize', handleResize);
-      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      disposed = true; window.removeEventListener('resize', resize); if (frameId) cancelAnimationFrame(frameId);
+      scene.traverse(object => { if (object instanceof THREE.Mesh || object instanceof THREE.InstancedMesh) { if (object.geometry !== box) object.geometry.dispose(); } });
+      box.dispose(); Object.values(mats).forEach(material => material.dispose()); renderer.dispose();
+      if (renderer.domElement.parentNode === mount) mount.removeChild(renderer.domElement);
     };
   }, [reducedMotion]);
 
-  return (
-    <canvas
-      ref={canvasRef}
-      aria-hidden="true"
-      className="fixed inset-0 w-full h-full pointer-events-none z-0"
-    />
-  );
+  return <div ref={mountRef} aria-hidden="true" className="fixed inset-0 pointer-events-none z-0" />;
 }
 
-// ============================================================================
-// LUXURY MONOCHROME & CHAMPAGNE PROJECT VISUAL PREVIEWS
+// BLOCK-BUILT PROJECT VISUAL PREVIEWS
 // ============================================================================
 function ProjectVisual({ type }) {
-  if (type === 'distributor') {
-    return (
-      <div className="relative w-full h-44 bg-[#09090C] border-b border-white/[0.07] overflow-hidden p-4 flex flex-col justify-between select-none">
-        <div className="flex items-center justify-between text-[10px] font-mono">
-          <span className="text-[#D6B36A] tracking-wider">SRI BALAJI DISTRIBUTORS</span>
-          <span className="text-[#F4F4F6] flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#D6B36A]" /> LIVE
-          </span>
-        </div>
-
-        <div className="my-auto space-y-2">
-          <div className="grid grid-cols-3 gap-2">
-            {['Starters & Alternators', 'Wiring & Relays', 'OEM Spare Parts'].map((item, idx) => (
-              <div
-                key={idx}
-                className="bg-[#111115] border border-white/[0.07] p-2.5 rounded-lg flex flex-col justify-between h-14"
-              >
-                <div className="w-4 h-0.5 bg-[#D6B36A]/80" />
-                <span className="text-[9px] font-medium text-[#E4E4E7] leading-tight">
-                  {item}
-                </span>
-              </div>
-            ))}
-          </div>
-          <div className="bg-[#111115]/70 border border-white/[0.05] px-3 py-1.5 rounded-lg flex items-center justify-between text-[10px] font-mono text-[#A1A1AA]">
-            <span>Wholesale Brand Showcase</span>
-            <span className="text-[#F4F4F6]">Responsive Web</span>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (type === 'honeypot') {
-    return (
-      <div className="relative w-full h-44 bg-[#09090C] border-b border-white/[0.07] overflow-hidden p-4 flex flex-col justify-between select-none">
-        <div className="flex items-center justify-between text-[10px] font-mono text-[#A1A1AA]">
-          <span className="text-[#F4F4F6]">FASTAPI SERVICE</span>
-          <span className="px-2 py-0.5 bg-[#D6B36A]/10 text-[#D6B36A] border border-[#D6B36A]/30 rounded">
-            INDICATOR FLAGGED
-          </span>
-        </div>
-
-        <svg className="w-full h-16 overflow-visible" viewBox="0 0 320 65">
-          <defs>
-            <linearGradient id="threatWaveLux" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#A1A1AA" stopOpacity="0.2" />
-              <stop offset="55%" stopColor="#F4F4F6" stopOpacity="0.8" />
-              <stop offset="80%" stopColor="#D6B36A" stopOpacity="1" />
-              <stop offset="100%" stopColor="#D6B36A" stopOpacity="0.25" />
-            </linearGradient>
-          </defs>
-          <path
-            d="M 0 45 Q 35 42, 65 44 T 125 36 T 175 42 T 215 14 T 255 24 T 320 35"
-            fill="none"
-            stroke="url(#threatWaveLux)"
-            strokeWidth="1.75"
-          />
-          <circle cx="125" cy="36" r="2.5" fill="#F4F4F6" />
-          <circle cx="215" cy="14" r="3.5" fill="#D6B36A" />
-          <text x="223" y="17" fill="#D6B36A" fontSize="8" fontFamily="monospace">
-            Suspicious Pattern
-          </text>
-        </svg>
-
-        <div className="grid grid-cols-3 gap-2 text-[10px] font-mono">
-          <div className="bg-[#111115] border border-white/[0.06] px-2.5 py-1 rounded">
-            <span className="text-[#71717A] block text-[8px]">FORMAT</span>
-            <span className="text-[#F4F4F6]">JSON API</span>
-          </div>
-          <div className="bg-[#111115] border border-white/[0.06] px-2.5 py-1 rounded">
-            <span className="text-[#71717A] block text-[8px]">DOCS</span>
-            <span className="text-[#E4E4E7]">Swagger UI</span>
-          </div>
-          <div className="bg-[#111115] border border-white/[0.06] px-2.5 py-1 rounded">
-            <span className="text-[#71717A] block text-[8px]">TESTING</span>
-            <span className="text-[#D6B36A]">Postman</span>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (type === 'aqi') {
-    return (
-      <div className="relative w-full h-44 bg-[#09090C] border-b border-white/[0.07] overflow-hidden p-4 flex flex-col justify-between select-none">
-        <div className="flex items-center justify-between text-[10px] font-mono">
-          <span className="text-[#D6B36A]">MQ135 GAS SENSOR</span>
-          <span className="text-[#A1A1AA]">REAL-TIME MONITOR</span>
-        </div>
-
-        <div className="flex items-center justify-center gap-6 my-auto">
-          <div className="relative w-20 h-20 flex items-center justify-center">
-            <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="40" stroke="rgba(255,255,255,0.07)" strokeWidth="5" fill="none" />
-              <circle
-                cx="50"
-                cy="50"
-                r="40"
-                stroke="#D6B36A"
-                strokeWidth="5"
-                strokeDasharray="175 251"
-                strokeLinecap="round"
-                fill="none"
-              />
-            </svg>
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-center font-mono">
-              <span className="text-xs font-bold text-[#F4F4F6]">AQI</span>
-              <span className="text-[8px] text-[#D6B36A]">ACTIVE</span>
-            </div>
-          </div>
-
-          <div className="flex-1 space-y-1.5 font-mono text-[10px]">
-            <div className="flex justify-between items-center border-b border-white/[0.06] pb-1">
-              <span className="text-[#A1A1AA]">Sensor</span>
-              <span className="text-[#F4F4F6]">MQ135</span>
-            </div>
-            <div className="flex justify-between items-center border-b border-white/[0.06] pb-1">
-              <span className="text-[#A1A1AA]">Controller</span>
-              <span className="text-[#E4E4E7]">Arduino IDE</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-[#A1A1AA]">Safety Alert</span>
-              <span className="text-[#D6B36A]">Buzzer Threshold</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (type === 'sentiment') {
-    return (
-      <div className="relative w-full h-44 bg-[#09090C] border-b border-white/[0.07] overflow-hidden p-4 flex flex-col justify-between select-none">
-        <div className="flex items-center justify-between text-[10px] font-mono">
-          <span className="text-[#F4F4F6]">NLP CLASSIFICATION</span>
-          <span className="text-[#D6B36A]">SARCASM DETECTION</span>
-        </div>
-
-        <div className="my-auto space-y-2 font-mono text-[10px]">
-          <div className="bg-[#111115] border border-white/[0.07] p-2 rounded-lg flex items-center justify-between">
-            <span className="text-[#A1A1AA] truncate pr-2">"Oh great, another delay right on schedule..."</span>
-            <span className="px-2 py-0.5 text-[9px] bg-[#D6B36A]/15 text-[#D6B36A] border border-[#D6B36A]/30 rounded shrink-0">
-              Sarcastic
-            </span>
-          </div>
-          <div className="bg-[#111115] border border-white/[0.07] p-2 rounded-lg flex items-center justify-between">
-            <span className="text-[#A1A1AA] truncate pr-2">"The new update improved overall speed."</span>
-            <span className="px-2 py-0.5 text-[9px] bg-white/10 text-[#F4F4F6] border border-white/20 rounded shrink-0">
-              Positive
-            </span>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between text-[10px] font-mono text-[#A1A1AA]">
-          <span>Text Processing</span>
-          <span className="text-[#E4E4E7]">Polarity & Context</span>
-        </div>
-      </div>
-    );
-  }
+  const palette = {
+    distributor: { label: 'WAREHOUSE BUILD', blocks: ['#5D963F', '#7B593A', '#8A8F83', '#436E38'], object: 'STORE FRONT' },
+    honeypot: { label: 'REDSTONE LAB', blocks: ['#9A4B2E', '#494D49', '#6C3028', '#B56742'], object: 'SIGNAL DETECTED' },
+    aqi: { label: 'FOREST SENSOR', blocks: ['#5BAA56', '#397A49', '#6AABBA', '#8FCB7A'], object: 'AIR QUALITY' },
+    sentiment: { label: 'ENCHANTED NLP', blocks: ['#5B8C48', '#4279A1', '#9A6DB4', '#6DBB86'], object: 'TEXT CLASSIFIED' },
+    tally: { label: 'CRAFTING LEDGER', blocks: ['#5A9147', '#6E7D63', '#C3A34D', '#466846'], object: 'ANALYTICS READY' },
+    reachinbox: { label: 'REDSTONE MAIL', blocks: ['#6F8A59', '#5A77A2', '#AD8750', '#536B43'], object: 'QUEUE AUTOMATED' },
+    portfolio: { label: 'BUILDER WORLD', blocks: ['#6DAA4D', '#8A6740', '#5A8151', '#9DBA67'], object: 'WORLD LOADED' }
+  };
+  const config = palette[type] || palette.portfolio;
+  const cubes = Array.from({ length: 25 }, (_, i) => ({
+    id: i,
+    tone: config.blocks[(i * 7 + Math.floor(i / 5) * 3) % config.blocks.length],
+    visible: ((i * 3 + Math.floor(i / 5)) % 7 !== 0)
+  }));
 
   return (
-    <div className="relative w-full h-36 bg-[#09090C] border-b border-white/[0.07] overflow-hidden p-4 flex flex-col justify-between select-none">
-      <div className="flex items-center justify-between text-[10px] font-mono text-[#A1A1AA]">
-        <span className="text-[#D6B36A]">WEB APPLICATION</span>
-        <span>FULL-STACK</span>
+    <div className={`relative w-full h-44 overflow-hidden border-b border-white/10 select-none pixel-grid voxel-scene voxel-scene-${type}`}>
+      <div className="absolute inset-0 bg-gradient-to-b from-[#203A2D] via-[#172719] to-[#10170F]" />
+      <div className="absolute left-5 top-4 z-10 flex items-center gap-2 font-mono text-[9px] tracking-widest text-[#DCE8D5]">
+        <span className="voxel-dot" /> {config.label}
       </div>
-      <div className="my-auto flex items-center gap-3">
-        <div className="flex-1 h-12 bg-[#111115] border border-white/[0.07] rounded-lg p-2 flex items-end gap-1.5">
-          {[40, 75, 55, 90, 65, 95, 80].map((h, i) => (
-            <div
-              key={i}
-              style={{ height: `${h}%` }}
-              className={`flex-1 rounded-t ${i % 2 === 0 ? 'bg-[#F4F4F6]/50' : 'bg-[#D6B36A]/65'}`}
-            />
-          ))}
-        </div>
+      <div className="absolute right-4 top-4 z-10 px-2 py-1 text-[8px] font-mono bg-[#10170F]/85 text-[#9FE37B] border border-[#65A844]/30">{config.object}</div>
+      <div className="absolute left-0 right-0 bottom-0 h-10 bg-[#493728] border-t-4 border-[#65A844]" />
+      <div className="absolute left-[14%] bottom-10 flex items-end gap-1.5 z-[2]">
+        <div className="w-8 h-8 bg-[#6E5033] border-t-4 border-[#78B954] shadow-[inset_-5px_0_0_rgba(0,0,0,.18)]" />
+        <div className="w-8 h-14 bg-[#6E5033] border-t-4 border-[#78B954] shadow-[inset_-5px_0_0_rgba(0,0,0,.18)]" />
+        <div className="w-8 h-10 bg-[#6E5033] border-t-4 border-[#78B954] shadow-[inset_-5px_0_0_rgba(0,0,0,.18)]" />
+      </div>
+      <div className="absolute right-[16%] bottom-10 z-[2] grid grid-cols-5 gap-0.5 rotate-[-5deg]">
+        {cubes.map((cube) => (
+          <span key={cube.id} className="block w-5 h-5 sm:w-6 sm:h-6 border border-black/20 shadow-[inset_2px_2px_0_rgba(255,255,255,.12),inset_-3px_-3px_0_rgba(0,0,0,.16)]" style={{ background: cube.visible ? cube.tone : 'transparent', opacity: cube.visible ? 1 : 0.12 }} />
+        ))}
+      </div>
+      <div className="absolute left-1/2 -translate-x-1/2 bottom-[4.25rem] z-[3] w-16 h-5 bg-[#7B9E5B]/40 border border-[#A6CD80]/40" />
+      <div className="absolute bottom-3 left-5 z-10 flex items-center gap-2 text-[9px] font-mono text-white/70">
+        <span className="w-2 h-2 bg-[#65A844]" /> BLOCKS GENERATED <span className="text-[#DCE8D5]">{String(type).toUpperCase()}</span>
       </div>
     </div>
   );
@@ -678,30 +459,30 @@ function ProjectCard({ project }) {
       ref={cardRef}
       onPointerMove={handlePointerMove}
       onPointerLeave={handlePointerLeave}
-      className="spatial-card rounded-2xl bg-[#0D0D11]/85 border border-white/[0.08] overflow-hidden flex flex-col justify-between transition-all duration-300 backdrop-blur-md group"
+      className="spatial-card rounded-2xl bg-[#182217]/85 border border-white/[0.08] overflow-hidden flex flex-col justify-between transition-all duration-300 backdrop-blur-md group"
     >
       <div>
         <ProjectVisual type={project.visualType} />
 
         <div className="p-6 sm:p-7">
           <div className="flex items-center justify-between gap-2 text-xs font-mono mb-3">
-            <span className="text-[#A1A1AA]">{project.category}</span>
+            <span className="text-[#9CB09A]">{project.category}</span>
             <span
               className={`px-2.5 py-0.5 rounded-full text-[11px] border ${
                 isLive
-                  ? 'bg-[#D6B36A]/10 text-[#D6B36A] border-[#D6B36A]/35'
-                  : 'bg-white/[0.03] text-[#A1A1AA] border-white/10'
+                  ? 'bg-[#65A844]/10 text-[#65A844] border-[#65A844]/35'
+                  : 'bg-white/[0.03] text-[#9CB09A] border-white/10'
               }`}
             >
               {project.status}
             </span>
           </div>
 
-          <h3 className="text-xl sm:text-2xl font-bold text-[#F4F4F6] tracking-tight mb-3 group-hover:text-[#D6B36A] transition-colors font-display">
+          <h3 className="text-xl sm:text-2xl font-bold text-[#F0F4EA] tracking-tight mb-3 group-hover:text-[#65A844] transition-colors font-display">
             {project.title}
           </h3>
 
-          <p className="text-sm text-[#A1A1AA] leading-relaxed mb-6">
+          <p className="text-sm text-[#9CB09A] leading-relaxed mb-6">
             {project.description}
           </p>
 
@@ -709,7 +490,7 @@ function ProjectCard({ project }) {
             {project.tech.map((t, idx) => (
               <span
                 key={idx}
-                className="text-[11px] font-mono text-[#E4E4E7] bg-[#050507]/80 border border-white/[0.08] px-2.5 py-1 rounded-md"
+                className="text-[11px] font-mono text-[#DCE8D5] bg-[#0D150D]/80 border border-white/[0.08] px-2.5 py-1 rounded-md"
               >
                 {t}
               </span>
@@ -718,12 +499,12 @@ function ProjectCard({ project }) {
         </div>
       </div>
 
-      <div className="px-6 sm:px-7 py-4 border-t border-white/[0.07] bg-[#060608]/70 flex items-center justify-between gap-4">
+      <div className="px-6 sm:px-7 py-4 border-t border-white/[0.07] bg-[#111910]/70 flex items-center justify-between gap-4">
         <a
           href={project.github}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 text-xs font-mono text-[#A1A1AA] hover:text-[#F4F4F6] transition-colors"
+          className="inline-flex items-center gap-2 text-xs font-mono text-[#9CB09A] hover:text-[#F0F4EA] transition-colors"
         >
           <Github size={14} />
           <span>GitHub</span>
@@ -734,14 +515,14 @@ function ProjectCard({ project }) {
             href={project.live}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 text-xs font-mono font-semibold text-[#D6B36A] hover:text-[#F4F4F6] transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs font-mono font-semibold text-[#65A844] hover:text-[#F0F4EA] transition-colors"
           >
             <Globe size={13} />
             <span>Live Demo</span>
             <ArrowUpRight size={14} />
           </a>
         ) : (
-          <span className="text-[11px] font-mono text-[#71717A]">
+          <span className="text-[11px] font-mono text-[#74836E]">
             Code Repository
           </span>
         )}
@@ -772,7 +553,7 @@ export default function App() {
   const cursorRaw = useRef({ x: -100, y: -100 });
   const cursorSmooth = useRef({ x: -100, y: -100 });
 
-  // TARS Assistant State
+  // CRAFT Assistant State
   const [isTarsExpanded, setIsTarsExpanded] = useState(false);
   const [isTarsDismissed, setIsTarsDismissed] = useState(false);
   const [honesty, setHonesty] = useState(90);
@@ -782,7 +563,7 @@ export default function App() {
     {
       role: 'ai',
       content:
-        "Hi! I'm TARS, Nayan's portfolio assistant. Ask me about his live projects, AI & full-stack skills, or his studies at Jain University."
+        "Hi! I'm CRAFT, Nayan's portfolio assistant. Ask me about his live projects, AI & full-stack skills, or his studies at Jain University."
     }
   ]);
   const [isAiLoading, setIsAiLoading] = useState(false);
@@ -969,7 +750,7 @@ export default function App() {
     setAiInput('');
     setIsAiLoading(true);
 
-    const systemPrompt = `You are TARS, the sleek and witty assistant on Nayan Choraria's personal portfolio website.
+    const systemPrompt = `You are CRAFT, a friendly Minecraft-inspired assistant on Nayan Choraria's personal portfolio website.
 Settings: Honesty ${honesty}%, Humor ${humor}%.
 About Nayan Choraria:
 - Role: BCA Artificial Intelligence Student at Jain University, Bengaluru, India.
@@ -1063,22 +844,22 @@ Keep answers clear, friendly, and concise (2 to 3 sentences max). Do not invent 
 
   return (
     <div
-      className={`min-h-screen bg-[#040405] text-[#F4F4F6] selection:bg-[#D6B36A]/25 selection:text-[#F4F4F6] antialiased overflow-x-hidden transition-opacity duration-700 ${
+      className={`min-h-screen bg-[#10170F] text-[#F0F4EA] selection:bg-[#65A844]/25 selection:text-[#F0F4EA] antialiased overflow-x-hidden transition-opacity duration-700 ${
         isLoaded ? 'opacity-100' : 'opacity-0'
       }`}
     >
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Press+Start+2P&family=Space+Grotesk:wght@500;600;700&display=swap');
 
-        @media (pointer: fine) {
+        @media (pointer: fine) and (min-width: 768px) {
           * {
             cursor: none !important;
           }
         }
 
         body {
-          background-color: #040405;
-          color: #F4F4F6;
+          background-color: #10170F;
+          color: #F0F4EA;
           font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
@@ -1086,15 +867,50 @@ Keep answers clear, friendly, and concise (2 to 3 sentences max). Do not invent 
           font-family: 'Space Grotesk', sans-serif;
         }
 
+        .minecraft-label {
+          font-family: 'Press Start 2P', monospace;
+          letter-spacing: -0.035em;
+          text-shadow: 2px 2px 0 rgba(0,0,0,0.32);
+        }
+
+        .voxel-panel {
+          border-radius: 4px !important;
+          box-shadow: 0 7px 0 rgba(0,0,0,0.22), inset 0 0 0 1px rgba(255,255,255,0.035);
+          image-rendering: pixelated;
+        }
+
+        .pixel-grid {
+          background-image: linear-gradient(rgba(161, 197, 141, 0.055) 1px, transparent 1px), linear-gradient(90deg, rgba(161, 197, 141, 0.055) 1px, transparent 1px);
+          background-size: 18px 18px;
+        }
+
+        .voxel-dot {
+          width: 8px; height: 8px; display: inline-block; background: #65A844;
+          box-shadow: 3px 3px 0 rgba(0,0,0,0.35);
+        }
+
+        .voxel-scene { isolation: isolate; }
+        .voxel-webgl-fallback { background: linear-gradient(to bottom, #17372c 0%, #233c2b 57%, #5fae49 57%, #477f38 61%, #765333 61%, #493728 82%, #152017 82%); }
+        .voxel-webgl-fallback::after { content: ''; position: absolute; inset: 0; pointer-events: none; background-image: linear-gradient(rgba(10,20,10,.08) 1px, transparent 1px), linear-gradient(90deg, rgba(10,20,10,.08) 1px, transparent 1px); background-size: 26px 26px; }
+
+        .voxel-scene::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(135deg, rgba(255,255,255,.055), transparent 38%, rgba(0,0,0,.18)); }
+        .voxel-scene-honeypot { filter: saturate(.9); }
+        .voxel-scene-aqi { background-color: #1B3B27; }
+        .voxel-scene-sentiment { background-color: #1E3125; }
+        .voxel-scene-tally { background-color: #273521; }
+        .voxel-scene-reachinbox { background-color: #222E23; }
+        .voxel-scene-portfolio { background-color: #203A2D; }
+
         .font-mono {
           font-family: 'JetBrains Mono', monospace;
         }
 
-        /* Luxury Champagne & Alabaster Card Spotlight */
+        /* Voxel-style Card Spotlight */
         .spatial-card {
           position: relative;
           will-change: transform;
-          box-shadow: 0 20px 50px -20px rgba(0, 0, 0, 0.9);
+          border-radius: 4px !important;
+          box-shadow: 0 10px 0 rgba(0,0,0,0.22), 0 20px 50px -20px rgba(0, 0, 0, 0.9);
         }
 
         .spatial-card::before {
@@ -1103,7 +919,7 @@ Keep answers clear, friendly, and concise (2 to 3 sentences max). Do not invent 
           inset: 0;
           background: radial-gradient(
             500px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-            rgba(214, 179, 106, 0.08),
+            rgba(101, 168, 68, 0.08),
             rgba(255, 255, 255, 0.03) 40%,
             transparent 70%
           );
@@ -1114,7 +930,8 @@ Keep answers clear, friendly, and concise (2 to 3 sentences max). Do not invent 
         }
 
         .spatial-card:hover {
-          border-color: rgba(214, 179, 106, 0.35);
+          border-color: rgba(101, 168, 68, 0.6);
+          box-shadow: 0 12px 0 rgba(0,0,0,0.22), 0 0 0 2px rgba(101,168,68,0.08);
         }
 
         .spatial-card:hover::before {
@@ -1159,46 +976,37 @@ Keep answers clear, friendly, and concise (2 to 3 sentences max). Do not invent 
         className="fixed top-0 left-0 w-9 h-9 pointer-events-none z-[9999] hidden md:flex items-center justify-center will-change-transform"
       >
         <div
-          className={`rounded-full border transition-all duration-300 ease-out flex items-center justify-center ${
+          className={`rounded-none border-2 transition-all duration-200 ease-out flex items-center justify-center ${
             isHoveringInteractive
-              ? 'w-12 h-12 border-[#D6B36A]/70 bg-[#D6B36A]/10 scale-110'
-              : 'w-8 h-8 border-white/25 bg-white/[0.02]'
+              ? 'w-10 h-10 border-[#65A844] bg-[#65A844]/10 scale-110'
+              : 'w-7 h-7 border-white/35 bg-white/[0.02]'
           }`}
         />
       </div>
       <div
         ref={cursorDotRef}
         aria-hidden="true"
-        className={`fixed top-0 left-0 w-1.5 h-1.5 rounded-full pointer-events-none z-[10000] hidden md:block will-change-transform transition-colors duration-200 ${
+        className={`fixed top-0 left-0 w-2 h-2 rounded-none pointer-events-none z-[10000] hidden md:block will-change-transform transition-colors duration-200 ${
           isHoveringInteractive
-            ? 'bg-[#D6B36A] shadow-[0_0_12px_#D6B36A]'
-            : 'bg-[#F4F4F6] shadow-[0_0_8px_rgba(255,255,255,0.8)]'
+            ? 'bg-[#65A844] shadow-[0_0_12px_#65A844]'
+            : 'bg-[#F0F4EA] shadow-[0_0_8px_rgba(255,255,255,0.8)]'
         }`}
       />
 
-      {/* 3D Gargantua Black Hole & Starfield Background */}
-      <GargantuaCanvas
+      {/* Animated Minecraft-Inspired Voxel World */}
+      <VoxelWorldCanvas
         scrollProgress={scrollProgress}
         mousePos={mousePos}
         reducedMotion={reducedMotion}
       />
 
-      {/* Subtle Warm Orbital Arc */}
+      {/* Subtle Minecraft grid overlay */}
       <div
         aria-hidden="true"
-        className="fixed inset-0 pointer-events-none z-[1] overflow-hidden opacity-20"
+        className="fixed inset-0 pointer-events-none z-[1] overflow-hidden opacity-25 pixel-grid"
       >
         <svg className="w-full h-full" viewBox="0 0 1440 900" preserveAspectRatio="none">
-          <ellipse
-            cx="940"
-            cy={420 - scrollProgress * 140}
-            rx={560 + scrollProgress * 110}
-            ry={210 + scrollProgress * 40}
-            fill="none"
-            stroke="rgba(214, 179, 106, 0.16)"
-            strokeWidth="1"
-            strokeDasharray="6 12"
-          />
+          <path d={`M -30 ${610-scrollProgress*180} h 170 v -28 h 110 v 28 h 210 v -28 h 120 v 28 h 180 v -28 h 150`} fill="none" stroke="rgba(101,168,68,0.18)" strokeWidth="2" strokeDasharray="8 10" />
         </svg>
       </div>
 
@@ -1208,28 +1016,28 @@ Keep answers clear, friendly, and concise (2 to 3 sentences max). Do not invent 
       <header className="fixed top-0 left-0 right-0 z-50 flex justify-center px-4 pt-4 pointer-events-none">
         <nav
           aria-label="Primary Navigation"
-          className={`pointer-events-auto w-full max-w-6xl rounded-2xl border border-white/[0.08] bg-[#060608]/80 backdrop-blur-xl transition-all duration-300 flex items-center justify-between ${
+          className={`pointer-events-auto w-full max-w-6xl rounded-2xl border border-white/[0.08] bg-[#111910]/80 backdrop-blur-xl transition-all duration-300 flex items-center justify-between ${
             isCompactNav ? 'py-2.5 px-5 shadow-[0_10px_30px_rgba(0,0,0,0.85)]' : 'py-3.5 px-6'
           }`}
         >
           <a href="#home" className="flex items-center gap-3 group">
-            <div className="w-8 h-7 rounded bg-[#111115] border border-white/15 p-1 flex items-center justify-center gap-0.5 group-hover:border-[#D6B36A]/60 transition-colors">
-              <span className="w-1 h-full bg-[#A1A1AA] group-hover:bg-[#D6B36A] transition-colors" />
-              <span className="w-1 h-4/5 bg-[#F4F4F6]" />
-              <span className="w-1 h-full bg-[#A1A1AA]" />
-              <span className="w-1 h-full bg-[#D6B36A]" />
+            <div className="w-8 h-7 rounded bg-[#202D20] border border-white/15 p-1 flex items-center justify-center gap-0.5 group-hover:border-[#65A844]/60 transition-colors">
+              <span className="w-1 h-full bg-[#9CB09A] group-hover:bg-[#65A844] transition-colors" />
+              <span className="w-1 h-4/5 bg-[#F0F4EA]" />
+              <span className="w-1 h-full bg-[#9CB09A]" />
+              <span className="w-1 h-full bg-[#65A844]" />
             </div>
             <div>
-              <span className="font-display font-bold text-sm tracking-tight text-[#F4F4F6] block leading-none">
+              <span className="font-display font-bold text-sm tracking-tight text-[#F0F4EA] block leading-none">
                 {PORTFOLIO_DATA.profile.name}
               </span>
-              <span className="font-mono text-[10px] text-[#A1A1AA] block mt-1">
-                AI & Full-Stack Portfolio
+              <span className="font-mono text-[10px] text-[#9CB09A] block mt-1">
+                VOXEL BUILDER // PORTFOLIO
               </span>
             </div>
           </a>
 
-          <div className="hidden md:flex items-center gap-1 bg-[#0D0D11] border border-white/[0.06] rounded-xl p-1">
+          <div className="hidden md:flex items-center gap-1 bg-[#182217] border border-white/[0.06] rounded-xl p-1">
             {navItems.map((item) => {
               const isActive = activeSection === item.id;
               return (
@@ -1238,8 +1046,8 @@ Keep answers clear, friendly, and concise (2 to 3 sentences max). Do not invent 
                   href={`#${item.id}`}
                   className={`px-4 py-1.5 rounded-lg text-xs font-medium transition-all ${
                     isActive
-                      ? 'bg-white/[0.08] text-[#F4F4F6] border border-[#D6B36A]/35'
-                      : 'text-[#A1A1AA] hover:text-[#F4F4F6] hover:bg-white/[0.04] border border-transparent'
+                      ? 'bg-white/[0.08] text-[#F0F4EA] border border-[#65A844]/35'
+                      : 'text-[#9CB09A] hover:text-[#F0F4EA] hover:bg-white/[0.04] border border-transparent'
                   }`}
                 >
                   {item.label}
@@ -1249,9 +1057,9 @@ Keep answers clear, friendly, and concise (2 to 3 sentences max). Do not invent 
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="hidden lg:flex items-center gap-2 px-3 py-1 rounded-full bg-[#0D0D11] border border-white/[0.08]">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#D6B36A] animate-pulse" />
-              <span className="font-mono text-[10px] text-[#A1A1AA]">
+            <div className="hidden lg:flex items-center gap-2 px-3 py-1 rounded-full bg-[#182217] border border-white/[0.08]">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#65A844] animate-pulse" />
+              <span className="font-mono text-[10px] text-[#9CB09A]">
                 Available for Projects
               </span>
             </div>
@@ -1261,12 +1069,12 @@ Keep answers clear, friendly, and concise (2 to 3 sentences max). Do not invent 
                 setIsTarsDismissed(false);
                 setIsTarsExpanded(true);
               }}
-              className="hidden sm:inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-[#111115] hover:bg-[#16161B] border border-[#D6B36A]/35 text-xs font-mono text-[#F4F4F6] hover:border-[#D6B36A] transition-colors"
-              title="Open TARS Assistant (Cmd/Ctrl + K)"
+              className="hidden sm:inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-[#202D20] hover:bg-[#16161B] border border-[#65A844]/35 text-xs font-mono text-[#F0F4EA] hover:border-[#65A844] transition-colors"
+              title="Open CRAFT Assistant (Cmd/Ctrl + K)"
             >
-              <Terminal size={13} className="text-[#D6B36A]" />
-              <span>Ask TARS</span>
-              <kbd className="text-[9px] text-[#A1A1AA] bg-black/60 px-1.5 py-0.5 rounded border border-white/10">
+              <Terminal size={13} className="text-[#65A844]" />
+              <span>Ask CRAFT</span>
+              <kbd className="text-[9px] text-[#9CB09A] bg-black/60 px-1.5 py-0.5 rounded border border-white/10">
                 ⌘K
               </kbd>
             </button>
@@ -1275,7 +1083,7 @@ Keep answers clear, friendly, and concise (2 to 3 sentences max). Do not invent 
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               aria-label="Toggle Navigation Menu"
               aria-expanded={isMenuOpen}
-              className="md:hidden p-2 rounded-lg bg-[#111115] border border-white/10 text-[#F4F4F6]"
+              className="md:hidden p-2 rounded-lg bg-[#202D20] border border-white/10 text-[#F0F4EA]"
             >
               {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
@@ -1283,14 +1091,14 @@ Keep answers clear, friendly, and concise (2 to 3 sentences max). Do not invent 
         </nav>
 
         {isMenuOpen && (
-          <div className="pointer-events-auto fixed inset-x-4 top-20 rounded-2xl bg-[#0A0A0D]/95 border border-white/15 backdrop-blur-2xl p-6 md:hidden shadow-2xl z-50">
+          <div className="pointer-events-auto fixed inset-x-4 top-20 rounded-2xl bg-[#141D14]/95 border border-white/15 backdrop-blur-2xl p-6 md:hidden shadow-2xl z-50">
             <div className="flex flex-col gap-2">
               {navItems.map((item) => (
                 <a
                   key={item.id}
                   href={`#${item.id}`}
                   onClick={() => setIsMenuOpen(false)}
-                  className="py-2.5 px-3 rounded-lg hover:bg-white/5 text-base font-display font-medium text-[#F4F4F6]"
+                  className="py-2.5 px-3 rounded-lg hover:bg-white/5 text-base font-display font-medium text-[#F0F4EA]"
                 >
                   {item.label}
                 </a>
@@ -1301,9 +1109,9 @@ Keep answers clear, friendly, and concise (2 to 3 sentences max). Do not invent 
                   setIsTarsDismissed(false);
                   setIsTarsExpanded(true);
                 }}
-                className="mt-3 w-full py-3 rounded-xl bg-[#D6B36A] text-[#040405] font-mono text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-2"
+                className="mt-3 w-full py-3 rounded-xl bg-[#65A844] text-[#10170F] font-mono text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-2"
               >
-                <Terminal size={14} /> Ask TARS Assistant
+                <Terminal size={14} /> Ask CRAFT Assistant
               </button>
             </div>
           </div>
@@ -1323,55 +1131,54 @@ Keep answers clear, friendly, and concise (2 to 3 sentences max). Do not invent 
         >
           <div className="max-w-6xl mx-auto w-full">
             <div className="max-w-3xl reveal-section reveal-visible">
-              <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-[#0D0D11]/90 border border-white/10 backdrop-blur-md mb-8">
-                <span className="w-2 h-2 rounded-full bg-[#D6B36A]" />
-                <span className="font-mono text-xs text-[#E4E4E7]">
-                  {PORTFOLIO_DATA.profile.role} · {PORTFOLIO_DATA.profile.university}
+              <div className="inline-flex items-center gap-3 px-3.5 py-2 bg-[#182217]/90 border border-[#65A844]/40 backdrop-blur-md mb-8 voxel-panel">
+                <span className="voxel-dot" />
+                <span className="font-mono text-xs text-[#DCE8D5]">
+                  OVERWORLD SPAWN · {PORTFOLIO_DATA.profile.role}
                 </span>
               </div>
 
-              <h1 className="font-display text-4xl sm:text-6xl lg:text-[4.4rem] font-bold tracking-tight text-[#F4F4F6] leading-[1.06] mb-6">
+              <h1 className="font-display text-4xl sm:text-6xl lg:text-[4.4rem] font-bold tracking-tight text-[#F0F4EA] leading-[1.06] mb-6">
                 Building Intelligence{' '}
-                <span className="bg-gradient-to-r from-[#FFFFFF] via-[#E6C885] to-[#B8934A] bg-clip-text text-transparent">
-                  Beyond the Ordinary.
+                <span className="bg-gradient-to-r from-[#FFFFFF] via-[#B6F08A] to-[#317D3E] bg-clip-text text-transparent">
+                  One Block at a Time.
                 </span>
               </h1>
 
-              <p className="text-base sm:text-xl text-[#A1A1AA] max-w-2xl leading-relaxed mb-10 font-normal">
-                I explore the intersection of artificial intelligence, software engineering, and
-                intelligent digital experiences.
+              <p className="text-base sm:text-xl text-[#9CB09A] max-w-2xl leading-relaxed mb-10 font-normal">
+                I build useful digital experiences at the intersection of artificial intelligence, software engineering, and creative technology.
               </p>
 
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
                 <a
                   href="#projects"
-                  className="px-7 py-4 rounded-xl bg-[#F4F4F6] text-[#040405] font-display font-semibold text-sm tracking-wide hover:bg-[#D6B36A] transition-all flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(214,179,106,0.18)]"
+                  className="px-7 py-4 bg-[#65A844] text-[#10170F] font-display font-bold text-sm tracking-wide hover:bg-[#8AD45C] transition-all flex items-center justify-center gap-2 shadow-[0_6px_0_#376F2D] active:translate-y-1 active:shadow-none voxel-panel"
                 >
-                  <span>Explore My Work</span>
+                  <span>Explore My World</span>
                   <ChevronRight size={16} />
                 </a>
 
                 <a
                   href="#contact"
-                  className="px-7 py-4 rounded-xl bg-[#0D0D11]/85 hover:bg-[#14141A] text-[#F4F4F6] border border-white/15 hover:border-[#D6B36A]/60 font-display font-medium text-sm tracking-wide transition-all flex items-center justify-center gap-2 backdrop-blur-md"
+                  className="px-7 py-4 rounded-xl bg-[#182217]/85 hover:bg-[#263626] text-[#F0F4EA] border border-white/15 hover:border-[#65A844]/60 font-display font-medium text-sm tracking-wide transition-all flex items-center justify-center gap-2 backdrop-blur-md"
                 >
-                  <Mail size={15} className="text-[#D6B36A]" />
-                  <span>Initialize Contact</span>
+                  <Mail size={15} className="text-[#65A844]" />
+                  <span>Contact the Builder</span>
                 </a>
               </div>
 
               <div className="mt-16 pt-6 border-t border-white/10 grid grid-cols-2 sm:grid-cols-3 gap-6 max-w-xl font-mono text-xs">
                 <div>
-                  <span className="text-[10px] text-[#71717A] block uppercase">LOCATION</span>
-                  <span className="text-[#F4F4F6] mt-0.5 block">Bengaluru, India</span>
+                  <span className="text-[10px] text-[#74836E] block uppercase">SPAWN POINT</span>
+                  <span className="text-[#F0F4EA] mt-0.5 block">Bengaluru, India</span>
                 </div>
                 <div>
-                  <span className="text-[10px] text-[#71717A] block uppercase">CORE FOCUS</span>
-                  <span className="text-[#D6B36A] mt-0.5 block">AI / ML & Full-Stack</span>
+                  <span className="text-[10px] text-[#74836E] block uppercase">CRAFTING FOCUS</span>
+                  <span className="text-[#65A844] mt-0.5 block">AI / ML & Full-Stack</span>
                 </div>
                 <div className="col-span-2 sm:col-span-1">
-                  <span className="text-[10px] text-[#71717A] block uppercase">UNIVERSITY</span>
-                  <span className="text-[#E4E4E7] mt-0.5 block">Jain University</span>
+                  <span className="text-[10px] text-[#74836E] block uppercase">UNIVERSITY</span>
+                  <span className="text-[#DCE8D5] mt-0.5 block">Jain University</span>
                 </div>
               </div>
             </div>
@@ -1385,22 +1192,22 @@ Keep answers clear, friendly, and concise (2 to 3 sentences max). Do not invent 
           <div className="max-w-6xl mx-auto">
             <div className="grid lg:grid-cols-12 gap-12 items-start reveal-section">
               <div className="lg:col-span-6 lg:sticky lg:top-28">
-                <div className="font-mono text-xs text-[#D6B36A] uppercase tracking-widest mb-4">
-                  About Me
+                <div className="font-mono text-xs text-[#65A844] uppercase tracking-widest mb-4">
+                  The Builder
                 </div>
 
-                <h2 className="font-display text-3xl sm:text-5xl font-bold text-[#F4F4F6] tracking-tight leading-[1.12] mb-8">
-                  Curiosity is the Engine.{' '}
-                  <span className="text-[#D6B36A]">Intelligence is the Direction.</span>
+                <h2 className="font-display text-3xl sm:text-5xl font-bold text-[#F0F4EA] tracking-tight leading-[1.12] mb-8">
+                  Every Builder Has a Beginning.{' '}
+                  <span className="text-[#65A844]">Intelligence is the Direction.</span>
                 </h2>
 
                 <div
                   onMouseMove={handleSurfaceMouseMove}
-                  className="spatial-card p-6 rounded-2xl bg-[#0D0D11]/80 border border-white/[0.08] backdrop-blur-md"
+                  className="spatial-card p-6 rounded-2xl bg-[#182217]/80 border border-white/[0.08] backdrop-blur-md"
                 >
-                  <div className="flex items-center justify-between font-mono text-[11px] text-[#A1A1AA] mb-4">
+                  <div className="flex items-center justify-between font-mono text-[11px] text-[#9CB09A] mb-4">
                     <span>CORE DISCIPLINES</span>
-                    <span className="text-[#D6B36A]">BCA AI · JAIN UNIVERSITY</span>
+                    <span className="text-[#65A844]">BCA AI · JAIN UNIVERSITY</span>
                   </div>
 
                   <svg className="w-full h-32" viewBox="0 0 400 110">
@@ -1420,20 +1227,20 @@ Keep answers clear, friendly, and concise (2 to 3 sentences max). Do not invent 
                       rx="110"
                       ry="24"
                       fill="none"
-                      stroke="rgba(214,179,106,0.3)"
+                      stroke="rgba(101,168,68,0.3)"
                       strokeWidth="1"
                     />
-                    <circle cx="200" cy="55" r="10" fill="#09090C" stroke="#D6B36A" strokeWidth="1.75" />
-                    <circle cx="90" cy="55" r="4.5" fill="#F4F4F6" />
-                    <text x="65" y="76" fill="#E4E4E7" fontSize="9" fontFamily="monospace">
+                    <circle cx="200" cy="55" r="10" fill="#152017" stroke="#65A844" strokeWidth="1.75" />
+                    <circle cx="90" cy="55" r="4.5" fill="#F0F4EA" />
+                    <text x="65" y="76" fill="#DCE8D5" fontSize="9" fontFamily="monospace">
                       AI / ML
                     </text>
-                    <circle cx="310" cy="55" r="4.5" fill="#D6B36A" />
-                    <text x="280" y="76" fill="#E4E4E7" fontSize="9" fontFamily="monospace">
+                    <circle cx="310" cy="55" r="4.5" fill="#65A844" />
+                    <text x="280" y="76" fill="#DCE8D5" fontSize="9" fontFamily="monospace">
                       Full-Stack
                     </text>
-                    <circle cx="200" cy="17" r="4" fill="#A1A1AA" />
-                    <text x="165" y="11" fill="#A1A1AA" fontSize="9" fontFamily="monospace">
+                    <circle cx="200" cy="17" r="4" fill="#9CB09A" />
+                    <text x="165" y="11" fill="#9CB09A" fontSize="9" fontFamily="monospace">
                       Data Systems
                     </text>
                   </svg>
@@ -1443,14 +1250,14 @@ Keep answers clear, friendly, and concise (2 to 3 sentences max). Do not invent 
               <div className="lg:col-span-6 space-y-6">
                 <div
                   onMouseMove={handleSurfaceMouseMove}
-                  className="spatial-card p-7 sm:p-8 rounded-2xl bg-[#0D0D11]/80 border border-white/[0.08] backdrop-blur-md space-y-5"
+                  className="spatial-card p-7 sm:p-8 rounded-2xl bg-[#182217]/80 border border-white/[0.08] backdrop-blur-md space-y-5"
                 >
-                  <p className="text-base sm:text-lg text-[#F4F4F6] leading-relaxed font-medium">
+                  <p className="text-base sm:text-lg text-[#F0F4EA] leading-relaxed font-medium">
                     I'm Nayan Choraria, a BCA Artificial Intelligence student at Jain University in
                     Bengaluru, passionate about combining machine learning with practical,
                     well-crafted software.
                   </p>
-                  <p className="text-sm sm:text-base text-[#A1A1AA] leading-relaxed">
+                  <p className="text-sm sm:text-base text-[#9CB09A] leading-relaxed">
                     Whether I'm building FastAPI services for scam detection, programming sensors
                     for real-time air quality monitoring, or developing full-stack web applications,
                     I focus on clean architecture, reliability, and intuitive user experiences.
@@ -1459,21 +1266,21 @@ Keep answers clear, friendly, and concise (2 to 3 sentences max). Do not invent 
 
                 <div
                   onMouseMove={handleSurfaceMouseMove}
-                  className="spatial-card p-7 rounded-2xl bg-[#0D0D11]/80 border border-white/[0.08] backdrop-blur-md"
+                  className="spatial-card p-7 rounded-2xl bg-[#182217]/80 border border-white/[0.08] backdrop-blur-md"
                 >
-                  <h3 className="font-mono text-xs uppercase tracking-wider text-[#D6B36A] mb-4">
+                  <h3 className="font-mono text-xs uppercase tracking-wider text-[#65A844] mb-4">
                     Areas of Interest
                   </h3>
                   <div className="grid sm:grid-cols-2 gap-3">
                     {PORTFOLIO_DATA.profile.interests.map((interest, idx) => (
                       <div
                         key={idx}
-                        className="p-3.5 rounded-xl bg-[#060608]/80 border border-white/[0.07] flex items-start gap-3"
+                        className="p-3.5 rounded-xl bg-[#111910]/80 border border-white/[0.07] flex items-start gap-3"
                       >
-                        <span className="font-mono text-[11px] text-[#D6B36A] mt-0.5">
+                        <span className="font-mono text-[11px] text-[#65A844] mt-0.5">
                           0{idx + 1}
                         </span>
-                        <span className="text-xs sm:text-sm font-medium text-[#E4E4E7]">
+                        <span className="text-xs sm:text-sm font-medium text-[#DCE8D5]">
                           {interest}
                         </span>
                       </div>
@@ -1484,31 +1291,31 @@ Keep answers clear, friendly, and concise (2 to 3 sentences max). Do not invent 
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div
                     onMouseMove={handleSurfaceMouseMove}
-                    className="spatial-card p-6 rounded-2xl bg-[#0D0D11]/80 border border-white/[0.08]"
+                    className="spatial-card p-6 rounded-2xl bg-[#182217]/80 border border-white/[0.08]"
                   >
-                    <span className="font-mono text-[10px] text-[#D6B36A] uppercase tracking-wider block mb-1">
+                    <span className="font-mono text-[10px] text-[#65A844] uppercase tracking-wider block mb-1">
                       Education
                     </span>
-                    <h4 className="font-display font-bold text-base text-[#F4F4F6]">
+                    <h4 className="font-display font-bold text-base text-[#F0F4EA]">
                       BCA — Artificial Intelligence
                     </h4>
-                    <p className="text-xs text-[#A1A1AA] mt-1">
+                    <p className="text-xs text-[#9CB09A] mt-1">
                       {PORTFOLIO_DATA.profile.university}
                     </p>
                   </div>
 
                   <div
                     onMouseMove={handleSurfaceMouseMove}
-                    className="spatial-card p-6 rounded-2xl bg-[#0D0D11]/80 border border-white/[0.08]"
+                    className="spatial-card p-6 rounded-2xl bg-[#182217]/80 border border-white/[0.08]"
                   >
-                    <span className="font-mono text-[10px] text-[#A1A1AA] uppercase tracking-wider block mb-1">
+                    <span className="font-mono text-[10px] text-[#9CB09A] uppercase tracking-wider block mb-1">
                       Leadership
                     </span>
-                    <h4 className="font-display font-bold text-base text-[#F4F4F6]">
+                    <h4 className="font-display font-bold text-base text-[#F0F4EA]">
                       {PORTFOLIO_DATA.profile.leadership.role} ·{' '}
                       {PORTFOLIO_DATA.profile.leadership.organization}
                     </h4>
-                    <p className="text-xs text-[#A1A1AA] mt-1">
+                    <p className="text-xs text-[#9CB09A] mt-1">
                       {PORTFOLIO_DATA.profile.leadership.summary}
                     </p>
                   </div>
@@ -1525,14 +1332,14 @@ Keep answers clear, friendly, and concise (2 to 3 sentences max). Do not invent 
           <div className="max-w-6xl mx-auto">
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-14 gap-6 reveal-section">
               <div>
-                <div className="font-mono text-xs text-[#D6B36A] uppercase tracking-widest mb-3">
-                  Featured Work
+                <div className="font-mono text-xs text-[#65A844] uppercase tracking-widest mb-3">
+                  Crafted Builds
                 </div>
-                <h2 className="font-display text-3xl sm:text-5xl font-bold text-[#F4F4F6] tracking-tight">
+                <h2 className="font-display text-3xl sm:text-5xl font-bold text-[#F0F4EA] tracking-tight">
                   Projects
                 </h2>
               </div>
-              <p className="text-sm text-[#A1A1AA] max-w-md">
+              <p className="text-sm text-[#9CB09A] max-w-md">
                 Live deployed applications are featured first, followed by hardware IoT and machine
                 learning projects.
               </p>
@@ -1547,9 +1354,9 @@ Keep answers clear, friendly, and concise (2 to 3 sentences max). Do not invent 
             <div className="mt-12 text-center reveal-section">
               <button
                 onClick={() => setShowExtendedArchive((prev) => !prev)}
-                className="inline-flex items-center gap-2.5 px-6 py-3 rounded-xl bg-[#0D0D11] hover:bg-[#15151B] border border-white/15 hover:border-[#D6B36A]/50 text-xs font-mono text-[#F4F4F6] transition-all"
+                className="inline-flex items-center gap-2.5 px-6 py-3 rounded-xl bg-[#182217] hover:bg-[#273A27] border border-white/15 hover:border-[#65A844]/50 text-xs font-mono text-[#F0F4EA] transition-all"
               >
-                <Layers size={14} className="text-[#D6B36A]" />
+                <Layers size={14} className="text-[#65A844]" />
                 <span>
                   {showExtendedArchive
                     ? 'Show Fewer Projects'
@@ -1575,16 +1382,15 @@ Keep answers clear, friendly, and concise (2 to 3 sentences max). Do not invent 
           <div className="max-w-6xl mx-auto">
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-14 gap-6 reveal-section">
               <div>
-                <div className="font-mono text-xs text-[#D6B36A] uppercase tracking-widest mb-3">
-                  Technical Skills
+                <div className="font-mono text-xs text-[#65A844] uppercase tracking-widest mb-3">
+                  Resources & Skills
                 </div>
-                <h2 className="font-display text-3xl sm:text-5xl font-bold text-[#F4F4F6] tracking-tight">
-                  Skills & Technologies
+                <h2 className="font-display text-3xl sm:text-5xl font-bold text-[#F0F4EA] tracking-tight">
+                  Your Crafting Inventory
                 </h2>
               </div>
-              <p className="text-sm text-[#A1A1AA] max-w-md">
-                Select any category to view the languages, frameworks, and tools I use to build
-                projects.
+              <p className="text-sm text-[#9CB09A] max-w-md">
+                Choose a resource category to explore the tools and technologies in my developer inventory.
               </p>
             </div>
 
@@ -1601,65 +1407,65 @@ Keep answers clear, friendly, and concise (2 to 3 sentences max). Do not invent 
                       onMouseEnter={() => setActiveSkillCategory(skill.id)}
                       className={`text-left p-5 rounded-2xl border transition-all duration-300 backdrop-blur-md ${
                         isSelected
-                          ? 'bg-[#121217]/95 border-[#D6B36A] shadow-[0_0_25px_rgba(214,179,106,0.12)]'
+                          ? 'bg-[#121217]/95 border-[#65A844] shadow-[0_0_25px_rgba(101,168,68,0.12)]'
                           : isConnected
-                          ? 'bg-[#0D0D11]/85 border-white/20'
-                          : 'bg-[#0D0D11]/60 border-white/[0.07] hover:border-white/20'
+                          ? 'bg-[#182217]/85 border-white/20'
+                          : 'bg-[#182217]/60 border-white/[0.07] hover:border-white/20'
                       }`}
                     >
                       <div className="flex items-center justify-between font-mono text-[10px] mb-2">
-                        <span className={isSelected ? 'text-[#D6B36A]' : 'text-[#A1A1AA]'}>
+                        <span className={isSelected ? 'text-[#65A844]' : 'text-[#9CB09A]'}>
                           {skill.items.length} Skills
                         </span>
                         {isSelected ? (
-                          <span className="px-2 py-0.5 rounded bg-[#D6B36A]/15 text-[#D6B36A]">
+                          <span className="px-2 py-0.5 rounded bg-[#65A844]/15 text-[#65A844]">
                             Selected
                           </span>
                         ) : isConnected ? (
-                          <span className="px-2 py-0.5 rounded bg-white/[0.06] text-[#E4E4E7]">
+                          <span className="px-2 py-0.5 rounded bg-white/[0.06] text-[#DCE8D5]">
                             Related
                           </span>
                         ) : null}
                       </div>
 
-                      <h3 className="font-display font-bold text-base text-[#F4F4F6] mb-1">
+                      <h3 className="font-display font-bold text-base text-[#F0F4EA] mb-1">
                         {skill.category}
                       </h3>
-                      <p className="text-xs text-[#A1A1AA] line-clamp-2">{skill.description}</p>
+                      <p className="text-xs text-[#9CB09A] line-clamp-2">{skill.description}</p>
                     </button>
                   );
                 })}
               </div>
 
               <div className="lg:col-span-5 lg:sticky lg:top-28">
-                <div className="p-7 rounded-2xl bg-[#0D0D11]/95 border border-[#D6B36A]/35 backdrop-blur-xl shadow-2xl">
+                <div className="p-7 rounded-2xl bg-[#182217]/95 border border-[#65A844]/35 backdrop-blur-xl shadow-2xl">
                   <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-5">
                     <div>
-                      <span className="font-mono text-[10px] text-[#D6B36A] uppercase tracking-wider block">
-                        Category Details
+                      <span className="font-mono text-[10px] text-[#65A844] uppercase tracking-wider block">
+                        Inventory Details
                       </span>
-                      <h3 className="font-display text-2xl font-bold text-[#F4F4F6] mt-1">
+                      <h3 className="font-display text-2xl font-bold text-[#F0F4EA] mt-1">
                         {currentSkillObj.category}
                       </h3>
                     </div>
-                    <Cpu size={22} className="text-[#D6B36A]" />
+                    <Cpu size={22} className="text-[#65A844]" />
                   </div>
 
-                  <p className="text-sm text-[#A1A1AA] leading-relaxed mb-6">
+                  <p className="text-sm text-[#9CB09A] leading-relaxed mb-6">
                     {currentSkillObj.description}
                   </p>
 
                   <div className="mb-6">
-                    <span className="font-mono text-[10px] text-[#A1A1AA] uppercase tracking-wider block mb-3">
-                      Technologies Used
+                    <span className="font-mono text-[10px] text-[#9CB09A] uppercase tracking-wider block mb-3">
+                      Items in Inventory
                     </span>
                     <div className="flex flex-wrap gap-2">
                       {currentSkillObj.items.map((item, idx) => (
                         <span
                           key={idx}
-                          className="px-3 py-1.5 rounded-lg bg-[#060608] border border-white/15 font-mono text-xs text-[#F4F4F6] flex items-center gap-2"
+                          className="px-3 py-1.5 rounded-lg bg-[#111910] border border-white/15 font-mono text-xs text-[#F0F4EA] flex items-center gap-2"
                         >
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#D6B36A]" />
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#65A844]" />
                           {item}
                         </span>
                       ))}
@@ -1667,8 +1473,8 @@ Keep answers clear, friendly, and concise (2 to 3 sentences max). Do not invent 
                   </div>
 
                   <div className="pt-4 border-t border-white/10">
-                    <span className="font-mono text-[10px] text-[#D6B36A] uppercase tracking-wider block mb-2.5">
-                      Related Areas
+                    <span className="font-mono text-[10px] text-[#65A844] uppercase tracking-wider block mb-2.5">
+                      Related Resources
                     </span>
                     <div className="flex flex-wrap gap-2">
                       {currentSkillObj.connections.map((connId) => {
@@ -1678,7 +1484,7 @@ Keep answers clear, friendly, and concise (2 to 3 sentences max). Do not invent 
                           <button
                             key={connId}
                             onClick={() => setActiveSkillCategory(connId)}
-                            className="text-[11px] font-mono text-[#A1A1AA] hover:text-[#D6B36A] bg-white/[0.03] border border-white/10 px-2.5 py-1 rounded transition-colors"
+                            className="text-[11px] font-mono text-[#9CB09A] hover:text-[#65A844] bg-white/[0.03] border border-white/10 px-2.5 py-1 rounded transition-colors"
                           >
                             ↔ {conn.category}
                           </button>
@@ -1698,34 +1504,33 @@ Keep answers clear, friendly, and concise (2 to 3 sentences max). Do not invent 
         <section id="contact" className="py-32 px-6 relative border-t border-white/[0.08]">
           <div className="max-w-4xl mx-auto text-center reveal-section">
             <div className="relative w-20 h-20 mx-auto mb-8 flex items-center justify-center">
-              <div className="absolute inset-0 rounded-full border border-[#D6B36A]/25 animate-ping opacity-20" />
-              <div className="w-16 h-16 rounded-2xl bg-[#0D0D11] border border-[#D6B36A]/45 flex items-center justify-center text-[#D6B36A] shadow-[0_0_30px_rgba(214,179,106,0.12)]">
+              <div className="absolute inset-0 rounded-full border border-[#65A844]/25 animate-ping opacity-20" />
+              <div className="w-16 h-16 rounded-2xl bg-[#182217] border border-[#65A844]/45 flex items-center justify-center text-[#65A844] shadow-[0_0_30px_rgba(101,168,68,0.12)]">
                 <Radio size={26} />
               </div>
             </div>
 
-            <div className="font-mono text-xs text-[#D6B36A] uppercase tracking-widest mb-3">
-              Get In Touch
+            <div className="font-mono text-xs text-[#65A844] uppercase tracking-widest mb-3">
+              Open a Portal
             </div>
 
-            <h2 className="font-display text-4xl sm:text-6xl font-bold text-[#F4F4F6] tracking-tight mb-5">
-              Have an Interesting Mission?
+            <h2 className="font-display text-4xl sm:text-6xl font-bold text-[#F0F4EA] tracking-tight mb-5">
+              Ready for the Next Build?
             </h2>
 
-            <p className="text-base sm:text-lg text-[#A1A1AA] max-w-xl mx-auto leading-relaxed mb-12">
-              I'm interested in building useful technology, exploring new ideas, and collaborating
-              on meaningful projects.
+            <p className="text-base sm:text-lg text-[#9CB09A] max-w-xl mx-auto leading-relaxed mb-12">
+              I'm always open to interesting ideas, collaborative builds, and meaningful technology projects.
             </p>
 
             <div className="grid sm:grid-cols-2 gap-4 max-w-2xl mx-auto mb-6">
               <button
                 onClick={copyEmail}
-                className="p-4 rounded-xl bg-[#0D0D11] hover:bg-[#14141A] border border-white/15 hover:border-[#D6B36A] text-[#F4F4F6] transition-all flex items-center justify-center gap-3 group"
+                className="p-4 rounded-xl bg-[#182217] hover:bg-[#263626] border border-white/15 hover:border-[#65A844] text-[#F0F4EA] transition-all flex items-center justify-center gap-3 group"
               >
                 {copied ? (
-                  <Check size={18} className="text-[#D6B36A]" />
+                  <Check size={18} className="text-[#65A844]" />
                 ) : (
-                  <Mail size={18} className="text-[#D6B36A] transition-colors" />
+                  <Mail size={18} className="text-[#65A844] transition-colors" />
                 )}
                 <span className="font-mono text-xs sm:text-sm font-medium">
                   {copied ? 'Email Copied!' : PORTFOLIO_DATA.profile.email}
@@ -1734,7 +1539,7 @@ Keep answers clear, friendly, and concise (2 to 3 sentences max). Do not invent 
 
               <a
                 href={`mailto:${PORTFOLIO_DATA.profile.email}`}
-                className="p-4 rounded-xl bg-[#F4F4F6] hover:bg-[#D6B36A] text-[#040405] font-display font-semibold text-sm transition-all flex items-center justify-center gap-2"
+                className="p-4 rounded-xl bg-[#F0F4EA] hover:bg-[#65A844] text-[#10170F] font-display font-semibold text-sm transition-all flex items-center justify-center gap-2"
               >
                 <span>Send an Email</span>
                 <ArrowUpRight size={16} />
@@ -1746,9 +1551,9 @@ Keep answers clear, friendly, and concise (2 to 3 sentences max). Do not invent 
                 href={PORTFOLIO_DATA.profile.github}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-6 py-3.5 rounded-xl bg-[#0D0D11]/85 border border-white/10 hover:border-[#D6B36A]/50 text-xs font-mono text-[#F4F4F6] flex items-center gap-2.5 transition-all"
+                className="px-6 py-3.5 rounded-xl bg-[#182217]/85 border border-white/10 hover:border-[#65A844]/50 text-xs font-mono text-[#F0F4EA] flex items-center gap-2.5 transition-all"
               >
-                <Github size={16} className="text-[#D6B36A]" />
+                <Github size={16} className="text-[#65A844]" />
                 <span>GitHub</span>
                 <ArrowUpRight size={13} className="opacity-60" />
               </a>
@@ -1757,9 +1562,9 @@ Keep answers clear, friendly, and concise (2 to 3 sentences max). Do not invent 
                 href={PORTFOLIO_DATA.profile.linkedin}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-6 py-3.5 rounded-xl bg-[#0D0D11]/85 border border-white/10 hover:border-[#D6B36A]/50 text-xs font-mono text-[#F4F4F6] flex items-center gap-2.5 transition-all"
+                className="px-6 py-3.5 rounded-xl bg-[#182217]/85 border border-white/10 hover:border-[#65A844]/50 text-xs font-mono text-[#F0F4EA] flex items-center gap-2.5 transition-all"
               >
-                <Linkedin size={16} className="text-[#D6B36A]" />
+                <Linkedin size={16} className="text-[#65A844]" />
                 <span>LinkedIn</span>
                 <ArrowUpRight size={13} className="opacity-60" />
               </a>
@@ -1769,9 +1574,9 @@ Keep answers clear, friendly, and concise (2 to 3 sentences max). Do not invent 
                   href={PORTFOLIO_DATA.profile.resumeUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-6 py-3.5 rounded-xl bg-[#0D0D11]/85 border border-white/10 hover:border-[#F4F4F6]/50 text-xs font-mono text-[#F4F4F6] flex items-center gap-2.5 transition-all"
+                  className="px-6 py-3.5 rounded-xl bg-[#182217]/85 border border-white/10 hover:border-[#F0F4EA]/50 text-xs font-mono text-[#F0F4EA] flex items-center gap-2.5 transition-all"
                 >
-                  <FileText size={16} className="text-[#F4F4F6]" />
+                  <FileText size={16} className="text-[#F0F4EA]" />
                   <span>Resume</span>
                 </a>
               )}
@@ -1781,30 +1586,30 @@ Keep answers clear, friendly, and concise (2 to 3 sentences max). Do not invent 
       </main>
 
       {/* ====================================================================
-          TARS INTERACTIVE ASSISTANT
+          CRAFT INTERACTIVE ASSISTANT
       ==================================================================== */}
       {!isTarsDismissed && (
         <div className="fixed bottom-5 right-5 z-50 flex flex-col items-end">
           {!isTarsExpanded && (
-            <div className="flex items-center gap-3 p-2.5 pl-3.5 rounded-2xl bg-[#0D0D11]/95 border border-white/15 shadow-[0_15px_40px_rgba(0,0,0,0.9)] backdrop-blur-xl max-w-xs sm:max-w-sm">
+            <div className="flex items-center gap-3 p-2.5 pl-3.5 rounded-2xl bg-[#182217]/95 border border-white/15 shadow-[0_15px_40px_rgba(0,0,0,0.9)] backdrop-blur-xl max-w-xs sm:max-w-sm">
               <button
                 onClick={() => setIsTarsExpanded(true)}
                 className="flex items-center gap-3 text-left group"
-                title="Open TARS Assistant"
+                title="Open CRAFT Assistant"
               >
-                <div className="w-7 h-9 bg-[#050507] border border-white/15 p-1 grid grid-cols-4 gap-0.5 items-center shrink-0">
-                  <span className="h-full bg-[#A1A1AA] group-hover:bg-[#D6B36A] transition-transform duration-300 group-hover:-translate-y-0.5" />
-                  <span className="h-4/5 bg-[#F4F4F6] group-hover:translate-y-0.5 transition-transform duration-300" />
-                  <span className="h-full bg-[#A1A1AA] group-hover:-translate-y-0.5 transition-transform duration-300" />
-                  <span className="h-full bg-[#D6B36A]" />
+                <div className="w-7 h-9 bg-[#0D150D] border border-white/15 p-1 grid grid-cols-4 gap-0.5 items-center shrink-0">
+                  <span className="h-full bg-[#9CB09A] group-hover:bg-[#65A844] transition-transform duration-300 group-hover:-translate-y-0.5" />
+                  <span className="h-4/5 bg-[#F0F4EA] group-hover:translate-y-0.5 transition-transform duration-300" />
+                  <span className="h-full bg-[#9CB09A] group-hover:-translate-y-0.5 transition-transform duration-300" />
+                  <span className="h-full bg-[#65A844]" />
                 </div>
 
                 <div className="pr-1">
-                  <div className="flex items-center gap-2 font-mono text-[10px] text-[#D6B36A] uppercase tracking-wider">
-                    <span>TARS Assistant</span>
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#D6B36A] animate-pulse" />
+                  <div className="flex items-center gap-2 font-mono text-[10px] text-[#65A844] uppercase tracking-wider">
+                    <span>CRAFT Assistant</span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#65A844] animate-pulse" />
                   </div>
-                  <p className="font-mono text-[11px] text-[#E4E4E7] line-clamp-1 mt-0.5">
+                  <p className="font-mono text-[11px] text-[#DCE8D5] line-clamp-1 mt-0.5">
                     {tarsStatusReadout}
                   </p>
                 </div>
@@ -1812,17 +1617,17 @@ Keep answers clear, friendly, and concise (2 to 3 sentences max). Do not invent 
 
               <button
                 onClick={() => setIsTarsExpanded(true)}
-                className="p-2 rounded-lg bg-white/5 hover:bg-[#D6B36A]/20 text-[#D6B36A] transition-colors"
-                aria-label="Open TARS Chat"
+                className="p-2 rounded-lg bg-white/5 hover:bg-[#65A844]/20 text-[#65A844] transition-colors"
+                aria-label="Open CRAFT Chat"
               >
                 <MessageSquare size={14} />
               </button>
 
               <button
                 onClick={() => setIsTarsDismissed(true)}
-                className="p-1.5 rounded-lg text-[#A1A1AA] hover:text-[#F4F4F6] transition-colors"
-                aria-label="Dismiss TARS Assistant"
-                title="Hide TARS"
+                className="p-1.5 rounded-lg text-[#9CB09A] hover:text-[#F0F4EA] transition-colors"
+                aria-label="Dismiss CRAFT Assistant"
+                title="Hide CRAFT"
               >
                 <X size={14} />
               </button>
@@ -1835,7 +1640,7 @@ Keep answers clear, friendly, and concise (2 to 3 sentences max). Do not invent 
         <div
           role="dialog"
           aria-modal="true"
-          aria-label="TARS Assistant"
+          aria-label="CRAFT Assistant"
           className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-4 bg-black/80 backdrop-blur-md"
         >
           <div
@@ -1844,20 +1649,20 @@ Keep answers clear, friendly, and concise (2 to 3 sentences max). Do not invent 
             aria-hidden="true"
           />
 
-          <div className="relative z-10 w-full max-w-xl rounded-2xl bg-[#0A0A0D] border border-[#D6B36A]/35 shadow-[0_25px_70px_rgba(0,0,0,0.95)] overflow-hidden flex flex-col">
-            <div className="px-5 py-3.5 bg-[#111115] border-b border-white/10 flex items-center justify-between">
+          <div className="relative z-10 w-full max-w-xl rounded-2xl bg-[#141D14] border border-[#65A844]/35 shadow-[0_25px_70px_rgba(0,0,0,0.95)] overflow-hidden flex flex-col">
+            <div className="px-5 py-3.5 bg-[#202D20] border-b border-white/10 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-6 h-6 bg-[#040405] border border-white/15 p-0.5 grid grid-cols-4 gap-0.5">
-                  <span className="bg-[#A1A1AA]" />
-                  <span className="bg-[#F4F4F6]" />
-                  <span className="bg-[#A1A1AA]" />
-                  <span className="bg-[#D6B36A]" />
+                <div className="w-6 h-6 bg-[#10170F] border border-white/15 p-0.5 grid grid-cols-4 gap-0.5">
+                  <span className="bg-[#9CB09A]" />
+                  <span className="bg-[#F0F4EA]" />
+                  <span className="bg-[#9CB09A]" />
+                  <span className="bg-[#65A844]" />
                 </div>
                 <div>
-                  <span className="font-mono text-xs font-semibold text-[#F4F4F6] block">
-                    TARS Portfolio Assistant
+                  <span className="font-mono text-xs font-semibold text-[#F0F4EA] block">
+                    CRAFT Portfolio Assistant
                   </span>
-                  <span className="font-mono text-[10px] text-[#D6B36A] block">
+                  <span className="font-mono text-[10px] text-[#65A844] block">
                     Powered by Groq LLaMA
                   </span>
                 </div>
@@ -1865,15 +1670,15 @@ Keep answers clear, friendly, and concise (2 to 3 sentences max). Do not invent 
 
               <button
                 onClick={() => setIsTarsExpanded(false)}
-                className="p-1.5 rounded-lg bg-white/5 text-[#A1A1AA] hover:text-[#F4F4F6]"
-                aria-label="Minimize TARS Modal"
+                className="p-1.5 rounded-lg bg-white/5 text-[#9CB09A] hover:text-[#F0F4EA]"
+                aria-label="Minimize CRAFT Modal"
               >
                 <Minimize2 size={15} />
               </button>
             </div>
 
-            <div className="px-5 py-2.5 bg-[#060608] border-b border-white/10 grid grid-cols-2 gap-4 font-mono text-[10px]">
-              <label className="flex items-center gap-2 text-[#A1A1AA]">
+            <div className="px-5 py-2.5 bg-[#111910] border-b border-white/10 grid grid-cols-2 gap-4 font-mono text-[10px]">
+              <label className="flex items-center gap-2 text-[#9CB09A]">
                 <span>HONESTY:</span>
                 <input
                   type="range"
@@ -1881,12 +1686,12 @@ Keep answers clear, friendly, and concise (2 to 3 sentences max). Do not invent 
                   max="100"
                   value={honesty}
                   onChange={(e) => setHonesty(Number(e.target.value))}
-                  className="w-full accent-[#F4F4F6] h-1 bg-white/10 rounded"
+                  className="w-full accent-[#F0F4EA] h-1 bg-white/10 rounded"
                 />
-                <span className="text-[#F4F4F6] w-8 text-right">{honesty}%</span>
+                <span className="text-[#F0F4EA] w-8 text-right">{honesty}%</span>
               </label>
 
-              <label className="flex items-center gap-2 text-[#A1A1AA]">
+              <label className="flex items-center gap-2 text-[#9CB09A]">
                 <span>HUMOR:</span>
                 <input
                   type="range"
@@ -1894,13 +1699,13 @@ Keep answers clear, friendly, and concise (2 to 3 sentences max). Do not invent 
                   max="100"
                   value={humor}
                   onChange={(e) => setHumor(Number(e.target.value))}
-                  className="w-full accent-[#D6B36A] h-1 bg-white/10 rounded"
+                  className="w-full accent-[#65A844] h-1 bg-white/10 rounded"
                 />
-                <span className="text-[#D6B36A] w-8 text-right">{humor}%</span>
+                <span className="text-[#65A844] w-8 text-right">{humor}%</span>
               </label>
             </div>
 
-            <div className="px-5 py-2 bg-[#0A0A0D] border-b border-white/5 flex flex-wrap gap-1.5">
+            <div className="px-5 py-2 bg-[#141D14] border-b border-white/5 flex flex-wrap gap-1.5">
               {[
                 'Tell me about Nayan’s live projects',
                 'What is his tech stack?',
@@ -1910,7 +1715,7 @@ Keep answers clear, friendly, and concise (2 to 3 sentences max). Do not invent 
                   key={i}
                   type="button"
                   onClick={() => setAiInput(promptText)}
-                  className="text-[10px] font-mono text-[#A1A1AA] hover:text-[#D6B36A] bg-white/[0.03] hover:bg-white/[0.07] border border-white/10 px-2.5 py-1 rounded transition-colors"
+                  className="text-[10px] font-mono text-[#9CB09A] hover:text-[#65A844] bg-white/[0.03] hover:bg-white/[0.07] border border-white/10 px-2.5 py-1 rounded transition-colors"
                 >
                   {promptText}
                 </button>
@@ -1923,18 +1728,18 @@ Keep answers clear, friendly, and concise (2 to 3 sentences max). Do not invent 
                   key={idx}
                   className={`p-3.5 rounded-xl border ${
                     msg.role === 'user'
-                      ? 'bg-[#14141A] border-white/15 ml-8 text-[#F4F4F6]'
-                      : 'bg-[#060608] border-[#D6B36A]/25 mr-6 text-[#F4F4F6]'
+                      ? 'bg-[#263626] border-white/15 ml-8 text-[#F0F4EA]'
+                      : 'bg-[#111910] border-[#65A844]/25 mr-6 text-[#F0F4EA]'
                   }`}
                 >
-                  <div className="font-mono text-[9px] uppercase tracking-wider mb-1 text-[#A1A1AA]">
-                    {msg.role === 'user' ? 'You' : 'TARS'}
+                  <div className="font-mono text-[9px] uppercase tracking-wider mb-1 text-[#9CB09A]">
+                    {msg.role === 'user' ? 'You' : 'CRAFT'}
                   </div>
                   <p className="leading-relaxed font-sans text-xs sm:text-sm">{msg.content}</p>
                 </div>
               ))}
               {isAiLoading && (
-                <div className="p-3.5 rounded-xl bg-[#060608] border border-[#D6B36A]/30 mr-6 flex items-center gap-2.5 text-xs font-mono text-[#D6B36A]">
+                <div className="p-3.5 rounded-xl bg-[#111910] border border-[#65A844]/30 mr-6 flex items-center gap-2.5 text-xs font-mono text-[#65A844]">
                   <Loader2 size={14} className="animate-spin" />
                   <span>Thinking...</span>
                 </div>
@@ -1944,20 +1749,20 @@ Keep answers clear, friendly, and concise (2 to 3 sentences max). Do not invent 
 
             <form
               onSubmit={handleAiSubmit}
-              className="p-3 bg-[#060608] border-t border-white/10 flex items-center gap-2"
+              className="p-3 bg-[#111910] border-t border-white/10 flex items-center gap-2"
             >
               <input
                 type="text"
                 value={aiInput}
                 onChange={(e) => setAiInput(e.target.value)}
                 placeholder="Ask about projects, skills, or experience..."
-                className="flex-1 bg-[#111115] border border-white/10 focus:border-[#D6B36A] rounded-xl px-3.5 py-2.5 text-xs text-[#F4F4F6] placeholder:text-[#71717A] focus:outline-none"
+                className="flex-1 bg-[#202D20] border border-white/10 focus:border-[#65A844] rounded-xl px-3.5 py-2.5 text-xs text-[#F0F4EA] placeholder:text-[#74836E] focus:outline-none"
                 autoFocus
               />
               <button
                 type="submit"
                 disabled={isAiLoading || !aiInput.trim()}
-                className="px-4 py-2.5 rounded-xl bg-[#D6B36A] text-[#040405] font-mono text-xs font-semibold hover:bg-[#F4F4F6] disabled:opacity-40 transition-colors"
+                className="px-4 py-2.5 rounded-xl bg-[#65A844] text-[#10170F] font-mono text-xs font-semibold hover:bg-[#F0F4EA] disabled:opacity-40 transition-colors"
               >
                 Send
               </button>
@@ -1969,10 +1774,10 @@ Keep answers clear, friendly, and concise (2 to 3 sentences max). Do not invent 
       {/* ====================================================================
           FOOTER
       ==================================================================== */}
-      <footer className="relative z-10 py-8 px-6 border-t border-white/[0.08] bg-[#040405]/90 backdrop-blur-md">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-[11px] text-[#A1A1AA]">
+      <footer className="relative z-10 py-8 px-6 border-t border-white/[0.08] bg-[#10170F]/90 backdrop-blur-md">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-[11px] text-[#9CB09A]">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#D6B36A]" />
+            <span className="w-2 h-2 rounded-full bg-[#65A844]" />
             <span>© {new Date().getFullYear()} {PORTFOLIO_DATA.profile.name}</span>
           </div>
           <div>
@@ -1983,5 +1788,3 @@ Keep answers clear, friendly, and concise (2 to 3 sentences max). Do not invent 
     </div>
   );
 }
-
-```
