@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { 
   ArrowUpRight, Github, Linkedin, Menu, X, Code2, 
   Activity, ShieldCheck, Cpu, Users, Target, Mail, Check, Database, Terminal, 
-  Brain, Search, MessageSquare, Lightbulb, Puzzle, Laptop, Sparkles, ChevronRight, Server, Send, Loader2, Command
+  Brain, Search, MessageSquare, Lightbulb, Puzzle, Laptop, Sparkles, ChevronRight, 
+  Server, Send, Loader2, Command, BarChart3, Globe
 } from 'lucide-react';
 
 export default function App() {
@@ -14,14 +15,14 @@ export default function App() {
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [aiInput, setAiInput] = useState('');
   const [aiMessages, setAiMessages] = useState([
-    { role: 'ai', content: 'System Architect AI initialized. How can I assist you with Nayan\'s portfolio?' }
+    { role: 'ai', content: "System Architect AI initialized. Ask me about Nayan's projects, technical stack, or architecture background." }
   ]);
   const [isAiLoading, setIsAiLoading] = useState(false);
-  const chatEndRef = useRef(null);
+  const chatEndRef = useRef<HTMLDivElement>(null);
 
   // DOM Refs for optimized cursor & spotlight
-  const cursorDotRef = useRef(null);
-  const cursorFollowerRef = useRef(null);
+  const cursorDotRef = useRef<HTMLDivElement>(null);
+  const cursorFollowerRef = useRef<HTMLDivElement>(null);
   const mouse = useRef({ x: 0, y: 0 });
   const follower = useRef({ x: 0, y: 0 });
 
@@ -32,9 +33,9 @@ export default function App() {
     document.documentElement.style.scrollBehavior = 'smooth';
     
     const isDesktop = window.matchMedia("(pointer: fine)").matches;
-    let rafId;
+    let rafId: number;
 
-    const handleMouseMove = (e) => {
+    const handleMouseMove = (e: MouseEvent) => {
       mouse.current = { x: e.clientX, y: e.clientY };
       if (cursorDotRef.current) {
         cursorDotRef.current.style.transform = `translate(${e.clientX - 3}px, ${e.clientY - 3}px)`;
@@ -71,7 +72,7 @@ export default function App() {
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
     // Command + K listener for AI
-    const handleKeyDown = (e) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
         setIsAiModalOpen(prev => !prev);
@@ -90,7 +91,7 @@ export default function App() {
   }, []);
 
   // Spotlight Effect Logic for Cards
-  const handleCardMouseMove = (e) => {
+  const handleCardMouseMove = (e: React.MouseEvent<HTMLElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
@@ -118,7 +119,7 @@ export default function App() {
   };
 
   // Gemini API Integration
-  const handleAiSubmit = async (e) => {
+  const handleAiSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!aiInput.trim()) return;
 
@@ -130,14 +131,22 @@ export default function App() {
     try {
       const apiKey = ""; // API key populated by runtime environment
       const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-      const systemPrompt = "You are the 'System Architect AI', a highly sophisticated and professional AI representing Nayan Choraria. Nayan is a BCA AI student at Jain University, a past Joint Secretary at Marwari Yuva Manch, and an expert in Python, React, ML, and Systems Design. Answer queries about his capabilities, projects, and fitness for roles. Use a polite, precise, and highly technical tone reminiscent of top-tier software documentation. Keep responses under 3 sentences.";
+      const systemPrompt = `You are the 'System Architect AI', a highly sophisticated and professional AI representing Nayan Choraria. Nayan is a BCA AI student at Jain University, a past Joint Secretary at Marwari Yuva Manch, and an engineer proficient in React, TypeScript, Python, FastAPI, Next.js, PostgreSQL, and Machine Learning.
+His completed projects include:
+1. AI Tally Business Analytics Platform (React, TS, Vite, Recharts, Appwrite, Groq API/LLaMA)
+2. ReachInbox Email Scheduling & Management Platform (Next.js, Node.js, Express, PostgreSQL, Google OAuth)
+3. Sri Balaji Distributors Corporate Portal (React, TypeScript, Vite, responsive wholesale catalog)
+4. Agentic Scam Detection Service (FastAPI, Swagger UI, Postman, Python)
+5. Live Developer Portfolio (React, Vite, TypeScript, Render)
+6. Real-Time Embedded AQI Monitor (Arduino IDE, MQ135 sensor, C++).
+Answer queries about his capabilities, projects, and fitness for roles. Use a polite, precise, and technical tone reminiscent of top-tier software documentation. Keep responses under 3 sentences.`;
 
       const payload = {
         contents: [{ parts: [{ text: userText }] }],
         systemInstruction: { parts: [{ text: systemPrompt }] }
       };
 
-      const attemptFetch = async (retries = 5, delay = 1000) => {
+      const attemptFetch = async (retries = 5, delay = 1000): Promise<string> => {
         try {
           const res = await fetch(url, {
             method: "POST",
@@ -156,7 +165,7 @@ export default function App() {
 
       const responseText = await attemptFetch();
       setAiMessages(prev => [...prev, { role: 'ai', content: responseText }]);
-    } catch (error) {
+    } catch {
       setAiMessages(prev => [...prev, { role: 'ai', content: "Network error. Please attempt query again." }]);
     } finally {
       setIsAiLoading(false);
@@ -164,6 +173,63 @@ export default function App() {
   };
 
   const navLinks = ['About', 'Expertise', 'Capabilities', 'Projects', 'Connect'];
+
+  const projects = [
+    {
+      title: "AI Tally Business Analytics Platform",
+      timeline: "03/2026 – Present",
+      description: "A financial intelligence and analytics web application featuring role-based authentication, real-time KPI tracking (revenue, profit, GST, debtor aging), and Groq API LLaMA-powered predictive scenario forecasting.",
+      icon: <BarChart3 size={20} />,
+      tag: "AI & Financial Analytics",
+      tech: ["React", "TypeScript", "Vite", "Recharts", "Appwrite", "Groq API"],
+      link: "#"
+    },
+    {
+      title: "ReachInbox – Email Automation Platform",
+      timeline: "02/2026 – 03/2026",
+      description: "Full-stack email scheduling and outbound management engine. Built with Google OAuth 2.0 authentication, PostgreSQL relational schema modeling, asynchronous background job queues, and robust REST APIs.",
+      icon: <Send size={20} />,
+      tag: "Full-Stack Automation",
+      tech: ["Next.js", "Node.js", "Express", "PostgreSQL", "Google OAuth", "REST APIs"],
+      link: "#"
+    },
+    {
+      title: "Sri Balaji Distributors Corporate Portal",
+      timeline: "Commercial Production",
+      description: "High-performance responsive web portal built for a wholesale enterprise. Designed with a modular architecture featuring animated brand marquee reels, interactive catalog showcases, and optimized Core Web Vitals.",
+      icon: <Globe size={20} />,
+      tag: "Commercial Web Application",
+      tech: ["React", "TypeScript", "Vite", "Tailwind CSS"],
+      link: "#"
+    },
+    {
+      title: "Agentic Scam Detection Service",
+      timeline: "01/2026 – 02/2026",
+      description: "High-throughput asynchronous backend service engineered to parse, validate, and identify fraudulent transaction patterns and threats in real-time payloads. Fully documented with OpenAPI specifications.",
+      icon: <ShieldCheck size={20} />,
+      tag: "Backend & Threat Analysis",
+      tech: ["FastAPI", "Python", "Swagger UI", "Postman", "REST APIs"],
+      link: "https://agentic-honeypot-a41c.onrender.com/docs"
+    },
+    {
+      title: "Live Developer Portfolio",
+      timeline: "Production Release",
+      description: "Personal architectural showcase optimized for minimal bundle footprints, fluid micro-interactions, responsive lazy-loaded components, and automated continuous deployment workflows.",
+      icon: <Laptop size={20} />,
+      tag: "Frontend Architecture",
+      tech: ["React.js", "TypeScript", "Vite", "Bootstrap", "Render"],
+      link: "https://nayan-portfolio-rrb8.onrender.com"
+    },
+    {
+      title: "Real-Time Embedded AQI Monitor",
+      timeline: "06/2025 – 07/2025",
+      description: "Hardware telemetry device utilizing an MQ135 sensor to sample environmental gas concentrations in real time, calculating air quality indices and triggering acoustic alerts for threshold-based safety warnings.",
+      icon: <Activity size={20} />,
+      tag: "IoT & Embedded Systems",
+      tech: ["Arduino IDE", "MQ135 Gas Sensor", "C++", "Circuit Design"],
+      link: "#"
+    }
+  ];
 
   return (
     <div className={`min-h-screen bg-[#050505] text-[#888888] selection:bg-white/20 selection:text-white antialiased overflow-x-hidden font-sans transition-opacity duration-1000 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
@@ -423,7 +489,7 @@ export default function App() {
                 type="text" 
                 value={aiInput}
                 onChange={(e) => setAiInput(e.target.value)}
-                placeholder="Ask about my tech stack or experience..."
+                placeholder="Ask about my projects, stack, or architecture experience..."
                 className="flex-1 bg-transparent border-none text-sm text-white focus:outline-none focus:ring-0 placeholder:text-[#666] py-2"
                 disabled={isAiLoading}
                 autoFocus
@@ -459,7 +525,7 @@ export default function App() {
               </h1>
               
               <p className="text-lg md:text-xl text-[#888] max-w-2xl mx-auto mt-6 leading-relaxed">
-                I'm Nayan Choraria, a systems architect bridging the gap between complex machine learning models and high-performance, intuitive user interfaces.
+                I'm Nayan Choraria, a systems architect bridging the gap between complex machine learning models, resilient backend services, and responsive client ecosystems.
               </p>
               
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-12">
@@ -491,7 +557,7 @@ export default function App() {
               <div className="md:col-span-5">
                 <h2 className="text-3xl md:text-4xl font-bold text-white tracking-tight mb-4">Background</h2>
                 <p className="text-lg text-[#888] leading-relaxed">
-                  Currently pursuing a BCA in Artificial Intelligence at Jain University. My technical philosophy centers on building systems designed with precision, rigorously tested, and scaled through deployment.
+                  Currently pursuing a BCA in Artificial Intelligence at Jain University. My technical philosophy centers on building systems designed with architectural precision, rigorously tested across APIs and schemas, and deployed reliably.
                 </p>
               </div>
               
@@ -533,13 +599,14 @@ export default function App() {
                 </h3>
                 <div className="grid grid-cols-2 gap-3">
                   {[
-                    { n: 'Python', i: <Terminal size={16}/> },
-                    { n: 'C / C++', i: <Cpu size={16}/> },
-                    { n: 'Java', i: <Code2 size={16}/> },
-                    { n: 'Machine Learning', i: <Brain size={16}/> },
-                    { n: 'React Ecosystem', i: <Activity size={16}/> },
-                    { n: 'SQL Databases', i: <Database size={16}/> },
-                    { n: 'Cloud & Firebase', i: <Server size={16}/> }
+                    { n: 'Python & FastAPI', i: <Terminal size={16}/> },
+                    { n: 'React & Next.js', i: <Activity size={16}/> },
+                    { n: 'TypeScript / JS', i: <Code2 size={16}/> },
+                    { n: 'PostgreSQL & SQL', i: <Database size={16}/> },
+                    { n: 'Groq API & LLMs', i: <Brain size={16}/> },
+                    { n: 'C / C++ & Arduino', i: <Cpu size={16}/> },
+                    { n: 'Appwrite & Cloud', i: <Server size={16}/> },
+                    { n: 'Postman & Git', i: <ShieldCheck size={16}/> }
                   ].map((s, idx) => (
                     <div 
                       key={idx} 
@@ -559,12 +626,13 @@ export default function App() {
                 </h3>
                 <div className="grid grid-cols-2 gap-3">
                   {[
-                    { n: 'Systems Design', i: <Brain size={16}/> },
-                    { n: 'Technical Research', i: <Search size={16}/> },
-                    { n: 'Problem Solving', i: <Puzzle size={16}/> },
-                    { n: 'Communication', i: <MessageSquare size={16}/> },
+                    { n: 'Systems Architecture', i: <Brain size={16}/> },
+                    { n: 'API Design & Testing', i: <Search size={16}/> },
+                    { n: 'Algorithmic Logic', i: <Puzzle size={16}/> },
+                    { n: 'Data Visualization', i: <BarChart3 size={16}/> },
                     { n: 'Project Strategy', i: <Target size={16}/> },
-                    { n: 'Team Management', i: <Users size={16}/> },
+                    { n: 'Team Governance', i: <Users size={16}/> },
+                    { n: 'Technical Writing', i: <MessageSquare size={16}/> },
                     { n: 'Leadership', i: <Lightbulb size={16}/> }
                   ].map((s, idx) => (
                     <div 
@@ -582,7 +650,7 @@ export default function App() {
           </div>
         </section>
 
-        {/* Capabilities (Services) */}
+        {/* Capabilities */}
         <section id="capabilities" className="py-24 px-6">
           <div className="max-w-5xl mx-auto">
             <h2 className="text-3xl md:text-4xl font-bold text-white tracking-tight mb-16 reveal">Domain Capabilities</h2>
@@ -591,17 +659,17 @@ export default function App() {
               {[
                 { 
                   t: "Interface Architecture", 
-                  d: "Building high-performance interfaces with meticulous aesthetics. Specializing in responsive, interactive ecosystems that drive user engagement.", 
+                  d: "Building high-performance interfaces with meticulous aesthetics. Specializing in responsive, interactive ecosystems that drive user engagement and fast render cycles.", 
                   icon: <Laptop size={20} /> 
                 },
                 { 
-                  t: "Applied Intelligence", 
-                  d: "Implementing predictive models and intelligent algorithms to parse data, automate workflows, and solve complex logic challenges.", 
+                  t: "Applied Intelligence & Analytics", 
+                  d: "Integrating predictive models, Groq/LLaMA workflows, and real-time analytical telemetry dashboards to turn unstructured operational metrics into actionable insights.", 
                   icon: <Brain size={20} /> 
                 },
                 { 
-                  t: "Systems Engineering", 
-                  d: "Designing tailored backend architectures and integrated solutions from the ground up, built specifically for scalable operational workflows.", 
+                  t: "Backend & Systems Design", 
+                  d: "Architecting resilient RESTful APIs with FastAPI and Node.js, structured database schemas in PostgreSQL, OAuth flows, and hardware IoT sensor communication.", 
                   icon: <Sparkles size={20} /> 
                 }
               ].map((service, idx) => (
@@ -630,50 +698,73 @@ export default function App() {
         {/* Featured Projects */}
         <section id="projects" className="py-24 px-6 relative">
           <div className="max-w-5xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold text-white tracking-tight mb-16 reveal">Featured Work</h2>
+            <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 reveal gap-4">
+              <div>
+                <h2 className="text-3xl md:text-4xl font-bold text-white tracking-tight mb-3">Featured Work</h2>
+                <p className="text-sm text-[#888]">Engineered across full-stack applications, distributed services, and embedded systems.</p>
+              </div>
+              <span className="text-xs font-mono text-white/50 px-3 py-1 rounded-full border border-white/10 self-start md:self-auto">
+                {projects.length} Completed Projects
+              </span>
+            </div>
             
             <div className="grid md:grid-cols-2 gap-6">
-              {[
-                { 
-                  t: "Scam Detection Engine", 
-                  d: "A machine learning-powered interface designed to analyze and flag fraudulent patterns in real-time, utilizing behavioral heuristics to protect end-users.", 
-                  icon: <ShieldCheck size={20}/>, 
-                  tag: "Machine Learning & UI",
-                  link: "https://agentic-honeypot-a41c.onrender.com/docs"
-                },
-                { 
-                  t: "AQI Telemetry Suite", 
-                  d: "An end-to-end IoT dashboard aggregating real-time air quality metrics. Features responsive data visualization for historical analysis and environmental monitoring.", 
-                  icon: <Activity size={20}/>, 
-                  tag: "IoT & Data Analytics",
-                  link: "#"
-                }
-              ].map((p, idx) => (
-                <a 
+              {projects.map((p, idx) => (
+                <div 
                   key={idx} 
-                  href={p.link}
-                  target={p.link !== "#" ? "_blank" : "_self"}
-                  rel={p.link !== "#" ? "noopener noreferrer" : ""}
-                  className="pro-card p-8 group reveal block"
+                  className="pro-card p-8 group reveal flex flex-col justify-between"
                   onMouseMove={handleCardMouseMove}
-                  style={{ transitionDelay: `${idx * 0.1}s` }}
+                  style={{ transitionDelay: `${idx * 0.08}s` }}
                 >
-                  <div className="flex justify-between items-start mb-6">
-                    <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white/80 group-hover:text-white transition-colors">
-                      {p.icon}
+                  <div>
+                    <div className="flex justify-between items-start gap-4 mb-6">
+                      <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white/80 group-hover:text-white transition-colors">
+                        {p.icon}
+                      </div>
+                      <div className="flex flex-col items-end gap-1.5">
+                        <span className="text-[10px] font-semibold tracking-wider px-2.5 py-1 bg-white/5 text-white/80 rounded-full border border-white/10">
+                          {p.tag}
+                        </span>
+                        {p.timeline && (
+                          <span className="text-[10px] text-[#666] font-mono">
+                            {p.timeline}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                    <span className="text-[10px] font-semibold tracking-wider px-2.5 py-1 bg-white/5 text-white/80 rounded-full border border-white/10">
-                      {p.tag}
-                    </span>
+                    
+                    <h3 className="text-xl font-bold text-white mb-3 tracking-tight group-hover:text-blue-400 transition-colors">
+                      {p.title}
+                    </h3>
+                    <p className="text-[#888] text-sm leading-relaxed mb-6">
+                      {p.description}
+                    </p>
+
+                    {/* Tech Badges */}
+                    <div className="flex flex-wrap gap-1.5 mb-8">
+                      {p.tech.map((t, tIdx) => (
+                        <span key={tIdx} className="text-[11px] font-medium text-white/70 bg-white/[0.03] border border-white/5 px-2.5 py-1 rounded-md">
+                          {t}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                   
-                  <h3 className="text-xl font-bold text-white mb-3 tracking-tight group-hover:text-blue-400 transition-colors">{p.t}</h3>
-                  <p className="text-[#888] text-sm leading-relaxed mb-8">{p.d}</p>
-                  
-                  <div className="flex items-center text-xs font-semibold text-white/80 group-hover:text-white transition-colors">
-                    View Project <ArrowUpRight className="ml-1 opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" size={14} />
-                  </div>
-                </a>
+                  {p.link !== "#" ? (
+                    <a 
+                      href={p.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center text-xs font-semibold text-white/80 group-hover:text-white transition-colors self-start"
+                    >
+                      View Live Service <ArrowUpRight className="ml-1 opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" size={14} />
+                    </a>
+                  ) : (
+                    <div className="inline-flex items-center text-xs font-medium text-[#666] self-start">
+                      Internal / Repository Project <ChevronRight className="ml-1 opacity-40" size={14} />
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
 
@@ -686,8 +777,8 @@ export default function App() {
                   <Database size={20} />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold text-white tracking-tight mb-2">Ready to scale your vision?</h3>
-                  <p className="text-[#888] text-sm">Let's engineer a bespoke solution tailored to your operational needs.</p>
+                  <h3 className="text-2xl font-bold text-white tracking-tight mb-2">Ready to scale your architecture?</h3>
+                  <p className="text-[#888] text-sm">Let's design and deploy engineered software systems tailored to your technical requirements.</p>
                 </div>
               </div>
               <a href="#connect" className="btn-primary px-6 py-3 text-sm w-full md:w-auto text-center shrink-0">
@@ -706,7 +797,7 @@ export default function App() {
             
             <h2 className="text-4xl md:text-5xl font-bold text-white tracking-tight mb-4">Let's Connect</h2>
             <p className="text-[#888] text-lg mb-10 max-w-lg mx-auto leading-relaxed">
-              Open to new opportunities, collaborations, and architectural challenges.
+              Open to engineering roles, collaborative systems projects, and technical initiatives.
             </p>
             
             <div className="flex flex-col gap-4">
@@ -717,10 +808,10 @@ export default function App() {
               
               <div className="grid grid-cols-2 gap-4">
                  <a href="https://github.com/nayan2452005" target="_blank" rel="noopener noreferrer" className="btn-secondary py-4 flex items-center justify-center gap-2 group">
-                   <Github size={18} className="text-white/60 group-hover:text-white transition-colors"/> <span className="text-sm font-medium">GitHub</span>
+                    <Github size={18} className="text-white/60 group-hover:text-white transition-colors"/> <span className="text-sm font-medium">GitHub</span>
                  </a>
                  <a href="https://www.linkedin.com/in/nayan-choraria-026076266/" target="_blank" rel="noopener noreferrer" className="btn-secondary py-4 flex items-center justify-center gap-2 group">
-                   <Linkedin size={18} className="text-white/60 group-hover:text-white transition-colors"/> <span className="text-sm font-medium">LinkedIn</span>
+                    <Linkedin size={18} className="text-white/60 group-hover:text-white transition-colors"/> <span className="text-sm font-medium">LinkedIn</span>
                  </a>
               </div>
             </div>
